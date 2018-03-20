@@ -2,7 +2,8 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/AugRenta.iml" filepath="$PROJECT_DIR$/AugRenta.iml" />
+      <module fileurl="file://C:\Users\Faith\AndroidStudioProjects\AugRenta_final\AugRenta.iml" filepath="C:\Users\Faith\AndroidStudioProjects\AugRenta_final\AugRenta.iml" />
+      <module fileurl="file://$PROJECT_DIR$/AugRenta_final.iml" filepath="$PROJECT_DIR$/AugRenta_final.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
     </modules>
   </component>

@@ -1,5 +1,7 @@
 package com.example.sejeque.augrenta;
 
+import android.app.Fragment;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Address;
 import android.location.Geocoder;
@@ -8,13 +10,16 @@ import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.design.widget.BottomNavigationView;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import com.facebook.CallbackManager;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationListener;
@@ -28,26 +33,47 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 
 import java.io.IOException;
 import java.util.List;
 import java.util.Locale;
 
+
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, LocationListener {
 
     private GoogleMap mMap;
     GoogleApiClient mGoogleApiClient;
+    private BottomNavigationView bottomNav;
 
+    private FirebaseAuth mAuth;
+
+    private CallbackManager mCallbackManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
 
+        mAuth = FirebaseAuth.getInstance();
+        FirebaseUser currentUser = mAuth.getCurrentUser();
+
+        if(currentUser == null){
+            proceed();
+        }
+
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
 
-
+        bottomNav = findViewById(R.id.navigation);
+        bottomNav.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
+            @Override
+            public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+                selectFragment(item);
+                return true;
+            }
+        });
     }
 
     /**
@@ -60,6 +86,21 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
      * installed Google Play services and returned to the app.
      */
     // @Override
+
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        FirebaseUser currentUser = mAuth.getCurrentUser();
+        if(currentUser == null){
+            proceed();
+        }
+    }
+
+    private void proceed() {
+        Intent onReturnView = new Intent(MapsActivity.this, MainActivity.class);
+        startActivity(onReturnView);
+    }
 
     LatLng latLng;
 
@@ -96,8 +137,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         }
 
 
-        FloatingActionButton default_zoom = (FloatingActionButton) findViewById(R.id.default_zoom);
-        FloatingActionButton user_location = (FloatingActionButton) findViewById(R.id.user_location);
+        FloatingActionButton default_zoom = findViewById(R.id.default_zoom);
+        FloatingActionButton user_location = findViewById(R.id.user_location);
 
         // go to location of the user when gps is turned on
         user_location.setOnClickListener(new View.OnClickListener() {
@@ -139,7 +180,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     Marker marker;
 
     public void geoLocate(View view) throws IOException {
-        final EditText searchPlace = (EditText) findViewById(R.id.searchPlace);
+        final EditText searchPlace = findViewById(R.id.searchPlace);
 
 
         String location = searchPlace.getText().toString();
@@ -277,5 +318,15 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     public void enabledGPS(View view) {
         //if the button is clicked
 
+    }
+
+    private void selectFragment(MenuItem item) {
+        Fragment frag = null;
+        // init corresponding fragment
+        switch (item.getItemId()) {
+            case R.id.navigation_person:
+                Intent onUserView = new Intent(MapsActivity.this, UserPanelActivity.class);
+                startActivity(onUserView);
+        }
     }
 }
