@@ -3,10 +3,18 @@
     <string name="google_Map_API_key">AIzaSyBi4UJkndzSGY204bi44Y3yoaO4UkW2dW4</string>
     <string name="title_activity_maps">Map</string>
     <string name="title_activity_main2">Main2Activity</string>
-    <string name="title_home">Home</string>
-    <string name="title_dashboard">Dashboard</string>
-    <string name="title_notifications">Notifications</string>
-    <string name ="title_me">Me</string>
+
+
     <string name="facebook_app_id">2069347800012216</string>
     <string name="fb_login_protocol_scheme">fb2069347800012216</string>
+
+    <!--Navigation Drawer-->
+    <string name="title_home">Home</string>
+    <string name="title_profile">Profile</string>
+    <string name="title_properties">My Properties</string>
+    <string name ="title_requests">Requests</string>
+    <string name ="title_messenger">Messenger</string>
+    <string name ="title_availability">Availability</string>
+    <string name ="title_landlord">Add Landlord</string>
+    <string name ="title_signout">Sign Out</string>
 </resources>

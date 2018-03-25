@@ -66,14 +66,16 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
 
-        bottomNav = findViewById(R.id.navigation);
-        bottomNav.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
-            @Override
-            public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-                selectFragment(item);
-                return true;
-            }
-        });
+//        bottomNav = findViewById(R.id.navigation);
+//        bottomNav.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
+//            @Override
+//            public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+//                selectFragment(item);
+//                return true;
+//            }
+//        });
+
+
     }
 
     /**
@@ -314,11 +316,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         }
     }
 
-
-    public void enabledGPS(View view) {
-        //if the button is clicked
-
-    }
 
     private void selectFragment(MenuItem item) {
         Fragment frag = null;
