@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "810252331278",
+    "project_id": "augrenta"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:810252331278:android:7aa0b4554444b7a1",
+        "android_client_info": {
+          "package_name": "com.example.sejeque.augrenta"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "810252331278-mbak2lgrf9k8dlujgif3msg6a5iv6hgc.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.sejeque.augrenta",
+            "certificate_hash": "0d8fcfc4e3f290dd7f397921e6ca6ba00a053b86"
+          }
+        },
+        {
+          "client_id": "810252331278-0u1jb3b9ug51vmuiefmj6n45t0emdmj7.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAmXVYi9ADLM1QkX2TD_5n67Z_etOC7UDM"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 1
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
