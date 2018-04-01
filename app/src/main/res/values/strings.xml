@@ -9,6 +9,9 @@
     <string name="fb_login_protocol_scheme">fb2069347800012216</string>
 
     <!--Navigation Drawer-->
+    <string name="DrawerLayout">Drawer Layout</string>
+    <string name="oper_drawer">Drawer Open</string>
+    <string name="close_drawer">Drawer Close</string>
     <string name="title_home">Home</string>
     <string name="title_profile">Profile</string>
     <string name="title_properties">My Properties</string>

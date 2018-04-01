@@ -1,12 +1,30 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:android="http://schemas.android.com/apk/res/android">
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
 
 
     <item
-        android:id="@+id/app_bar_search"
-        android:icon="@drawable/ic_search_black_24dp"
-        android:title="Search"
+        android:id="@+id/menu_bar"
+        android:icon="@drawable/ic_menu"
+        android:title="Menu"
+        app:showAsAction="always"
+
        />
+
+    <item
+        android:id="@+id/magnify"
+        android:icon="@drawable/ic_magnify"
+        android:title="search_icon"
+        app:showAsAction="always"
+        />
+    <item
+        android:id="@+id/filter_menu"
+        android:icon="@drawable/ic_filter_list_black_24dp"
+        android:title="Filter"
+        app:showAsAction="always"
+        android:orderInCategory="100"
+        />
 
 </menu>

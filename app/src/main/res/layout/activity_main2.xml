@@ -8,105 +8,295 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:minHeight="250dp"
-        tools:context="com.example.sejeque.augrenta.MapsActivity">
-
-        <fragment
-            android:id="@+id/map"
-            android:name="com.google.android.gms.maps.SupportMapFragment"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            tools:layout_editor_absoluteX="0dp"
-            tools:layout_editor_absoluteY="0dp"
-            tools:ignore="MissingConstraints" />
+        android:orientation="vertical"
+        tools:context="com.example.sejeque.augrenta.MapsActivity"
+        android:id="@+id/drawerLayout1">
 
 
         <RelativeLayout
             android:id="@+id/rellayout1"
             android:layout_width="match_parent"
-            android:layout_height="50dp">
+            android:layout_height="wrap_content">
 
             <RelativeLayout
                 android:id="@+id/rellayout2"
                 android:layout_width="match_parent"
-                android:layout_height="50dp"
-                android:background="@drawable/white_border"
+                android:layout_height="wrap_content"
+                android:layout_alignParentLeft="true"
+                android:layout_alignParentStart="true"
+                android:layout_alignParentTop="true"
                 tools:layout_editor_absoluteX="0dp"
                 tools:layout_editor_absoluteY="0dp">
 
-                <EditText
-                    android:id="@+id/searchPlace"
+                <include layout="@layout/toolbar_layout"/>
+
+
+            </RelativeLayout>
+
+
+
+            <ScrollView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/rellayout2"
+                android:layout_above="@id/bottom_bar">
+
+                <RelativeLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@color/colorAccent">
+
+                    <RelativeLayout
+                        android:id="@+id/imagelayout"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="5dp"
+                        android:layout_marginTop="0dp"
+                        android:background="@drawable/white_border">
+
+                        <LinearLayout
+                            android:id="@+id/image_view"
+                            android:layout_width="fill_parent"
+                            android:layout_height="250dp"
+                            android:orientation="horizontal"
+
+                            android:layout_marginTop="0dp">
+
+                            <ImageView
+
+                                android:layout_width="0dp"
+                                android:layout_height="fill_parent"
+                                android:layout_weight="100"
+                                android:adjustViewBounds="true"
+                                android:scaleType="fitXY"
+                                android:src="@drawable/sample_image"
+
+                                />
+
+                        </LinearLayout>
+
+
+
+
+                        <TextView
+                            android:id="@+id/textView2"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_alignParentLeft="true"
+                            android:layout_alignParentStart="true"
+                            android:layout_below="@+id/image_view"
+                            android:layout_marginLeft="15dp"
+                            android:layout_marginStart="15dp"
+                            android:layout_marginTop="13dp"
+                            android:text="Ruiz Village, Agdao"
+                            android:textAllCaps="true"
+                            android:textColor="@color/black"
+                            android:textSize="15dp"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:id="@+id/textView3"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_alignLeft="@+id/textView2"
+                            android:layout_alignStart="@+id/textView2"
+                            android:layout_below="@+id/textView2"
+                            android:text="Davao City, Philippines"
+                            android:textSize="13dp" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_alignLeft="@+id/textView3"
+                            android:layout_alignStart="@+id/textView3"
+                            android:layout_below="@+id/textView3"
+                            android:layout_marginBottom="10dp"
+                            android:text="5,000 PHP"
+                            android:textColor="@color/red"
+                            android:textSize="15dp"
+                            android:textStyle="bold" />
+
+                    </RelativeLayout>
+
+                    <RelativeLayout
+                        android:id="@+id/favorite_place"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_below="@+id/imagelayout"
+                        android:background="@drawable/white_border">
+
+                        <Button
+                            android:id="@+id/button3"
+                            android:layout_width="wrap_content"
+                            android:layout_height="30dp"
+                            android:layout_marginLeft="10dp"
+                            android:layout_marginStart="10dp"
+                            android:layout_marginTop="10dp"
+                            android:background="@drawable/button_actionplaceviewer"
+                            android:drawablePadding="15dp"
+                            android:drawableLeft="@drawable/ic_favorite_border"
+                            android:drawableStart="@drawable/ic_favorite_border"
+                            android:text="Favorite"
+                            android:textAllCaps="false" />
+
+                        <Button
+                            android:id="@+id/message_owner"
+                            android:layout_width="wrap_content"
+                            android:layout_height="30dp"
+                            android:layout_marginLeft="10dp"
+                            android:layout_marginStart="10dp"
+                            android:layout_marginTop="10dp"
+                            android:layout_alignParentTop="true"
+                            android:layout_toEndOf="@+id/button3"
+                            android:layout_toRightOf="@+id/button3"
+                            android:text="Message"
+                            android:drawableLeft="@drawable/ic_messenger"
+                            android:background="@drawable/button_actionplaceviewer"
+                            android:drawablePadding="20dp"
+                            android:textAllCaps="false"
+                            android:drawableStart="@drawable/ic_messenger"
+                            />
+
+                        <TextView
+                            android:id="@+id/textView4"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_alignLeft="@+id/button3"
+                            android:layout_alignStart="@+id/button3"
+                            android:layout_below="@+id/button3"
+                            android:layout_marginTop="13dp"
+                            android:text="Description"
+                            android:textColor="@color/black" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_alignLeft="@+id/textView4"
+                            android:layout_alignStart="@+id/textView4"
+                            android:layout_below="@+id/textView4"
+                            android:layout_marginTop="3dp"
+                            android:layout_marginRight="15dp"
+                            android:text="House is newly renovated, with its own parking space.Just house.It's a fucking mansion. You see there's a pool right there. Cozy, right?"
+                            android:textAlignment="gravity"
+                            android:textSize="13dp"
+                            android:id="@+id/textView5" />
+
+                        <TableLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginBottom="10dp"
+                            android:layout_below="@+id/textView5"
+                            android:layout_marginTop="12dp"
+                            android:layout_marginLeft="10dp">
+
+                            <TableRow>
+
+                                <TextView
+                                    android:layout_width="136dp"
+                                    android:padding="3dp"
+                                    android:text="Floor Area" />
+                                <TextView
+                                    android:text="1000 sqft"
+                                    android:gravity="right"
+                                    android:padding="3dp" />
+                            </TableRow>
+
+                            <TableRow>
+                                <TextView
+                                    android:text="Type"
+                                    android:padding="3dp" />
+                                <TextView
+                                    android:text="House"
+                                    android:gravity="left"
+                                    android:padding="3dp" />
+                            </TableRow>
+                            <TableRow>
+                                <TextView
+                                    android:text="Bedroom"
+                                    android:padding="3dp" />
+                                <TextView
+                                    android:text="3"
+                                    android:gravity="left"
+                                    android:padding="3dp" />
+                            </TableRow>
+
+                            <TableRow>
+                                <TextView
+                                    android:text="Bathrooms"
+                                    android:padding="3dp" />
+                                <TextView
+                                    android:text="1"
+                                    android:gravity="left"
+                                    android:padding="3dp" />
+                            </TableRow>
+
+                            <TableRow>
+                                <TextView
+                                    android:text="Pets"
+                                    android:padding="3dp" />
+                                <TextView
+                                    android:text="Allowed"
+                                    android:gravity="left"
+                                    android:padding="3dp" />
+                            </TableRow>
+
+
+                        </TableLayout>
+
+
+                    </RelativeLayout>
+
+                </RelativeLayout>
+
+
+            </ScrollView>
+
+
+            <RelativeLayout
+                android:id="@+id/bottom_bar"
+                android:layout_width="match_parent"
+                android:layout_height="60dp"
+                android:layout_alignParentBottom="true"
+                android:layout_alignParentLeft="true"
+                android:layout_alignParentStart="true"
+                android:background="@drawable/white_border"
+                android:padding="6dp"
+                android:paddingBottom="10dp"
+                android:paddingTop="10dp">
+
+                <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:layout_centerVertical="true"
-                    android:layout_toLeftOf="@id/ic_filter"
-                    android:layout_toRightOf="@+id/ic_magnify"
-                    android:hint="Search"
-                    android:textColor="#000"
-                    android:textSize="15dp"
-                    android:background="@color/white"
-                    />
+                    android:orientation="horizontal"
+                    android:paddingBottom="5dp"
+                    android:paddingTop="5dp"
+                    android:weightSum="2">
 
-                <ImageView
-                    android:id="@+id/menu"
-                    android:layout_width="30dp"
-                    android:layout_height="30dp"
-                    android:layout_marginRight="3dp"
-                    android:layout_marginTop="10dp"
-                    android:layout_marginLeft="10dp"
+                    <Button
+                        android:id="@+id/request_visit"
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_marginEnd="3dp"
+                        android:layout_marginRight="3dp"
+                        android:layout_weight="1"
+                        android:background="@drawable/button_placeviewer"
+                        android:textColor="@color/white"
+                        android:text="Request Visit" />
 
-                    app:srcCompat="@drawable/ic_menu"/>
+                    <Button
+                        android:id="@+id/inside_tour"
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_marginLeft="3dp"
+                        android:layout_weight="1"
+                        android:background="@drawable/button_placeviewer"
+                        android:textColor="@color/white"
+                        android:text="Inside Tour" />
 
-                <ImageView
-                    android:id="@+id/ic_magnify"
-                    android:layout_width="20dp"
-                    android:layout_height="20dp"
-                    android:layout_centerVertical="true"
-                    android:layout_marginLeft="10dp"
-                    android:layout_marginRight="2dp"
-                    android:layout_toRightOf="@+id/menu"
-                    android:onClick="geoLocate"
-                    android:src="@drawable/ic_magnify" />
+                </LinearLayout>
 
 
-
-                <ImageView
-                    android:id="@+id/ic_filter"
-                    android:layout_width="30dp"
-                    android:layout_height="30dp"
-                    android:layout_alignParentEnd="true"
-                    android:layout_alignParentRight="true"
-                    android:layout_marginRight="10dp"
-                    android:layout_marginTop="10dp"
-                    app:srcCompat="@drawable/ic_filter_list_black_24dp"
-
-                    />
-
-            </RelativeLayout><android.support.design.widget.FloatingActionButton
-            android:id="@+id/user_location"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentBottom="true"
-            android:layout_alignParentEnd="true"
-            android:layout_alignParentRight="true"
-            android:layout_marginBottom="100dp"
-            android:layout_marginEnd="18dp"
-            android:layout_marginRight="18dp"
-            android:layout_above="@+id/default_zoom"
-            app:srcCompat="@drawable/ic_gps_fixed_black_24dp"
-            tools:layout_editor_absoluteX="328dp"
-            tools:layout_editor_absoluteY="432dp" />
-
-
-            <android.support.design.widget.FloatingActionButton
-                android:id="@+id/default_zoom"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignLeft="@+id/user_location"
-                android:layout_alignParentBottom="true"
-                android:layout_alignStart="@+id/user_location"
-                android:layout_marginBottom="32dp"
-                app:srcCompat="@drawable/ic_default" />
-
+            </RelativeLayout>
 
 
         </RelativeLayout>
@@ -122,13 +312,6 @@
             app:headerLayout="@layout/header"
             app:menu="@menu/navigation">
         </android.support.design.widget.NavigationView>
-
-
-
-
-
-
-
 
 
     </android.support.v4.widget.DrawerLayout>
