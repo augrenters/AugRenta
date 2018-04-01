@@ -94,6 +94,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         if (task.isSuccessful()) {
                             Log.d(TAG, "signInWithCredential:success");
+                            Toast.makeText(MainActivity.this, "Login Successful\nPlease Wait While Map is Still Loading",Toast.LENGTH_SHORT).show();
                             proceed();
 
 //                            loginButton.setEnabled(true);

@@ -6,20 +6,25 @@ import android.content.pm.PackageManager;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.BottomNavigationView;
 import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.NavigationView;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.facebook.CallbackManager;
+import com.facebook.login.LoginManager;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationListener;
@@ -35,30 +40,53 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
+import com.squareup.picasso.Picasso;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, LocationListener {
 
     private GoogleMap mMap;
     GoogleApiClient mGoogleApiClient;
-    private BottomNavigationView bottomNav;
 
     private FirebaseAuth mAuth;
+    private FirebaseUser currentUser;
+    private DatabaseReference mDatabase;
 
     private CallbackManager mCallbackManager;
+
+    private TextView userNameHandler, emailHandler;
+    private ImageView imgHandler;
+
+    //Array container for fetched data from firebase database
+    List<Property> properties;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
 
+        //instantiate firebase auth
         mAuth = FirebaseAuth.getInstance();
-        FirebaseUser currentUser = mAuth.getCurrentUser();
+        //retrieve user information and store to currentUser
+        currentUser = mAuth.getCurrentUser();
+        //get reference for firebase database with child node Property
+        mDatabase = FirebaseDatabase.getInstance().getReference("Property");
 
+        //instantiate array container for fetched data from firebase database
+        properties = new ArrayList<>();
+
+        //if user is not logged in, go back to login panel
         if(currentUser == null){
             proceed();
         }
@@ -66,16 +94,39 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
 
-//        bottomNav = findViewById(R.id.navigation);
-//        bottomNav.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
-//            @Override
-//            public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-//                selectFragment(item);
-//                return true;
-//            }
-//        });
+        NavigationView sideNavBar = findViewById(R.id.sideNav);
+        //get reference for header in navigation view
+        View headerView = sideNavBar.getHeaderView(0);
 
+        //instantiate textView and imageView in header of navigation view
+        userNameHandler = headerView.findViewById(R.id.textUser);
+        emailHandler = headerView.findViewById(R.id.textEmail);
+        imgHandler = headerView.findViewById(R.id.imageProfPic);
 
+        //change texts for user's name, email, and profile pic in header of navigation view
+        setCredentialView();
+
+        //if an item is clicked on navigation view
+        sideNavBar.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
+            @Override
+            public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+                int itemID = item.getItemId();
+
+               if(itemID == R.id.navigation_home){
+                   goToHome();
+               }
+
+               else if(itemID == R.id.properties){
+                   goToPropertyList();
+               }
+
+               else if(itemID == R.id.signOut){
+                   signOutUser();
+               }
+
+               return true;
+            }
+        });
     }
 
     /**
@@ -93,15 +144,110 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     @Override
     public void onStart() {
         super.onStart();
+        //if user is not logged in, go back to login panel
         FirebaseUser currentUser = mAuth.getCurrentUser();
         if(currentUser == null){
             proceed();
         }
+
+        //needed to retrieve data from firebase database
+        mDatabase.addValueEventListener(new ValueEventListener() {
+
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+
+                //clear array container first to remove old data
+                properties.clear();
+
+                //fetching data from every child of Property in firebase database
+                for(DataSnapshot propertySnapshot: dataSnapshot.getChildren()){
+                    Property property = propertySnapshot.getValue(Property.class);
+                    //put fetched data from firebase database to array container
+                    properties.add(property);
+                }
+
+                //put markers for each property on the map
+                addMarkers();
+
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
     }
 
+    //method for going back to login panel
     private void proceed() {
+        finish();
         Intent onReturnView = new Intent(MapsActivity.this, MainActivity.class);
         startActivity(onReturnView);
+    }
+
+    //method for refreshing MapsActivity
+    private void goToHome() {
+        finish();
+        startActivity(getIntent());
+    }
+
+    //method for starting PropertyActivity
+    private void goToPropertyList() {
+        finish();
+        Intent onPropertyView = new Intent(MapsActivity.this, PropertyActivity.class);
+        startActivity(onPropertyView);
+    }
+
+    //method for signing out current user
+    //then going back to login panel
+    private void signOutUser() {
+        mAuth.signOut();
+        LoginManager.getInstance().logOut();
+        Toast.makeText(MapsActivity.this, "You have been logout", Toast.LENGTH_SHORT).show();
+        finish();
+        proceed();
+    }
+
+    //method for setting texts in header in navigation view
+    private void setCredentialView() {
+        //get user information
+        String name = currentUser.getDisplayName();
+        String email = currentUser.getEmail();
+        Uri photoUrl = currentUser.getPhotoUrl();
+
+        //set text in header in navigation view
+        userNameHandler.setText(name);
+        emailHandler.setText(email);
+
+        //Picasso turns photoUrl to bitmap
+        //then changes the pic in header in navigation view
+        Picasso.get().load(photoUrl).into(imgHandler);
+    }
+
+    //method for adding markers to map
+    private void addMarkers(){
+        //if no added property yet
+        if(properties.size()==0){
+            Toast.makeText(MapsActivity.this, "No Property Added Yet", Toast.LENGTH_SHORT).show();
+        }
+        else {
+            //loop to every property saved to firebase database
+            //that has been stored to array container
+            for(int x=0; x<properties.size(); x++){
+                Double lat, longT;
+                //get latitude and longitude value from firebase database
+                //that has been stored to array container
+                lat = Double.valueOf(properties.get(x).latitude);
+                longT = Double.valueOf(properties.get(x).longitude);
+
+                //create marker
+                LatLng markerPos = new LatLng(lat, longT);
+                Marker marker = mMap.addMarker(new MarkerOptions()
+                                                .position(markerPos)
+                                                .title(properties.get(x).propertyName)
+                                                .snippet("Price: " + properties.get(x).price + " Php\n" + properties.get(x).description));
+            }
+        }
     }
 
     LatLng latLng;
@@ -110,33 +256,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
 
-        gotoLocationZoom(12.32, 122.53, (float) 5.80);
-
-        /// if map is clicked
-        if (mMap != null){
-            mMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
-                @Override
-                public void onMapClick(LatLng latLng) {
-
-                    Toast.makeText(MapsActivity.this, "You clicked here" + latLng, Toast.LENGTH_SHORT).show();
-
-                    Geocoder gc = new Geocoder(MapsActivity.this);
-
-                    double lat = latLng.latitude;
-                    double lng = latLng.longitude;
-                    List<Address> list = null;
-                    try {
-                        list = gc.getFromLocation(lat, lng, 1);
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                    Address add = list.get(0);
-                    String locality = add.getLocality();
-
-                    setMarker(locality, lat, lng);
-                }
-            });
-        }
+        //when map is ready, zoom camera to user location
+        setToUserLocation();
 
 
         FloatingActionButton default_zoom = findViewById(R.id.default_zoom);
@@ -146,13 +267,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         user_location.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
-                mGoogleApiClient = new GoogleApiClient.Builder(MapsActivity.this)
-                        .addApi(LocationServices.API)
-                        .addConnectionCallbacks(MapsActivity.this)
-                        .addOnConnectionFailedListener(MapsActivity.this)
-                        .build();
-                mGoogleApiClient.connect();
+                setToUserLocation();
             }
         });
 
@@ -165,9 +280,27 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             }
         });
 
+        //if a marker is pressed
+        mMap.setOnInfoWindowClickListener(new GoogleMap.OnInfoWindowClickListener(){
 
+            @Override
+            public void onInfoWindowClick(Marker marker) {
+                LatLng markerll = marker.getPosition();
+                CameraUpdate update = CameraUpdateFactory.newLatLngZoom(markerll, 17);
+                mMap.animateCamera(update);
+            }
+        });
 
+    }
 
+    //method for zooming to user location
+    private void setToUserLocation() {
+        mGoogleApiClient = new GoogleApiClient.Builder(MapsActivity.this)
+                .addApi(LocationServices.API)
+                .addConnectionCallbacks(MapsActivity.this)
+                .addOnConnectionFailedListener(MapsActivity.this)
+                .build();
+        mGoogleApiClient.connect();
     }
 
     // zoom on map
@@ -196,25 +329,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         Toast.makeText(this, locality, Toast.LENGTH_LONG).show();
         double lat = address.getLatitude();
         double lng = address.getLongitude();
-        gotoLocationZoom(lat, lng, 15);
+        gotoLocationZoom(lat, lng, 17);
 
         Toast.makeText(this, "Lat: " + lat + "& Long " + lng, Toast.LENGTH_SHORT).show();
-
-
-        // adding Marker
-        setMarker(locality, lat, lng);
-
-    }
-
-    private void setMarker(String locality, double lat, double lng) {
-        if(marker !=null){
-            marker.remove();
-        }
-        MarkerOptions options = new MarkerOptions()
-                                .title(locality)
-                                .position(new LatLng(lat, lng))
-                                .snippet("Here");
-        marker = mMap.addMarker(options);
     }
 
     LocationRequest mLocationRequest;
@@ -297,7 +414,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             Toast.makeText(this, "Can't get current location", Toast.LENGTH_SHORT).show();
         }else{
             LatLng ll = new LatLng(lat, lng);
-            CameraUpdate update = CameraUpdateFactory.newLatLngZoom(ll, 15);
+            CameraUpdate update = CameraUpdateFactory.newLatLngZoom(ll, 17);
             mMap.animateCamera(update);
 
 
@@ -312,7 +429,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             }
 
             String locality = addresses.get(0).getLocality();
-            setMarker(locality, lat, lng);
+//            setMarker(locality, lat, lng);
         }
     }
 
