@@ -48,16 +48,6 @@
                 android:textSize="15dp" />
 
             <ImageView
-                android:id="@+id/menu"
-                android:layout_width="30dp"
-                android:layout_height="30dp"
-                android:layout_marginRight="3dp"
-                android:layout_marginTop="10dp"
-                android:layout_marginLeft="10dp"
-
-                app:srcCompat="@drawable/ic_menu"/>
-
-            <ImageView
                 android:id="@+id/ic_magnify"
                 android:layout_width="20dp"
                 android:layout_height="20dp"
@@ -95,39 +85,25 @@
             android:layout_marginBottom="32dp"
             app:srcCompat="@drawable/ic_default" />
 
+        <Button
+            android:id="@+id/btnSetLocation"
+            android:layout_width="200dp"
+            android:layout_height="wrap_content"
+            android:layout_alignTop="@+id/user_location"
+            android:layout_centerHorizontal="true"
+            android:text="Set Location" />
+
+        <Button
+            android:id="@+id/btnGoBack"
+            android:layout_width="200dp"
+            android:layout_height="wrap_content"
+            android:layout_alignLeft="@+id/btnSetLocation"
+            android:layout_alignStart="@+id/btnSetLocation"
+            android:layout_alignTop="@+id/default_zoom"
+            android:text="Cancel" />
+
 
     </RelativeLayout>
-
-    <android.support.design.widget.NavigationView
-        android:id="@+id/sideNav"
-        android:layout_width="wrap_content"
-        android:layout_height="match_parent"
-        android:layout_alignParentTop="true"
-        android:layout_gravity="start"
-        android:layout_marginEnd="16dp"
-        android:layout_marginRight="16dp"
-        android:layout_marginTop="15dp"
-        android:layout_toLeftOf="@+id/user_location"
-        android:layout_toStartOf="@+id/user_location"
-        android:background="@color/navigation_gray"
-        android:theme="@style/AppTheme"
-        app:headerLayout="@layout/header"
-        app:itemIconTint="@color/white"
-        app:itemTextColor="@color/white"
-        app:menu="@menu/navigation">
-
-        <ImageView
-            android:id="@+id/ic_filter"
-            android:layout_width="30dp"
-            android:layout_height="30dp"
-            android:layout_alignParentEnd="true"
-            android:layout_alignParentRight="true"
-            android:layout_marginRight="10dp"
-            android:layout_marginTop="10dp"
-            app:srcCompat="@drawable/ic_filter_list_black_24dp"
-
-            />
-    </android.support.design.widget.NavigationView>
 
 
 </android.support.v4.widget.DrawerLayout>

@@ -71,6 +71,18 @@
             android:name=".UserPanelActivity"
             android:label="User Panel"
             />
+        <activity
+            android:name=".PropertyActivity"
+            android:label="Property List"
+            />
+        <activity
+            android:name=".AddPropertyActivity"
+            android:label="Add Property Form"
+            />
+        <activity
+            android:name=".SelectLocationActivity"
+            android:label="Select Location on Map"
+            />
     </application>
 
 </manifest>

@@ -1,33 +1,35 @@
 {
   "project_info": {
-    "project_number": "810252331278",
-    "project_id": "augrenta"
+    "project_number": "738669406532",
+    "firebase_url": "https://augrenta-cf71d.firebaseio.com",
+    "project_id": "augrenta-cf71d",
+    "storage_bucket": "augrenta-cf71d.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:810252331278:android:7aa0b4554444b7a1",
+        "mobilesdk_app_id": "1:738669406532:android:dd46b653b61115fe",
         "android_client_info": {
-          "package_name": "com.example.sejeque.augrenta"
+          "package_name": "com.example.faith.augrenta"
         }
       },
       "oauth_client": [
         {
-          "client_id": "810252331278-mbak2lgrf9k8dlujgif3msg6a5iv6hgc.apps.googleusercontent.com",
+          "client_id": "738669406532-bjklu0ahbue0j758jdoedvibc37e6nk5.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
-            "package_name": "com.example.sejeque.augrenta",
-            "certificate_hash": "0d8fcfc4e3f290dd7f397921e6ca6ba00a053b86"
+            "package_name": "com.example.faith.augrenta",
+            "certificate_hash": "3d174cb60d1fb506d0bcacf7292362d8f351c0cc"
           }
         },
         {
-          "client_id": "810252331278-0u1jb3b9ug51vmuiefmj6n45t0emdmj7.apps.googleusercontent.com",
+          "client_id": "738669406532-22aeru8an12s3n02olga2gjeum8dc5rf.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyAmXVYi9ADLM1QkX2TD_5n67Z_etOC7UDM"
+          "current_key": "AIzaSyD-vsd5Fa8L8xLU03ys7AxyhnALu-OzN2E"
         }
       ],
       "services": {
@@ -35,11 +37,60 @@
           "status": 1
         },
         "appinvite_service": {
-          "status": 1,
-          "other_platform_oauth_client": []
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "738669406532-22aeru8an12s3n02olga2gjeum8dc5rf.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
         },
         "ads_service": {
+          "status": 2
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:738669406532:android:7aa0b4554444b7a1",
+        "android_client_info": {
+          "package_name": "com.example.sejeque.augrenta"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "738669406532-8vq597eukqshho1aptlkjqfnvha184sg.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.sejeque.augrenta",
+            "certificate_hash": "3d174cb60d1fb506d0bcacf7292362d8f351c0cc"
+          }
+        },
+        {
+          "client_id": "738669406532-22aeru8an12s3n02olga2gjeum8dc5rf.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD-vsd5Fa8L8xLU03ys7AxyhnALu-OzN2E"
+        }
+      ],
+      "services": {
+        "analytics_service": {
           "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "738669406532-22aeru8an12s3n02olga2gjeum8dc5rf.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
         }
       }
     }
