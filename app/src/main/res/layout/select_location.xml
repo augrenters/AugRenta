@@ -54,9 +54,18 @@
                 android:layout_centerVertical="true"
                 android:layout_marginLeft="10dp"
                 android:layout_marginRight="2dp"
-                android:layout_toRightOf="@+id/menu"
-                android:onClick="geoLocate"
                 android:src="@drawable/ic_magnify" />
+
+            <ImageView
+                android:id="@+id/ic_filter"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:layout_alignParentEnd="true"
+                android:layout_alignParentRight="true"
+                android:layout_marginRight="10dp"
+                android:layout_marginTop="10dp"
+                app:srcCompat="@drawable/ic_filter_list_black_24dp"
+                />
 
 
         </RelativeLayout><android.support.design.widget.FloatingActionButton

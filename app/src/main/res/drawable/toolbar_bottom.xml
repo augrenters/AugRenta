@@ -9,9 +9,17 @@
 
         <shape android:shape="rectangle">
             <stroke android:width=".5dp"
-                    android:color="@color/colorAccent">
+                    android:color="@color/colorAccent"
+                    android:dashWidth="1dp">
             </stroke>
             <solid android:color="@color/red"></solid>
+
+            <gradient
+                android:startColor="#ef4444"
+                android:endColor="@color/red"
+                android:angle="270"
+                />
+
         </shape>
 
 

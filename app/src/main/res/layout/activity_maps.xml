@@ -8,6 +8,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:minHeight="250dp"
+    android:id="@+id/drawerLayout"
     tools:context="com.example.sejeque.augrenta.MapsActivity">
 
     <fragment
@@ -28,48 +29,89 @@
         <RelativeLayout
             android:id="@+id/rellayout2"
             android:layout_width="match_parent"
-            android:layout_height="50dp"
-            android:background="@drawable/white_border"
+            android:layout_height="wrap_content"
+
             tools:layout_editor_absoluteX="0dp"
             tools:layout_editor_absoluteY="0dp">
 
-            <EditText
-                android:id="@+id/searchPlace"
+
+            <include layout="@layout/toolbar_layout"/>
+
+            <RelativeLayout
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_centerVertical="true"
-                android:layout_toLeftOf="@id/ic_filter"
-                android:layout_toRightOf="@+id/ic_magnify"
-                android:background="@color/white"
-                android:hint="Search"
-                android:selectAllOnFocus="true"
-                android:singleLine="true"
-                android:textColor="#000"
-                android:textSize="15dp" />
+                android:layout_height="wrap_content"
+                android:paddingRight="10dp"
+                android:paddingLeft="5dp"
+                android:layout_marginLeft="50dp"
+                android:background="@drawable/toolbar_bottom"
+                android:layout_marginTop="3dp"
+                android:layout_marginRight="10dp">
 
-            <ImageView
-                android:id="@+id/menu"
-                android:layout_width="30dp"
-                android:layout_height="30dp"
-                android:layout_marginRight="3dp"
-                android:layout_marginTop="10dp"
-                android:layout_marginLeft="10dp"
+                <ImageView
+                    android:id="@+id/magnify"
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:src="@drawable/ic_magnify"
+                    android:layout_centerVertical="true"
+                    android:layout_marginRight="5dp"/>
 
-                app:srcCompat="@drawable/ic_menu"/>
-
-            <ImageView
-                android:id="@+id/ic_magnify"
-                android:layout_width="20dp"
-                android:layout_height="20dp"
-                android:layout_centerVertical="true"
-                android:layout_marginLeft="10dp"
-                android:layout_marginRight="2dp"
-                android:layout_toRightOf="@+id/menu"
-                android:onClick="geoLocate"
-                android:src="@drawable/ic_magnify" />
+                <EditText
+                    android:id="@+id/searchPlace"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="bottom"
+                    android:layout_toRightOf="@+id/magnify"
+                    android:hint="Search Place"
+                    android:textColor="@color/white"
+                    android:backgroundTint="@color/red"
+                    android:textColorHint="@color/white"
+                    />
+            </RelativeLayout>
 
 
-        </RelativeLayout><android.support.design.widget.FloatingActionButton
+            <!--<EditText-->
+                <!--android:id="@+id/searchPlace"-->
+                <!--android:layout_width="match_parent"-->
+                <!--android:layout_height="match_parent"-->
+                <!--android:layout_centerVertical="true"-->
+                <!--android:layout_toLeftOf="@id/ic_filter"-->
+                <!--android:layout_toRightOf="@+id/ic_magnify"-->
+                <!--android:background="@color/white"-->
+                <!--android:hint="Search"-->
+                <!--android:selectAllOnFocus="true"-->
+                <!--android:singleLine="true"-->
+                <!--android:textColor="#000"-->
+                <!--android:textSize="15dp"-->
+                <!--android:backgroundTint="@color/red"/>-->
+
+
+
+            <!--<ImageView-->
+                <!--android:id="@+id/ic_magnify"-->
+                <!--android:layout_width="20dp"-->
+                <!--android:layout_height="20dp"-->
+                <!--android:layout_centerVertical="true"-->
+                <!--android:layout_marginLeft="10dp"-->
+                <!--android:layout_marginRight="2dp"-->
+                <!--android:layout_toRightOf="@+id/menu"-->
+                <!--android:onClick="geoLocate"-->
+                <!--android:src="@drawable/ic_magnify" />-->
+
+            <!--<ImageView-->
+                <!--android:id="@+id/ic_filter"-->
+                <!--android:layout_width="30dp"-->
+                <!--android:layout_height="30dp"-->
+                <!--android:layout_alignParentEnd="true"-->
+                <!--android:layout_alignParentRight="true"-->
+                <!--android:layout_marginRight="10dp"-->
+                <!--android:layout_marginTop="10dp"-->
+                <!--app:srcCompat="@drawable/ic_filter_list_black_24dp"-->
+
+                <!--/>-->
+
+        </RelativeLayout>
+
+        <android.support.design.widget.FloatingActionButton
         android:id="@+id/user_location"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -93,7 +135,9 @@
             android:layout_alignParentBottom="true"
             android:layout_alignStart="@+id/user_location"
             android:layout_marginBottom="32dp"
-            app:srcCompat="@drawable/ic_default" />
+            app:srcCompat="@drawable/ic_default"
+            app:rippleColor="@color/red"
+        />
 
 
     </RelativeLayout>
@@ -102,13 +146,10 @@
         android:id="@+id/sideNav"
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentRight="true"
         android:layout_alignParentTop="true"
         android:layout_gravity="start"
-        android:layout_marginEnd="16dp"
-        android:layout_marginRight="16dp"
-        android:layout_marginTop="15dp"
-        android:layout_toLeftOf="@+id/user_location"
-        android:layout_toStartOf="@+id/user_location"
         android:background="@color/navigation_gray"
         android:theme="@style/AppTheme"
         app:headerLayout="@layout/header"
@@ -116,17 +157,6 @@
         app:itemTextColor="@color/white"
         app:menu="@menu/navigation">
 
-        <ImageView
-            android:id="@+id/ic_filter"
-            android:layout_width="30dp"
-            android:layout_height="30dp"
-            android:layout_alignParentEnd="true"
-            android:layout_alignParentRight="true"
-            android:layout_marginRight="10dp"
-            android:layout_marginTop="10dp"
-            app:srcCompat="@drawable/ic_filter_list_black_24dp"
-
-            />
     </android.support.design.widget.NavigationView>
 
 

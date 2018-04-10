@@ -3,7 +3,10 @@ package com.example.sejeque.augrenta;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
 import android.view.View;
 import android.widget.Button;
@@ -21,11 +24,15 @@ import com.google.firebase.database.FirebaseDatabase;
 
 public class AddPropertyActivity extends AppCompatActivity {
 
+    private static final int RESULT_LOAD_IMAGE = 1 ;
     private EditText propertyNameHandler, priceHandler, descriptionHandler;
 
     private FirebaseAuth mAuth;
     private FirebaseUser currentUser;
     private DatabaseReference mDatabase;
+
+    DrawerLayout drawerLayout;
+    ActionBarDrawerToggle actionBarDrawerToggle;
 
     Bundle oldBundle;
 
@@ -34,7 +41,22 @@ public class AddPropertyActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.property_form);
 
-        Button launchMapbtn, submitBtn, cancelBtn;
+        // Setting Toolbar and Navigation Drawer
+
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        getSupportActionBar().setTitle("Add Property");
+
+
+                //function for Drawer toggle when clicking menu icon
+        drawerLayout = (DrawerLayout) findViewById(R.id.drawerLayout1);
+
+        actionBarDrawerToggle = new ActionBarDrawerToggle(this, drawerLayout, toolbar, R.string.oper_drawer, R.string.close_drawer);
+        drawerLayout.setDrawerListener(actionBarDrawerToggle);
+
+        // End of Setting Toolbar and Navigation Drawer
+
+        Button launchMapbtn, submitBtn, cancelBtn, upload_imgBtn;
 
         propertyNameHandler = findViewById(R.id.editTextPropertyName);
         priceHandler = findViewById(R.id.editTextPrice);
@@ -43,6 +65,7 @@ public class AddPropertyActivity extends AppCompatActivity {
         launchMapbtn = findViewById(R.id.btnGoToMap);
         submitBtn = findViewById(R.id.btnSubmit);
         cancelBtn = findViewById(R.id.btnGoBack);
+        upload_imgBtn = findViewById(R.id.upload_imgbtn);
 
         //Initiating auth for firebase
         mAuth = FirebaseAuth.getInstance();
@@ -67,6 +90,8 @@ public class AddPropertyActivity extends AppCompatActivity {
             setOldFormInput();
         }
 
+
+
         launchMapbtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -85,6 +110,20 @@ public class AddPropertyActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 backToHome();
+            }
+        });
+
+
+        //refer to onActivityResultMethod
+        upload_imgBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent upload = new Intent();
+                upload.setType("image/");
+                upload.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
+                upload.setAction(Intent.ACTION_GET_CONTENT);
+                startActivityForResult(Intent.createChooser(upload, "Select Picture"), RESULT_LOAD_IMAGE);
+
             }
         });
     }
@@ -190,5 +229,24 @@ public class AddPropertyActivity extends AppCompatActivity {
         i.putExtras(bundle);
         finish();
         startActivity(i);
+    }
+
+    @Override
+    protected void onPostCreate(@Nullable Bundle savedInstanceState) {
+        super.onPostCreate(savedInstanceState);
+        actionBarDrawerToggle.syncState();
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if(requestCode == RESULT_LOAD_IMAGE && requestCode == RESULT_OK){
+            if(data.getClipData() != null){
+                Toast.makeText(this, "Selected Multiple File", Toast.LENGTH_SHORT).show();
+            }else{
+                Toast.makeText(this, "Selected Single File", Toast.LENGTH_SHORT).show();
+            }
+        }
     }
 }

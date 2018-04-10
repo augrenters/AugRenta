@@ -36,9 +36,9 @@ public class SeekerRequestsActivity extends AppCompatActivity {
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        getSupportActionBar().setTitle("Cita's Place");
+        getSupportActionBar().setTitle("Requests");
 
-        //function for Drawe toggle when clicking menu icon
+        //function for Drawer toggle when clicking menu icon
         drawerLayout = (DrawerLayout) findViewById(R.id.drawerLayout);
 
         actionBarDrawerToggle = new ActionBarDrawerToggle(this, drawerLayout, toolbar, R.string.oper_drawer, R.string.close_drawer);

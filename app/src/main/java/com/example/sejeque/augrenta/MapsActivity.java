@@ -16,6 +16,10 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
+import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.ActionBarDrawerToggle;
+import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
@@ -47,6 +51,7 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.squareup.picasso.Picasso;
 
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -70,6 +75,10 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     //Array container for fetched data from firebase database
     List<Property> properties;
+
+    DrawerLayout drawerLayout;
+    ActionBarDrawerToggle actionBarDrawerToggle;
+    Toolbar toolbar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -106,6 +115,19 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         //change texts for user's name, email, and profile pic in header of navigation view
         setCredentialView();
 
+        toolbar = (Toolbar) findViewById(R.id.toolbar);
+        //setSupportActionBar(toolbar);
+        //getSupportActionBar().setTitle("Requests");
+        //getSupportActionBar().setCustomView(R.layout.search_view);
+
+        //final EditText search_place = (EditText) getActionBar().getCustomView().findViewById(R.id.searchPlace);
+
+        //function for Drawer toggle when clicking menu icon
+        drawerLayout = (DrawerLayout) findViewById(R.id.drawerLayout);
+
+        actionBarDrawerToggle = new ActionBarDrawerToggle(this, drawerLayout, toolbar, R.string.oper_drawer, R.string.close_drawer);
+        drawerLayout.setDrawerListener(actionBarDrawerToggle);
+
         //if an item is clicked on navigation view
         sideNavBar.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
             @Override
@@ -118,6 +140,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
                else if(itemID == R.id.properties){
                    goToPropertyList();
+               }
+               else if(itemID == R.id.requests){
+                   goToRequests();
                }
 
                else if(itemID == R.id.signOut){
@@ -178,6 +203,13 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         });
     }
 
+    //to enable Navigation Drawer
+    @Override
+    protected void onPostCreate(@Nullable Bundle savedInstanceState) {
+        super.onPostCreate(savedInstanceState);
+        actionBarDrawerToggle.syncState();
+    }
+
     //method for going back to login panel
     private void proceed() {
         finish();
@@ -197,6 +229,13 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         Intent onPropertyView = new Intent(MapsActivity.this, PropertyActivity.class);
         startActivity(onPropertyView);
     }
+
+    private void goToRequests() {
+        finish();
+        Intent onPropertyView = new Intent(MapsActivity.this, SeekerRequestsActivity.class);
+        startActivity(onPropertyView);
+    }
+
 
     //method for signing out current user
     //then going back to login panel
