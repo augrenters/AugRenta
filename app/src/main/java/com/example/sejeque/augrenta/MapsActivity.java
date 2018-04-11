@@ -28,6 +28,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.facebook.CallbackManager;
+import com.facebook.FacebookActivity;
 import com.facebook.login.LoginManager;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -58,6 +59,8 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
+import static com.google.firebase.auth.FirebaseAuth.*;
+
 
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, LocationListener {
 
@@ -86,7 +89,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         setContentView(R.layout.activity_maps);
 
         //instantiate firebase auth
-        mAuth = FirebaseAuth.getInstance();
+        mAuth = getInstance();
         //retrieve user information and store to currentUser
         currentUser = mAuth.getCurrentUser();
         //get reference for firebase database with child node Property
@@ -243,7 +246,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         mAuth.signOut();
         LoginManager.getInstance().logOut();
         Toast.makeText(MapsActivity.this, "You have been logout", Toast.LENGTH_SHORT).show();
-        finish();
+        finishAffinity();
         proceed();
     }
 

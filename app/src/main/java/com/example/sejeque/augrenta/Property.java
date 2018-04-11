@@ -16,18 +16,33 @@ public class Property {
     public String owner;
     public String price;
     public String propertyName;
+    public String propertyID;
+    public String type;
+    public String area;
+    public String rooms;
+    public String bathroom;
+    public String pets;
 
     //DO NOT REMOVE
     //critical for fetching data from firebase database
     public Property() {
     }
 
-    public Property(String description, String latitude, String longitude, String owner, String price, String propertyName) {
+    public Property(String description, String latitude, String longitude, String owner, String price,
+                    String propertyName, String propertyID, String type, String area, String rooms,
+                    String bathroom, String pets)
+    {
         this.description = description;
         this.latitude = latitude;
         this.longitude = longitude;
         this.owner = owner;
         this.price = price;
         this.propertyName = propertyName;
+        this.propertyID = propertyID;
+        this.type = type;
+        this.area = area;
+        this.rooms = rooms;
+        this.bathroom = bathroom;
+        this.pets = pets;
     }
 }

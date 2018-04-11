@@ -25,7 +25,8 @@ import com.google.firebase.database.FirebaseDatabase;
 public class AddPropertyActivity extends AppCompatActivity {
 
     private static final int RESULT_LOAD_IMAGE = 1 ;
-    private EditText propertyNameHandler, priceHandler, descriptionHandler;
+    private EditText propertyNameHandler, priceHandler, descriptionHandler, typeHandler,
+                        areaHandler, roomsHandler, bathroomsHandler, petsHandler;
 
     private FirebaseAuth mAuth;
     private FirebaseUser currentUser;
@@ -47,7 +48,6 @@ public class AddPropertyActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
         getSupportActionBar().setTitle("Add Property");
 
-
                 //function for Drawer toggle when clicking menu icon
         drawerLayout = (DrawerLayout) findViewById(R.id.drawerLayout1);
 
@@ -61,6 +61,11 @@ public class AddPropertyActivity extends AppCompatActivity {
         propertyNameHandler = findViewById(R.id.editTextPropertyName);
         priceHandler = findViewById(R.id.editTextPrice);
         descriptionHandler = findViewById(R.id.editTextDescription);
+        typeHandler = findViewById(R.id.editTextType);
+        areaHandler = findViewById(R.id.editTextArea);
+        roomsHandler = findViewById(R.id.editTextRooms);
+        bathroomsHandler = findViewById(R.id.editTextBathrooms);
+        petsHandler = findViewById(R.id.editTextPets);
 
         launchMapbtn = findViewById(R.id.btnGoToMap);
         submitBtn = findViewById(R.id.btnSubmit);
@@ -134,6 +139,11 @@ public class AddPropertyActivity extends AppCompatActivity {
         propertyNameHandler.setText(oldBundle.getString("property name"));
         priceHandler.setText(oldBundle.getString("property price"));
         descriptionHandler.setText(oldBundle.getString("property description"));
+        typeHandler.setText(oldBundle.getString("property type"));
+        areaHandler.setText(oldBundle.getString("property area"));
+        roomsHandler.setText(oldBundle.getString("property rooms"));
+        bathroomsHandler.setText(oldBundle.getString("property bathrooms"));
+        petsHandler.setText(oldBundle.getString("property pets"));
     }
 
     //method for going back to MapsActivity without recreating the activity
@@ -161,6 +171,11 @@ public class AddPropertyActivity extends AppCompatActivity {
         String propName = propertyNameHandler.getText().toString();
         String propPrice = priceHandler.getText().toString();
         String propDesc = descriptionHandler.getText().toString();
+        String propType = typeHandler.getText().toString();
+        String propArea = areaHandler.getText().toString();
+        String propRooms = roomsHandler.getText().toString();
+        String propBathrooms = bathroomsHandler.getText().toString();
+        String propPets = petsHandler.getText().toString();
 
         //getUid() method gets unique user id given automatically by firebase auth
         String propOwner = currentUser.getUid();
@@ -178,6 +193,26 @@ public class AddPropertyActivity extends AppCompatActivity {
             descriptionHandler.setError(REQUIRED);
             return;
         }
+        else if(TextUtils.isEmpty(propType)){
+            typeHandler.setError(REQUIRED);
+            return;
+        }
+        else if(TextUtils.isEmpty(propArea)){
+            areaHandler.setError(REQUIRED);
+            return;
+        }
+        else if(TextUtils.isEmpty(propRooms)){
+            roomsHandler.setError(REQUIRED);
+            return;
+        }
+        else if(TextUtils.isEmpty(propBathrooms)){
+            bathroomsHandler.setError(REQUIRED);
+            return;
+        }
+        else if(TextUtils.isEmpty(propPets)){
+            petsHandler.setError(REQUIRED);
+            return;
+        }
 
         //latVal && longVal came from SelectLocationActivty, so user has not yet chosen
         //location if these variables is empty
@@ -193,7 +228,8 @@ public class AddPropertyActivity extends AppCompatActivity {
             String key = mDatabase.push().getKey();
 
             //pass variable to model Property
-            Property property = new Property(propDesc, latVal, longVal, propOwner, propPrice, propName);
+            Property property = new Property(propDesc, latVal, longVal, propOwner, propPrice, propName,
+                                                key, propType, propArea, propRooms, propBathrooms, propPets);
 
             //save property object to firebase database
             mDatabase.child(key).setValue(property);
@@ -213,6 +249,11 @@ public class AddPropertyActivity extends AppCompatActivity {
         String propName = propertyNameHandler.getText().toString();
         String propPrice = priceHandler.getText().toString();
         String propDesc = descriptionHandler.getText().toString();
+        String propType = typeHandler.getText().toString();
+        String propArea = areaHandler.getText().toString();
+        String propRooms = roomsHandler.getText().toString();
+        String propBathrooms = bathroomsHandler.getText().toString();
+        String propPets = petsHandler.getText().toString();
 
         //creating intent and bundle
         //that will be used to start SelectLocationActivity
@@ -224,6 +265,11 @@ public class AddPropertyActivity extends AppCompatActivity {
         bundle.putString("property name", propName);
         bundle.putString("property price", propPrice);
         bundle.putString("property description", propDesc);
+        bundle.putString("property type", propType);
+        bundle.putString("property area", propArea);
+        bundle.putString("property rooms", propRooms);
+        bundle.putString("property bathrooms", propBathrooms);
+        bundle.putString("property pets", propPets);
 
         //put bundle to intent then starts SelectLocationActivity
         i.putExtras(bundle);
