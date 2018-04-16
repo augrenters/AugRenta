@@ -296,13 +296,19 @@ public class AddPropertyActivity extends AppCompatActivity {
 
         if(requestCode == RESULT_LOAD_IMAGE && requestCode == RESULT_OK
                 && data != null && data.getData() != null ){
+
             imageUri = data.getData();
-            try {
-                Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), imageUri);
-            }
-            catch (IOException e)
-            {
-                e.printStackTrace();
+//            try {
+//                Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), imageUri);
+//            }
+//            catch (IOException e)
+//            {
+//                e.printStackTrace();
+//            }
+            if(data.getClipData() != null){
+                Toast.makeText(this, "Selected Multiple File", Toast.LENGTH_SHORT).show();
+            }else{
+                Toast.makeText(this, "Selected Single File", Toast.LENGTH_SHORT).show();
             }
         }
     }
