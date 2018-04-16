@@ -1,7 +1,12 @@
 package com.example.sejeque.augrenta;
 
+import android.app.PendingIntent;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.net.Uri;
 import android.os.Bundle;
+import android.provider.MediaStore;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
@@ -18,6 +23,8 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
+import java.io.IOException;
+
 /**
  * Created by Faith on 20/03/2018.
  */
@@ -25,6 +32,7 @@ import com.google.firebase.database.FirebaseDatabase;
 public class AddPropertyActivity extends AppCompatActivity {
 
     private static final int RESULT_LOAD_IMAGE = 1 ;
+    private Uri imageUri;
     private EditText propertyNameHandler, priceHandler, descriptionHandler, typeHandler,
                         areaHandler, roomsHandler, bathroomsHandler, petsHandler;
 
@@ -124,11 +132,10 @@ public class AddPropertyActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 Intent upload = new Intent();
-                upload.setType("image/");
+                upload.setType("image/*");
                 upload.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
                 upload.setAction(Intent.ACTION_GET_CONTENT);
                 startActivityForResult(Intent.createChooser(upload, "Select Picture"), RESULT_LOAD_IMAGE);
-
             }
         });
     }
@@ -287,11 +294,15 @@ public class AddPropertyActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
-        if(requestCode == RESULT_LOAD_IMAGE && requestCode == RESULT_OK){
-            if(data.getClipData() != null){
-                Toast.makeText(this, "Selected Multiple File", Toast.LENGTH_SHORT).show();
-            }else{
-                Toast.makeText(this, "Selected Single File", Toast.LENGTH_SHORT).show();
+        if(requestCode == RESULT_LOAD_IMAGE && requestCode == RESULT_OK
+                && data != null && data.getData() != null ){
+            imageUri = data.getData();
+            try {
+                Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), imageUri);
+            }
+            catch (IOException e)
+            {
+                e.printStackTrace();
             }
         }
     }
