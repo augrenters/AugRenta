@@ -25,5 +25,18 @@
         <item name="colorControlActivated">@color/red</item>
     </style>
 
+    <!--Alert Dialog Design-->
+    <style name="CustomDialogTheme" parent="Base.Theme.AppCompat.Light.Dialog.Alert">
+        <!--buttons color-->
+        <item name="colorAccent">@color/red</item>
+        <!--title and message color-->
+        <item name="android:textColorPrimary">@color/black</item>
+        <!--dialog background-->
+        <item name="android:divider">@color/red</item>
+        <item name="android:dashWidth">@color/red</item>
+        <item name="android:topDark">@drawable/bottom_dialog</item>
+        
+    </style>
+
 
 </resources>

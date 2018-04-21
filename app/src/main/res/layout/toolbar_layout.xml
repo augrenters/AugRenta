@@ -12,7 +12,9 @@
     app:menu="@menu/search_menu"
     app:itemTextColor="@color/white"
     app:itemIconTint="@color/white"
-    app:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar">
+    app:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
+    app:popupTheme="@style/ThemeOverlay.AppCompat.Light"
+    >
 
 
 </android.support.v7.widget.Toolbar>

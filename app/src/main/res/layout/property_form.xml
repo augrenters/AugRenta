@@ -36,7 +36,8 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_below="@+id/rellayout2"
-            android:layout_above="@id/bottom_bar">
+            android:layout_above="@id/bottom_bar"
+            android:layout_marginTop="-2dp">
 
             <RelativeLayout
                 android:layout_width="match_parent"
@@ -87,6 +88,7 @@
                             android:ems="10"
                             android:hint="Property Title"
                             android:theme="@style/MyEditText"
+                            android:inputType="text"
                             />
                     </android.support.design.widget.TextInputLayout>
 
@@ -103,7 +105,8 @@
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:hint="Price"
-                            android:theme="@style/MyEditText"/>
+                            android:theme="@style/MyEditText"
+                            android:inputType="number"/>
 
                     </android.support.design.widget.TextInputLayout>
 
@@ -119,7 +122,15 @@
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:hint="Type (Boarding House, Dormitory)"
-                            android:theme="@style/MyEditText"/>
+                            android:theme="@style/MyEditText"
+                            android:inputType="text"/>
+
+                        <!--<Spinner-->
+                            <!--android:layout_width="match_parent"-->
+                            <!--android:layout_height="40dp"-->
+                            <!--android:entries="@array/propertyTypeArray"-->
+                            <!--android:layout_marginTop="5dp">-->
+                        <!--</Spinner>-->
 
                     </android.support.design.widget.TextInputLayout>
 
@@ -136,7 +147,8 @@
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:hint="Area"
-                            android:theme="@style/MyEditText"/>
+                            android:theme="@style/MyEditText"
+                            android:inputType="number"/>
 
                     </android.support.design.widget.TextInputLayout>
 
@@ -154,7 +166,8 @@
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:hint="Rooms"
-                            android:theme="@style/MyEditText"/>
+                            android:theme="@style/MyEditText"
+                            android:inputType="number"/>
 
                     </android.support.design.widget.TextInputLayout>
 
@@ -163,14 +176,16 @@
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
                         android:layout_below="@+id/textViewRooms"
-                        android:theme="@style/MyEditText">
+                        android:theme="@style/MyEditText"
+                        >
 
                         <EditText
                             android:id="@+id/editTextBathrooms"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:hint="Bathrooms"
-                            android:theme="@style/MyEditText"/>
+                            android:theme="@style/MyEditText"
+                            android:inputType="number"/>
 
                     </android.support.design.widget.TextInputLayout>
 
@@ -187,7 +202,20 @@
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:hint="Pets Allowed (Yes or No)"
-                            android:theme="@style/MyEditText"/>
+                            android:theme="@style/MyEditText"
+                            android:inputType="text"/>
+
+
+                        <!--<Spinner-->
+                            <!--android:id="@+id/selectPets"-->
+                            <!--android:layout_width="match_parent"-->
+                            <!--android:layout_height="40dp"-->
+                            <!--android:layout_below="@+id/textViewBathrooms"-->
+                            <!--android:theme="@style/MyEditText"-->
+                            <!--android:entries="@array/pets"-->
+                            <!--android:layout_marginTop="5dp"-->
+                        <!--/>-->
+
 
                     </android.support.design.widget.TextInputLayout>
 
@@ -204,7 +232,8 @@
                             android:layout_height="wrap_content"
                             android:theme="@style/MyEditText"
                             android:hint="Description"
-                            android:inputType="textMultiLine"/>
+                            android:inputType="textMultiLine"
+                            />
 
                     </android.support.design.widget.TextInputLayout>
 

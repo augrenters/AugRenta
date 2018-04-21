@@ -5,26 +5,27 @@
 
 
 
-    <item
-        android:id="@+id/menu_bar"
-        android:icon="@drawable/ic_menu"
-        android:title="Menu"
-        app:showAsAction="always"
+    <!--<item-->
+        <!--android:id="@+id/menu_bar"-->
+        <!--android:icon="@drawable/ic_menu"-->
+        <!--android:title="Menu"-->
+        <!--app:showAsAction="always"-->
 
-       />
+       <!--/>-->
 
-    <item
-        android:id="@+id/magnify"
-        android:icon="@drawable/ic_magnify"
-        android:title="search_icon"
-        app:showAsAction="always"
-        />
+    <!--<item-->
+        <!--android:id="@+id/magnify"-->
+        <!--android:icon="@drawable/ic_magnify"-->
+        <!--android:title="search_icon"-->
+        <!--app:showAsAction="always"-->
+        <!--/>-->
     <item
         android:id="@+id/filter_menu"
         android:icon="@drawable/ic_filter_list_black_24dp"
         android:title="Filter"
         app:showAsAction="always"
         android:orderInCategory="100"
+
         />
 
 </menu>
