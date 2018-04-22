@@ -208,6 +208,7 @@ public class SelectLocationActivity extends AppCompatActivity implements OnMapRe
     public void onLocationChanged(Location location) {
         double lat = location.getLatitude();
         double lng = location.getLongitude();
+        String locality = null;
 
         if (location == null) {
             // doesn't work if gps is unabled
@@ -223,11 +224,10 @@ public class SelectLocationActivity extends AppCompatActivity implements OnMapRe
             List<Address> addresses = null;
             try {
                 addresses = geocoder.getFromLocation(lat, lng, 1);
+                locality = addresses.get(0).getLocality();
             } catch (IOException e) {
                 e.printStackTrace();
             }
-
-            String locality = addresses.get(0).getLocality();
             setMarker(locality, lat, lng);
         }
     }
@@ -244,6 +244,7 @@ public class SelectLocationActivity extends AppCompatActivity implements OnMapRe
             mMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
                 @Override
                 public void onMapClick(LatLng latLng) {
+                    String locality = null;
 
                     Toast.makeText(SelectLocationActivity.this, "You clicked here" + latLng, Toast.LENGTH_SHORT).show();
 
@@ -252,13 +253,13 @@ public class SelectLocationActivity extends AppCompatActivity implements OnMapRe
                     double lat = latLng.latitude;
                     double lng = latLng.longitude;
                     List<Address> list = null;
+
                     try {
                         list = gc.getFromLocation(lat, lng, 1);
+                        locality = list.get(0).getLocality();
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
-                    Address add = list.get(0);
-                    String locality = add.getLocality();
 
                     setMarker(locality, lat, lng);
 

@@ -1,16 +1,21 @@
 package com.example.sejeque.augrenta;
 
 import android.app.PendingIntent;
+import android.app.ProgressDialog;
 import android.content.Intent;
+import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.provider.OpenableColumns;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
 import android.view.View;
@@ -18,12 +23,20 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.OnProgressListener;
+import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by Faith on 20/03/2018.
@@ -39,11 +52,19 @@ public class AddPropertyActivity extends AppCompatActivity {
     private FirebaseAuth mAuth;
     private FirebaseUser currentUser;
     private DatabaseReference mDatabase;
+    private StorageReference storageReference;
 
     DrawerLayout drawerLayout;
     ActionBarDrawerToggle actionBarDrawerToggle;
 
     Bundle oldBundle;
+
+    private List<String> fileNameList;
+    private List<Uri> fileUriList;
+
+    private RecyclerView imgUploadList;
+
+    private UploadListAdapter uploadListAdapter;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -80,6 +101,17 @@ public class AddPropertyActivity extends AppCompatActivity {
         cancelBtn = findViewById(R.id.btnGoBack);
         upload_imgBtn = findViewById(R.id.upload_imgbtn);
 
+        imgUploadList = findViewById(R.id.imgRecHolder);
+
+        fileNameList = new ArrayList<>();
+        fileUriList = new ArrayList<>();
+
+        uploadListAdapter = new UploadListAdapter(fileNameList);
+
+        imgUploadList.setLayoutManager(new LinearLayoutManager(this));
+        imgUploadList.setHasFixedSize(true);
+        imgUploadList.setAdapter(uploadListAdapter);
+
         //Initiating auth for firebase
         mAuth = FirebaseAuth.getInstance();
 
@@ -88,6 +120,8 @@ public class AddPropertyActivity extends AppCompatActivity {
 
         //get reference from database with child node Property
         mDatabase = FirebaseDatabase.getInstance().getReference("Property");
+
+        storageReference = FirebaseStorage.getInstance().getReference("PropertyImages");
 
         //if no currentUser logged in
         if(currentUser == null){
@@ -140,6 +174,33 @@ public class AddPropertyActivity extends AppCompatActivity {
         });
     }
 
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if(requestCode == RESULT_LOAD_IMAGE && resultCode == RESULT_OK ){
+
+            if(data.getClipData() != null){
+                int totalFileSelected = data.getClipData().getItemCount();
+
+                for(int x = 0; x < totalFileSelected; x++){
+                    Uri fileUri = data.getClipData().getItemAt(x).getUri();
+                    String filename = getFilename(fileUri);
+
+                    fileNameList.add(filename);
+                    fileUriList.add(fileUri);
+                }
+
+            }else if(data.getData() != null){
+                Uri fileUri = data.getData();
+                String filename = getFilename(fileUri);
+
+                fileNameList.add(filename);
+                fileUriList.add(fileUri);
+            }
+        }
+    }
+
     //method for populating fields if user came from SelectLocationActivity
     private void setOldFormInput() {
         //populate fields
@@ -175,7 +236,7 @@ public class AddPropertyActivity extends AppCompatActivity {
         //instantiate property information
         String latVal = bundle.getString("latitudeValue");
         String longVal = bundle.getString("longitudeValue");
-        String propName = propertyNameHandler.getText().toString();
+        final String propName = propertyNameHandler.getText().toString();
         String propPrice = priceHandler.getText().toString();
         String propDesc = descriptionHandler.getText().toString();
         String propType = typeHandler.getText().toString();
@@ -229,23 +290,61 @@ public class AddPropertyActivity extends AppCompatActivity {
             return;
         }
 
+        else if(fileUriList.size() == 0){
+            Toast.makeText(AddPropertyActivity.this, "Select Image For Property First", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
         //if all variables is not empty
         else {
+            final ProgressDialog progressDialog = new ProgressDialog(this);
+            progressDialog.setTitle("Saving Property..");
+            progressDialog.show();
+
             //get unique id that will be given to a child node of Property
-            String key = mDatabase.push().getKey();
+            final String key = mDatabase.push().getKey();
 
             //pass variable to model Property
             Property property = new Property(propDesc, latVal, longVal, propOwner, propPrice, propName,
                                                 key, propType, propArea, propRooms, propBathrooms, propPets);
 
             //save property object to firebase database
-            mDatabase.child(key).setValue(property);
-            Toast.makeText(AddPropertyActivity.this, "New Property Added!", Toast.LENGTH_SHORT).show();
+            mDatabase.child(key).setValue(property)
+                    .addOnSuccessListener(new OnSuccessListener<Void>() {
+                        @Override
+                        public void onSuccess(Void aVoid) {
+                            for (int x = 0; x<fileUriList.size(); x++){
+                                Uri imgUpload = fileUriList.get(x);
+                                String filenameUpload = fileNameList.get(x);
+                                storageReference.child(key).child(filenameUpload).putFile(imgUpload)
+                                        .addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                                    @Override
+                                    public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                                        progressDialog.dismiss();
+                                        Toast.makeText(AddPropertyActivity.this, "Property Saved", Toast.LENGTH_SHORT).show();
+                                        finish();
+                                        Intent onMapView = new Intent(AddPropertyActivity.this, MapsActivity.class);
+                                        startActivity(onMapView);
+                                    }
+                                })
+                                        .addOnFailureListener(new OnFailureListener() {
+                                            @Override
+                                            public void onFailure(@NonNull Exception e) {
+                                                progressDialog.dismiss();
+                                                Toast.makeText(AddPropertyActivity.this, "Property Image not Saved", Toast.LENGTH_SHORT).show();
+                                            }
+                                        });
+                            }
 
-            //return to MapsActivity
-            finish();
-            Intent onMapView = new Intent(AddPropertyActivity.this, MapsActivity.class);
-            startActivity(onMapView);
+                        }
+                    })
+                    .addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            progressDialog.dismiss();
+                            Toast.makeText(AddPropertyActivity.this, "Failed "+e.getMessage(), Toast.LENGTH_SHORT).show();
+                        }
+                    });
         }
     }
 
@@ -290,26 +389,26 @@ public class AddPropertyActivity extends AppCompatActivity {
         actionBarDrawerToggle.syncState();
     }
 
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
+    public String getFilename(Uri uri){
+        String result = null;
 
-        if(requestCode == RESULT_LOAD_IMAGE && requestCode == RESULT_OK
-                && data != null && data.getData() != null ){
-
-            imageUri = data.getData();
-//            try {
-//                Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), imageUri);
-//            }
-//            catch (IOException e)
-//            {
-//                e.printStackTrace();
-//            }
-            if(data.getClipData() != null){
-                Toast.makeText(this, "Selected Multiple File", Toast.LENGTH_SHORT).show();
-            }else{
-                Toast.makeText(this, "Selected Single File", Toast.LENGTH_SHORT).show();
+        if(uri.getScheme().equals("content")){
+            Cursor cursor = getContentResolver().query(uri, null, null, null, null);
+            try{
+                if(cursor != null && cursor.moveToFirst()){
+                    result = cursor.getString(cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME));
+                }
+            }finally {
+                cursor.close();
             }
         }
+        if(result == null){
+            result = uri.getPath();
+            int cut = result.lastIndexOf('/');
+            if(cut != -1){
+                result = result.substring(cut + 1);
+            }
+        }
+        return result;
     }
 }

@@ -96,7 +96,7 @@ public class PropertyActivity extends AppCompatActivity {
 
         //instantiate elements for listView ui
         listItem = new ArrayList<>();
-        sAdapter = new SimpleAdapter(this, listItem, R.layout.list_item, new String[]{"Item", "SubItem"}, new int[]{R.id.textItem, R.id.textSubItem});
+        sAdapter = new SimpleAdapter(this, listItem, R.layout.list_item, new String[]{"Item", "SubItem"}, new int[]{R.id.textUploadItem, R.id.textSubItem});
 
         //if Add Property button is pressed
         addPropertyBtn.setOnClickListener(new View.OnClickListener() {

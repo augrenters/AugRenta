@@ -57,11 +57,11 @@
                         android:textColor="@color/white"/>
 
                     <!--This is where the Image will be displayed-->
-                   <android.support.v7.widget.RecyclerView
-                       android:layout_below="@+id/upload_imgbtn"
-                       android:layout_width="match_parent"
-                       android:layout_height="wrap_content">
-                   </android.support.v7.widget.RecyclerView>
+                    <android.support.v7.widget.RecyclerView
+                        android:id="@+id/imgRecHolder"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_below="@+id/upload_imgbtn"></android.support.v7.widget.RecyclerView>
 
                 </RelativeLayout>
 

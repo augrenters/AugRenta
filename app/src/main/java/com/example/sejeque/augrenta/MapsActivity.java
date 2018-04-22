@@ -470,7 +470,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 e.printStackTrace();
             }
 
-            String locality = addresses.get(0).getLocality();
+//            String locality = addresses.get(0).getLocality();
 //            setMarker(locality, lat, lng);
         }
     }
