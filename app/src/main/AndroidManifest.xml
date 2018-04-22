@@ -67,6 +67,9 @@
             android:name=".MapsActivity"
             android:label="@string/title_activity_maps" />
         <activity
+            android:name=".Main2Activity"
+            android:label="@string/title_activity_main2" />
+        <activity
             android:name=".SeekerRequestsActivity"
             android:label="@string/title_activity_main2"
             />
@@ -93,3 +96,5 @@
     </application>
 
 </manifest>
+
+

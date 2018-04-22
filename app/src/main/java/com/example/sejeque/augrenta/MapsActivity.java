@@ -1,6 +1,8 @@
 package com.example.sejeque.augrenta;
 
+import android.app.AlertDialog;
 import android.app.Fragment;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Address;
@@ -11,7 +13,6 @@ import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.design.widget.BottomNavigationView;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.ActivityCompat;
@@ -20,15 +21,20 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.view.LayoutInflater;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.facebook.CallbackManager;
-import com.facebook.FacebookActivity;
 import com.facebook.login.LoginManager;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -55,14 +61,12 @@ import com.squareup.picasso.Picasso;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 
 import static com.google.firebase.auth.FirebaseAuth.*;
-
-
-public class MapsActivity extends FragmentActivity implements OnMapReadyCallback, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, LocationListener {
+public class MapsActivity extends AppCompatActivity implements OnMapReadyCallback, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, LocationListener {
 
     private GoogleMap mMap;
     GoogleApiClient mGoogleApiClient;
@@ -78,6 +82,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
     //Array container for fetched data from firebase database
     List<Property> properties;
+
+    String prop_Id;
 
     DrawerLayout drawerLayout;
     ActionBarDrawerToggle actionBarDrawerToggle;
@@ -119,8 +125,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         setCredentialView();
 
         toolbar = (Toolbar) findViewById(R.id.toolbar);
-        //setSupportActionBar(toolbar);
-        //getSupportActionBar().setTitle("Requests");
+        setSupportActionBar(toolbar);
+        getSupportActionBar().setTitle("");
         //getSupportActionBar().setCustomView(R.layout.search_view);
 
         //final EditText search_place = (EditText) getActionBar().getCustomView().findViewById(R.id.searchPlace);
@@ -198,7 +204,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 addMarkers();
 
             }
-
             @Override
             public void onCancelled(DatabaseError databaseError) {
 
@@ -212,6 +217,52 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         super.onPostCreate(savedInstanceState);
         actionBarDrawerToggle.syncState();
     }
+
+    // show filter item
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        //return super.onCreateOptionsMenu(menu);
+        getMenuInflater().inflate(R.menu.search_menu, menu);
+        return true;
+    }
+    // click event of filter
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+
+
+
+        switch (item.getItemId()){
+            case R.id.filter_menu:
+                filterSearch();
+                return true;
+        }
+
+        return super.onOptionsItemSelected(item);
+    }
+
+    // FILTER SEARCH OPTION ON TOOLBAR
+    private void filterSearch() {
+
+        final Animation animatioSlideDown, animationSlideUp;
+        final ViewGroup hiddenPanel = (ViewGroup)findViewById(R.id.hiddenFilterSearch);
+
+        animatioSlideDown = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.top_slide);
+        animationSlideUp = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.filter_hide);
+
+        Toast.makeText(this, "You clicked Filter Search", Toast.LENGTH_SHORT).show();
+        hiddenPanel.setVisibility(ViewGroup.VISIBLE);
+        hiddenPanel.startAnimation(animatioSlideDown);
+
+        Button btnCancelSearch = (Button) findViewById(R.id.btnCancelSearch);
+        btnCancelSearch.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                hiddenPanel.startAnimation(animationSlideUp);
+                hiddenPanel.setVisibility(ViewGroup.GONE);
+            }
+        });
+    }
+
 
     //method for going back to login panel
     private void proceed() {
@@ -266,6 +317,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         Picasso.get().load(photoUrl).into(imgHandler);
     }
 
+    HashMap<Marker, String> resultMap = new HashMap<Marker, String>();
+    ArrayList listItem = new ArrayList<>();
+
     //method for adding markers to map
     private void addMarkers(){
         //if no added property yet
@@ -287,7 +341,12 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 Marker marker = mMap.addMarker(new MarkerOptions()
                                                 .position(markerPos)
                                                 .title(properties.get(x).propertyName)
-                                                .snippet("Price: " + properties.get(x).price + " Php\n" + properties.get(x).description));
+                                                .snippet("Price: " + properties.get(x).price + " Php\n" ));
+                //getting property ID
+                resultMap.put(marker, properties.get(x).propertyID);
+
+
+
             }
         }
     }
@@ -330,10 +389,68 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 LatLng markerll = marker.getPosition();
                 CameraUpdate update = CameraUpdateFactory.newLatLngZoom(markerll, 17);
                 mMap.animateCamera(update);
+
+                showPropertyInfoDialog(resultMap.get(marker));
+                //Toast.makeText(MapsActivity.this, ""+resultMap.get(marker), Toast.LENGTH_SHORT).show();
+
+
             }
         });
 
     }
+    //// Dialog Box when clickick marker Info window to show Summary Detail of the Property
+    private void showPropertyInfoDialog(String s) {
+
+        final String prop_Id = s;
+
+        AlertDialog.Builder alertDialog = new AlertDialog.Builder(this, R.style.CustomDialogTheme);
+        LayoutInflater inflater = this.getLayoutInflater();
+        View view = inflater.inflate(R.layout.dialoginfo_layout, null);
+
+        final TextView name = (TextView) view.findViewById(R.id.seekerRequestPlace1);
+        final TextView price = (TextView) view.findViewById(R.id.prop_price);
+        final TextView description = (TextView) view.findViewById(R.id.prop_desc);
+
+        mDatabase.child(prop_Id).addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                Property property = dataSnapshot.getValue(Property.class);
+
+                name.setText(property.propertyName);
+                price.setText(property.price + " PHP");
+                description.setText(property.description);
+            }
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+
+        alertDialog.setTitle("Property Detail");
+        alertDialog.setView(view);
+
+        alertDialog.setPositiveButton("View All", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                //passing value and directing to the Propery Information
+                Intent showInfo = new Intent(MapsActivity.this , Main2Activity.class);
+                showInfo.putExtra("propertyId", prop_Id);
+                startActivity(showInfo);
+
+            }
+        });
+        alertDialog.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        dialogInterface.cancel();
+                    }
+                });
+
+        AlertDialog alertDialogInfo = alertDialog.create();
+        alertDialogInfo.show();
+    }
+
+
 
     //method for zooming to user location
     private void setToUserLocation() {

@@ -22,7 +22,15 @@
     <string name ="title_signout">Sign Out</string>
 
     <string-array name="pets">
-        <item>Yes</item>
-        <item>No</item>
+        <item>Pets</item>
+        <item>Allowed</item>
+        <item>Not Allowed</item>
+    </string-array>
+
+    <string-array name="propertyTypeArray">
+        <item>Select Property Type</item>
+        <item>Boarding House</item>
+        <item>Room for Rent</item>
+        <item>Dormitory</item>
     </string-array>
 </resources>

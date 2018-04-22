@@ -58,6 +58,8 @@ public class PropertyActivity extends AppCompatActivity {
     DrawerLayout drawerLayout;
     ActionBarDrawerToggle actionBarDrawerToggle;
 
+
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -126,6 +128,7 @@ public class PropertyActivity extends AppCompatActivity {
                     //insert newly fetched data from firebase database
                     //to array container
                     properties.add(property);
+
                 }
                 //populate listView ui
                 populateList();
@@ -189,6 +192,7 @@ public class PropertyActivity extends AppCompatActivity {
                 resultMap.put("Item", properties.get(x).propertyName);
                 resultMap.put("SubItem", fullAddress);
                 resultMap.put("Property Owner", properties.get(x).owner);
+                resultMap.put("Property ID", properties.get(x).propertyID);
 
                 //insert temporary array container to listItem array container
                 //container that will be used to population listView ui
@@ -200,12 +204,16 @@ public class PropertyActivity extends AppCompatActivity {
         //generate listView ui
         propertyListHandler.setAdapter(sAdapter);
 
+        //Click event of list view to pass data and show Property's information
         propertyListHandler.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                Toast.makeText(PropertyActivity.this, ""+sAdapter.getItem(i), Toast.LENGTH_SHORT).show();
-//                Intent showInfo = new Intent(PropertyActivity.this , Main2Activity.class);
-//                startActivity(showInfo);
+                //Toast.makeText(PropertyActivity.this, ""+ listItem.get(i).get("Property ID"), Toast.LENGTH_SHORT).show();
+
+                Intent showInfo = new Intent(PropertyActivity.this , Main2Activity.class);
+                showInfo.putExtra("propertyId", listItem.get(i).get("Property ID"));
+                //showInfo.putExtra("ownerId", listItem.get(i).get("Property Owner"));
+                startActivity(showInfo);
             }
         });
     }
