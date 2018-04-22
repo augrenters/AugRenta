@@ -49,6 +49,8 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -56,6 +58,8 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
 import com.squareup.picasso.Picasso;
 
 
@@ -74,6 +78,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     private FirebaseAuth mAuth;
     private FirebaseUser currentUser;
     private DatabaseReference mDatabase;
+    private StorageReference storageReference;
 
     private CallbackManager mCallbackManager;
 
@@ -100,6 +105,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         currentUser = mAuth.getCurrentUser();
         //get reference for firebase database with child node Property
         mDatabase = FirebaseDatabase.getInstance().getReference("Property");
+        storageReference = FirebaseStorage.getInstance().getReference("PropertyImages");
 
         //instantiate array container for fetched data from firebase database
         properties = new ArrayList<>();
@@ -403,13 +409,14 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         final String prop_Id = s;
 
-        AlertDialog.Builder alertDialog = new AlertDialog.Builder(this, R.style.CustomDialogTheme);
+        AlertDialog.Builder alertDialog = new AlertDialog.Builder(this);
         LayoutInflater inflater = this.getLayoutInflater();
         View view = inflater.inflate(R.layout.dialoginfo_layout, null);
 
         final TextView name = (TextView) view.findViewById(R.id.seekerRequestPlace1);
         final TextView price = (TextView) view.findViewById(R.id.prop_price);
         final TextView description = (TextView) view.findViewById(R.id.prop_desc);
+        final ImageView propImg =  (ImageView) view.findViewById(R.id.seekerRequestImage);
 
         mDatabase.child(prop_Id).addValueEventListener(new ValueEventListener() {
             @Override
@@ -419,6 +426,14 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 name.setText(property.propertyName);
                 price.setText(property.price + " PHP");
                 description.setText(property.description);
+
+                storageReference.child(property.propertyID + "/" + property.profileImage).getDownloadUrl()
+                        .addOnSuccessListener(new OnSuccessListener<Uri>() {
+                            @Override
+                            public void onSuccess(Uri uri) {
+                                Picasso.get().load(uri).into(propImg);
+                            }
+                        });
             }
             @Override
             public void onCancelled(DatabaseError databaseError) {

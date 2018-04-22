@@ -36,6 +36,7 @@ import com.google.firebase.storage.UploadTask;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -244,40 +245,35 @@ public class AddPropertyActivity extends AppCompatActivity {
         String propRooms = roomsHandler.getText().toString();
         String propBathrooms = bathroomsHandler.getText().toString();
         String propPets = petsHandler.getText().toString();
+        String propAvail = "yes";
+        String propNotAvailTemp = "no";
 
         //getUid() method gets unique user id given automatically by firebase auth
         String propOwner = currentUser.getUid();
 
         //if fields are empty, return warnings to fields
-        if(TextUtils.isEmpty(propName)){
+        if (TextUtils.isEmpty(propName)) {
             propertyNameHandler.setError(REQUIRED);
             return;
-        }
-        else if(TextUtils.isEmpty(propPrice)){
+        } else if (TextUtils.isEmpty(propPrice)) {
             priceHandler.setError(REQUIRED);
             return;
-        }
-        else if(TextUtils.isEmpty(propDesc)){
+        } else if (TextUtils.isEmpty(propDesc)) {
             descriptionHandler.setError(REQUIRED);
             return;
-        }
-        else if(TextUtils.isEmpty(propType)){
+        } else if (TextUtils.isEmpty(propType)) {
             typeHandler.setError(REQUIRED);
             return;
-        }
-        else if(TextUtils.isEmpty(propArea)){
+        } else if (TextUtils.isEmpty(propArea)) {
             areaHandler.setError(REQUIRED);
             return;
-        }
-        else if(TextUtils.isEmpty(propRooms)){
+        } else if (TextUtils.isEmpty(propRooms)) {
             roomsHandler.setError(REQUIRED);
             return;
-        }
-        else if(TextUtils.isEmpty(propBathrooms)){
+        } else if (TextUtils.isEmpty(propBathrooms)) {
             bathroomsHandler.setError(REQUIRED);
             return;
-        }
-        else if(TextUtils.isEmpty(propPets)){
+        } else if (TextUtils.isEmpty(propPets)) {
             petsHandler.setError(REQUIRED);
             return;
         }
@@ -285,12 +281,10 @@ public class AddPropertyActivity extends AppCompatActivity {
         //latVal && longVal came from SelectLocationActivty, so user has not yet chosen
         //location if these variables is empty
         //Toast a warning
-        else if( latVal == null && longVal == null){
+        else if (latVal == null && longVal == null) {
             Toast.makeText(AddPropertyActivity.this, "Select Location First", Toast.LENGTH_SHORT).show();
             return;
-        }
-
-        else if(fileUriList.size() == 0){
+        } else if (fileUriList.size() == 0 && fileNameList.size() == 0) {
             Toast.makeText(AddPropertyActivity.this, "Select Image For Property First", Toast.LENGTH_SHORT).show();
             return;
         }
@@ -303,46 +297,32 @@ public class AddPropertyActivity extends AppCompatActivity {
 
             //get unique id that will be given to a child node of Property
             final String key = mDatabase.push().getKey();
+            String propImage = fileNameList.get(0);
 
             //pass variable to model Property
             Property property = new Property(propDesc, latVal, longVal, propOwner, propPrice, propName,
-                                                key, propType, propArea, propRooms, propBathrooms, propPets);
+                    key, propType, propArea, propRooms, propBathrooms, propPets, propImage, propAvail, propNotAvailTemp);
 
             //save property object to firebase database
             mDatabase.child(key).setValue(property)
                     .addOnSuccessListener(new OnSuccessListener<Void>() {
                         @Override
                         public void onSuccess(Void aVoid) {
-                            for (int x = 0; x<fileUriList.size(); x++){
-                                Uri imgUpload = fileUriList.get(x);
-                                String filenameUpload = fileNameList.get(x);
-                                storageReference.child(key).child(filenameUpload).putFile(imgUpload)
-                                        .addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
-                                    @Override
-                                    public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                                        progressDialog.dismiss();
-                                        Toast.makeText(AddPropertyActivity.this, "Property Saved", Toast.LENGTH_SHORT).show();
-                                        finish();
-                                        Intent onMapView = new Intent(AddPropertyActivity.this, MapsActivity.class);
-                                        startActivity(onMapView);
-                                    }
-                                })
-                                        .addOnFailureListener(new OnFailureListener() {
-                                            @Override
-                                            public void onFailure(@NonNull Exception e) {
-                                                progressDialog.dismiss();
-                                                Toast.makeText(AddPropertyActivity.this, "Property Image not Saved", Toast.LENGTH_SHORT).show();
-                                            }
-                                        });
+                            HashMap<String, Object> images = new HashMap<>();
+                            String imageHandler = "";
+                            for (int x = 0; x < fileUriList.size(); x++) {
+                                final Uri imgUpload = fileUriList.get(x);
+                                final String filenameUpload = fileNameList.get(x);
+                                storageReference.child(key).child(filenameUpload).putFile(imgUpload);
+                                imageHandler = "image" + x;
+                                images.put(imageHandler, filenameUpload);
                             }
-
-                        }
-                    })
-                    .addOnFailureListener(new OnFailureListener() {
-                        @Override
-                        public void onFailure(@NonNull Exception e) {
+                            mDatabase.child(key).child("images").updateChildren(images);
                             progressDialog.dismiss();
-                            Toast.makeText(AddPropertyActivity.this, "Failed "+e.getMessage(), Toast.LENGTH_SHORT).show();
+                            finish();
+                            Toast.makeText(AddPropertyActivity.this, "Property Saved", Toast.LENGTH_SHORT).show();
+                            Intent onMapView = new Intent(AddPropertyActivity.this, MapsActivity.class);
+                            startActivity(onMapView);
                         }
                     });
         }

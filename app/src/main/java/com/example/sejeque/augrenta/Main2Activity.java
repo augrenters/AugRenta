@@ -23,6 +23,8 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -37,6 +39,7 @@ public class Main2Activity extends AppCompatActivity {
     /// Database
     //initiate database reference
     private DatabaseReference mDatabase;
+    private StorageReference storageReference;
 
     private FirebaseAuth mAuth;
     private FirebaseUser currentUser;
@@ -70,6 +73,7 @@ public class Main2Activity extends AppCompatActivity {
 
         //get reference from firebase database with child node Property
         mDatabase = FirebaseDatabase.getInstance().getReference("Property");
+        storageReference = FirebaseStorage.getInstance().getReference("PropertyImages");
 
         //get user information
         mAuth = FirebaseAuth.getInstance();
@@ -130,7 +134,6 @@ public class Main2Activity extends AppCompatActivity {
             property_bedroom.setText(property.rooms);
             property_bathroom.setText(property.bathroom);
             property_pet.setText(property.pets);
-
 
         //}
     }
