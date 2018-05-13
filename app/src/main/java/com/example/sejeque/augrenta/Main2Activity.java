@@ -40,6 +40,8 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
 import com.squareup.picasso.Picasso;
 
 import java.sql.Time;
@@ -61,7 +63,9 @@ public class Main2Activity extends AppCompatActivity {
 
     /// Database
     //initiate database reference
-    private DatabaseReference mDatabase, requestDatabase, notifDatabase;
+    private DatabaseReference requestDatabase, notifDatabase;
+    private DatabaseReference mDatabase;
+    private StorageReference storageReference;
 
     private FirebaseAuth mAuth;
     private FirebaseUser currentUser;
@@ -88,12 +92,7 @@ public class Main2Activity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main2);
 
-        //get user information
-        mAuth = FirebaseAuth.getInstance();
-        currentUser = mAuth.getCurrentUser();
-
-
-        toolbar = (Toolbar) findViewById(R.id.toolbar);
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         getSupportActionBar().setTitle("Property Details");
 
@@ -151,6 +150,11 @@ public class Main2Activity extends AppCompatActivity {
 
         //get reference from firebase database with child node Property
         mDatabase = FirebaseDatabase.getInstance().getReference("Property");
+        storageReference = FirebaseStorage.getInstance().getReference("PropertyImages");
+
+        //get user information
+        mAuth = FirebaseAuth.getInstance();
+        currentUser = mAuth.getCurrentUser();
 
         //TextView widgets initialisation
         property_name = findViewById(R.id.property_name);
@@ -219,6 +223,28 @@ public class Main2Activity extends AppCompatActivity {
     }
 
 
+        Button direction_tour = (Button) findViewById(R.id.inside_tour);
+        direction_tour.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent starIntent = new Intent(Main2Activity.this, AugmentActivity.class);
+                starIntent.putExtra("propertyId", propertyId);
+                startActivity(starIntent);
+            }
+        });
+
+        indoor_tour = findViewById(R.id.view_indoor_ar);
+        indoor_tour.setVisibility(View.GONE);
+        indoor_tour.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent starIntent = new Intent(Main2Activity.this, AugmentIndoorActivity.class);
+                starIntent.putExtra("propertyId", propertyId);
+                startActivity(starIntent);
+            }
+        });
+
+    }
 
     @Override
     protected void onStart() {
@@ -230,11 +256,12 @@ public class Main2Activity extends AppCompatActivity {
                 showData(dataSnapshot);
                 //Toast.makeText(Main2Activity.this, ""+dataSnapshot, Toast.LENGTH_SHORT).show();
             }
+
             @Override
             public void onCancelled(DatabaseError databaseError) {
+
             }
         });
-
 
     }
 
@@ -255,6 +282,12 @@ public class Main2Activity extends AppCompatActivity {
             property_pet.setText(property.pets);
 
             prop_name = property.propertyName.toUpperCase();
+            String currentId = currentUser.getUid();
+            String propertyOwner = property.owner;
+            Toast.makeText(this, "Current ID: " + currentId + "\nOwner ID: " + propertyOwner, Toast.LENGTH_SHORT).show();
+            if(propertyOwner.equals(currentId)){
+                indoor_tour.setVisibility(View.VISIBLE);
+            }
 
             checkCredentials();
         //}
