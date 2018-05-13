@@ -9,7 +9,7 @@
         android:layout_height="match_parent"
         android:minHeight="250dp"
         android:orientation="vertical"
-        tools:context="com.example.sejeque.augrenta.MapsActivity"
+        tools:context="com.example.sejeque.augrenta.Main2Activity"
         android:id="@+id/drawerLayout1">
 
 
@@ -18,32 +18,22 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
 
-            <RelativeLayout
-                android:id="@+id/rellayout2"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-
-                tools:layout_editor_absoluteX="0dp"
-                tools:layout_editor_absoluteY="0dp">
-
-                <include layout="@layout/toolbar_layout"/>
-
-
-            </RelativeLayout>
+            <include layout="@layout/toolbar_layout"/>
 
 
 
             <ScrollView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_below="@+id/rellayout2"
+                android:layout_below="@+id/toolbar"
                 android:layout_above="@id/bottom_bar"
                 android:layout_marginTop="-2dp">
 
                 <RelativeLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:background="@color/colorAccent">
+                    android:background="@color/colorAccent"
+                    android:layout_margin="5dp">
 
                     <RelativeLayout
                         android:id="@+id/imagelayout"
@@ -51,14 +41,14 @@
                         android:layout_height="wrap_content"
                         android:layout_marginBottom="5dp"
                         android:layout_marginTop="0dp"
-                        android:background="@drawable/white_border">
+                        android:background="@drawable/white_border"
+                        >
 
                         <LinearLayout
                             android:id="@+id/image_view"
                             android:layout_width="fill_parent"
                             android:layout_height="250dp"
                             android:orientation="horizontal"
-
                             android:layout_marginTop="0dp">
 
                             <ImageView
@@ -121,7 +111,8 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_below="@+id/imagelayout"
-                        android:background="@drawable/white_border">
+                        android:background="@drawable/white_border"
+                        android:layout_marginBottom="5dp">
 
                         <Button
                             android:id="@+id/button3"
@@ -154,6 +145,14 @@
                             android:textAllCaps="false"
                             android:drawableStart="@drawable/ic_messenger"
                             />
+
+                        <!--<Button-->
+                            <!--android:layout_width="wrap_content"-->
+                            <!--android:layout_height="wrap_content"-->
+                            <!--android:text="Set Availability"-->
+                            <!--android:background="@drawable/button_actionplaceviewer"-->
+                            <!--android:textAllCaps="false"-->
+                            <!--android:layout_toRightOf="@id/message_owner"/>-->
 
                         <TextView
                             android:id="@+id/textView4"
@@ -245,8 +244,9 @@
 
                         </TableLayout>
 
-
                     </RelativeLayout>
+
+                    <include layout="@layout/setproperty_availability"/>
 
                 </RelativeLayout>
 
@@ -280,40 +280,30 @@
                         android:layout_height="match_parent"
                         android:layout_marginEnd="3dp"
                         android:layout_marginRight="3dp"
-                        android:layout_weight="1"
+                        android:layout_weight="2"
                         android:background="@drawable/button_placeviewer"
                         android:textColor="@color/white"
-                        android:text="Request Visit" />
+                        android:text="Request Visit"
+                        android:enabled="true"
+                        />
 
                     <Button
-                        android:id="@+id/inside_tour"
+                        android:id="@+id/startAR"
                         android:layout_width="0dp"
                         android:layout_height="match_parent"
                         android:layout_marginLeft="3dp"
-                        android:layout_weight="1"
+                        android:layout_weight="2"
                         android:background="@drawable/button_placeviewer"
                         android:textColor="@color/white"
-                        android:text="Inside Tour" />
+                        android:text="Start AR Location"
+                        android:visibility="gone"/>
 
                 </LinearLayout>
 
-
             </RelativeLayout>
-
 
         </RelativeLayout>
 
-        <android.support.design.widget.NavigationView
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:layout_gravity="start"
-            android:background="@color/navigation_gray"
-            app:itemTextColor="@color/white"
-            app:itemIconTint="@color/white"
-            android:theme="@style/AppTheme"
-            app:headerLayout="@layout/header"
-            app:menu="@menu/navigation">
-        </android.support.design.widget.NavigationView>
-
+        <include layout="@layout/sidenavbar_layout"/>
 
     </android.support.v4.widget.DrawerLayout>

@@ -18,15 +18,15 @@ public class CustomListAdaptor extends ArrayAdapter<String> {
 
     private final Activity context;
     private final String[] itemname;
-    private final Integer[] imgid;
 
-    public CustomListAdaptor(Activity context, String[] itemname, Integer[] imgid) {
+
+    public CustomListAdaptor(Activity context, String[] itemname) {
         super(context, R.layout.seekerrequests_layout, itemname);
         // TODO Auto-generated constructor stub
 
         this.context=context;
         this.itemname=itemname;
-        this.imgid=imgid;
+
 
     }
 
@@ -34,12 +34,11 @@ public class CustomListAdaptor extends ArrayAdapter<String> {
         LayoutInflater inflater=context.getLayoutInflater();
         View rowView=inflater.inflate(R.layout.seekerrequests_layout, null,true);
 
-        TextView txtTitle = (TextView) rowView.findViewById(R.id.seekerRequestPlace);
-        ImageView imageView = (ImageView) rowView.findViewById(R.id.seekerRequestImage);
+        TextView txtTitle = (TextView) rowView.findViewById(R.id.requestedPropertyName);
+
 
 
         txtTitle.setText(itemname[position]);
-        imageView.setImageResource(imgid[position]);
 
         return rowView;
 

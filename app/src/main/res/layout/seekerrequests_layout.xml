@@ -1,37 +1,110 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/requestsLayout"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:padding="10dp">
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    >
     <!-- Layout design for each Lists -->
 
-    <ImageView
-        android:id="@+id/seekerRequestImage"
-        android:layout_width="50dp"
-        android:layout_height="50dp"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true"
-        android:layout_alignParentTop="true"
-        android:layout_marginLeft="42dp"
-        android:layout_marginStart="42dp"
-        android:scaleType="fitXY"
-        android:src="@drawable/sample_image" />
+    <RelativeLayout
+        android:id="@+id/requestPanel1"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
 
-    <TextView
-        android:id="@+id/seekerRequestPlace"
-        android:layout_width="wrap_content"
+        <TextView
+            android:id="@+id/requestedPropertyName"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="20dp"
+            android:layout_marginStart="20dp"
+            android:layout_marginTop="15dp"
+            android:text="Honora's House For Rent"
+            android:textColor="@color/black"
+            android:textStyle="bold" />
+
+
+        <TextView
+            android:id="@+id/senderName"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/requestedPropertyName"
+            android:layout_marginLeft="20dp"
+            android:layout_marginStart="20dp"
+            android:layout_marginTop="5dp"
+            android:text="CJ Shin Quinnea Juntilla"
+            android:textColor="@color/black" />
+
+        <TextView
+            android:id="@+id/requestDate"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="May 12, 2018"
+            android:layout_below="@+id/senderName"
+            android:layout_marginLeft="20dp"
+            android:layout_marginStart="20dp"
+            android:layout_marginTop="5dp"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true"
+            />
+
+        <TextView
+            android:id="@+id/requestTime"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignBaseline="@+id/requestDate"
+            android:layout_alignBottom="@+id/requestDate"
+            android:layout_marginLeft="15dp"
+            android:layout_marginStart="15dp"
+            android:layout_toEndOf="@+id/requestDate"
+            android:layout_toRightOf="@+id/requestDate"
+            android:text="4:40 PM" />
+    </RelativeLayout>
+
+
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_alignTop="@+id/seekerRequestImage"
-        android:layout_centerVertical="true"
-        android:layout_marginLeft="20dp"
-        android:layout_marginStart="20dp"
-        android:layout_marginTop="15dp"
-        android:layout_toEndOf="@+id/seekerRequestImage"
-        android:layout_toRightOf="@+id/seekerRequestImage"
-        android:text="CITA'S PLACE"
-        android:textColor="@color/black"
-        android:textStyle="bold" />
+        android:layout_below="@+id/requestPanel1"
+        android:orientation="horizontal"
+        android:weightSum="2"
+        android:paddingTop="15dp"
+        >
+
+        <Button
+            android:id="@+id/chat_user"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Chat User"
+            android:background="@drawable/button_actionplaceviewer"
+            android:layout_marginRight="5dp"
+            android:layout_marginLeft="5dp"
+
+            />
+
+        <Button
+            android:id="@+id/accept_request"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Accept"
+            android:background="@drawable/button_placeviewer"
+            android:layout_marginRight="5dp"
+            android:layout_marginLeft="5dp"/>
+
+        <Button
+            android:id="@+id/decline_request"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="Decline"
+            android:background="@drawable/button_placeviewer"
+            android:layout_weight="1"
+            android:layout_marginRight="5dp"
+            android:layout_marginLeft="5dp"/>
+
+    </LinearLayout>
 
 
 
-</RelativeLayout>
+
+</LinearLayout>

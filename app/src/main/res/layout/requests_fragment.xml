@@ -8,12 +8,11 @@
 
     <!--Refer to Seeker Requests Layout for the design of the list items-->
 
-    <ListView
-        android:id="@+id/requestsView"
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/requestsRecycleView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_alignParentTop="true"
-        android:layout_centerHorizontal="true" />
-
+        android:layout_centerHorizontal="true"/>
 
 </RelativeLayout>

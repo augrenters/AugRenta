@@ -1,5 +1,6 @@
 package com.example.sejeque.augrenta;
 
+import android.app.Fragment;
 import android.app.PendingIntent;
 import android.app.ProgressDialog;
 import android.content.Intent;
@@ -11,6 +12,7 @@ import android.provider.MediaStore;
 import android.provider.OpenableColumns;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.design.widget.NavigationView;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
@@ -18,21 +20,27 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
+import com.facebook.login.LoginManager;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.iid.FirebaseInstanceId;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.OnProgressListener;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
+import com.squareup.picasso.Picasso;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -57,6 +65,9 @@ public class AddPropertyActivity extends AppCompatActivity {
     DrawerLayout drawerLayout;
     ActionBarDrawerToggle actionBarDrawerToggle;
 
+    private TextView userNameHandler, emailHandler;
+    private ImageView imgHandler;
+
     Bundle oldBundle;
 
     private List<String> fileNameList;
@@ -71,18 +82,58 @@ public class AddPropertyActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.property_form);
 
+        //Initiating auth for firebase
+        mAuth = FirebaseAuth.getInstance();
+        //get info about current user then store in currentUser
+        currentUser = mAuth.getCurrentUser();
         // Setting Toolbar and Navigation Drawer
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         getSupportActionBar().setTitle("Add Property");
 
-                //function for Drawer toggle when clicking menu icon
+        //function for Drawer toggle when clicking menu icon
         drawerLayout = (DrawerLayout) findViewById(R.id.drawerLayout1);
+        NavigationView sideNavBar = findViewById(R.id.sideNav);
+        //get reference for header in navigation view
+        View headerView = sideNavBar.getHeaderView(0);
+
+        //instantiate textView and imageView in header of navigation view
+        userNameHandler = headerView.findViewById(R.id.textUser);
+        emailHandler = headerView.findViewById(R.id.textEmail);
+        imgHandler = headerView.findViewById(R.id.imageProfPic);
+
+        //change texts for user's name, email, and profile pic in header of navigation view
+        setCredentialView();
 
         actionBarDrawerToggle = new ActionBarDrawerToggle(this, drawerLayout, toolbar, R.string.oper_drawer, R.string.close_drawer);
         drawerLayout.setDrawerListener(actionBarDrawerToggle);
 
+        //if an item is clicked on navigation view
+        sideNavBar.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
+            @Override
+            public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+                int itemID = item.getItemId();
+
+                if(itemID == R.id.navigation_home){
+                    goToHome();
+                }
+                else if(itemID == R.id.properties){
+                    goToPropertyList();
+                }
+                else if(itemID == R.id.requests){
+                    goToRequests();
+                }
+                else if(itemID == R.id.messenger){
+                    goToMessages();
+                }
+                else if(itemID == R.id.signOut){
+                    signOutUser();
+                }
+
+                return true;
+            }
+        });
         // End of Setting Toolbar and Navigation Drawer
 
         Button launchMapbtn, submitBtn, cancelBtn, upload_imgBtn;
@@ -101,7 +152,7 @@ public class AddPropertyActivity extends AppCompatActivity {
         cancelBtn = findViewById(R.id.btnGoBack);
         upload_imgBtn = findViewById(R.id.upload_imgbtn);
 
-        imgUploadList = findViewById(R.id.imgRecHolder);
+        imgUploadList = (RecyclerView) findViewById(R.id.imgRecHolder);
 
         fileNameList = new ArrayList<>();
         fileUriList = new ArrayList<>();
@@ -112,11 +163,9 @@ public class AddPropertyActivity extends AppCompatActivity {
         imgUploadList.setHasFixedSize(true);
         imgUploadList.setAdapter(uploadListAdapter);
 
-        //Initiating auth for firebase
-        mAuth = FirebaseAuth.getInstance();
 
-        //get info about current user then store in currentUser
-        currentUser = mAuth.getCurrentUser();
+
+
 
         //get reference from database with child node Property
         mDatabase = FirebaseDatabase.getInstance().getReference("Property");
@@ -219,13 +268,6 @@ public class AddPropertyActivity extends AppCompatActivity {
         finish();
     }
 
-    //method for going back to login panel
-    private void proceed() {
-        finish();
-        Intent onReturnView = new Intent(AddPropertyActivity.this, MainActivity.class);
-        startActivity(onReturnView);
-    }
-
     //method for saving property information to firebase database
     private void submitCredentials() {
 
@@ -303,10 +345,10 @@ public class AddPropertyActivity extends AppCompatActivity {
 
             //get unique id that will be given to a child node of Property
             final String key = mDatabase.push().getKey();
-
+            final String deviceToken = FirebaseInstanceId.getInstance().getToken();
             //pass variable to model Property
             Property property = new Property(propDesc, latVal, longVal, propOwner, propPrice, propName,
-                                                key, propType, propArea, propRooms, propBathrooms, propPets);
+                                                key, propType, propArea, propRooms, propBathrooms, propPets, deviceToken);
 
             //save property object to firebase database
             mDatabase.child(key).setValue(property)
@@ -383,11 +425,6 @@ public class AddPropertyActivity extends AppCompatActivity {
         startActivity(i);
     }
 
-    @Override
-    protected void onPostCreate(@Nullable Bundle savedInstanceState) {
-        super.onPostCreate(savedInstanceState);
-        actionBarDrawerToggle.syncState();
-    }
 
     public String getFilename(Uri uri){
         String result = null;
@@ -410,5 +447,97 @@ public class AddPropertyActivity extends AppCompatActivity {
             }
         }
         return result;
+    }
+
+     /*
+    *  SIDE NAVBAR METHODS
+    *  ONCLICK EVENTS OF ITEMS ON SIDENAVBAR
+    *
+    */
+
+    //method for setting texts in header in navigation view
+    private void setCredentialView() {
+        //get user information
+        String name = currentUser.getDisplayName();
+        String email = currentUser.getEmail();
+        Uri photoUrl = currentUser.getPhotoUrl();
+
+        //set text in header in navigation view
+        userNameHandler.setText(name);
+        emailHandler.setText(email);
+
+        //Picasso turns photoUrl to bitmap
+        //then changes the pic in header in navigation view
+        Picasso.get().load(photoUrl).into(imgHandler);
+    }
+
+    //method for refreshing MapsActivity
+    private void goToHome() {
+        finish();
+        Intent onPropertyView = new Intent(AddPropertyActivity.this, MainActivity.class);
+        startActivity(onPropertyView);
+    }
+
+    //method for starting PropertyActivity
+    private void goToPropertyList() {
+        finish();
+        Intent onPropertyView = new Intent(AddPropertyActivity.this, PropertyActivity.class);
+        startActivity(onPropertyView);
+
+    }
+    private void goToRequests() {
+        finish();
+        Intent onPropertyView = new Intent(AddPropertyActivity.this, SeekerRequestsActivity.class);
+        startActivity(onPropertyView);
+    }
+    private void goToMessages() {
+        finish();
+        Intent onPropertyView = new Intent(AddPropertyActivity.this, MessengerActivity.class);
+        startActivity(onPropertyView);
+    }
+
+    //method for signing out current user
+    //then going back to login panel
+    private void signOutUser() {
+        mAuth.signOut();
+        LoginManager.getInstance().logOut();
+        Toast.makeText(AddPropertyActivity.this, "You have been logout", Toast.LENGTH_SHORT).show();
+        finishAffinity();
+        proceed();
+    }
+
+    private void selectFragment(MenuItem item) {
+        Fragment frag = null;
+        // init corresponding fragment
+        switch (item.getItemId()) {
+            case R.id.navigation_person:
+                Intent onUserView = new Intent(AddPropertyActivity.this, UserPanelActivity.class);
+                startActivity(onUserView);
+        }
+    }
+
+
+     /*
+    *  UTILITES
+    *
+    *
+    */
+
+    //method for going back to login panel
+    private void proceed() {
+        finish();
+        Intent onReturnView = new Intent(AddPropertyActivity.this, MainActivity.class);
+        startActivity(onReturnView);
+    }
+
+    @Override
+    protected void onPostCreate(@Nullable Bundle savedInstanceState) {
+        super.onPostCreate(savedInstanceState);
+        actionBarDrawerToggle.syncState();
+    }
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        finish();
     }
 }

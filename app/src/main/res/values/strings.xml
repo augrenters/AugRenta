@@ -33,4 +33,19 @@
         <item>Room for Rent</item>
         <item>Dormitory</item>
     </string-array>
+
+    <string-array name="filter_pets">
+        <item>All</item>
+        <item>Allowed</item>
+        <item>Not Allowed</item>
+    </string-array>
+
+    <string-array name="filterTypeArray">
+        <item>All</item>
+        <item>Boarding House</item>
+        <item>Room for Rent</item>
+        <item>Dormitory</item>
+    </string-array>
+
+
 </resources>

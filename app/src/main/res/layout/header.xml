@@ -2,7 +2,8 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="160dp"
-    android:padding="20dp">
+    android:padding="20dp"
+    android:background="@drawable/bottom_dialog">
 
     <ImageView
         android:id="@+id/imageProfPic"
@@ -17,7 +18,7 @@
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
         android:layout_below="@+id/imageProfPic"
-        android:textColor="@color/white"
+        android:textColor="@color/black"
         android:textSize="15sp"
         android:textStyle="bold" />
 
@@ -26,7 +27,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@+id/textUser"
-        android:textColor="@color/white" />
+        android:textColor="@color/black" />
 
 
 </RelativeLayout>

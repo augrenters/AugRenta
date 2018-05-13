@@ -1,4 +1,4 @@
-
+<?xml version="1.0" encoding="utf-8"?>
 <android.support.v4.widget.DrawerLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
@@ -8,38 +8,38 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:minHeight="250dp"
+    tools:context="com.example.sejeque.augrenta.MessengerActivity"
     android:id="@+id/drawerLayout1">
-
-    <!--This XML file contains Tab Activity for House Seeker Requests
-        It contains the Request and Accepted fragment Activity
-    -->
 
     <RelativeLayout
         android:id="@+id/rellayout1"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
-        <include layout="@layout/toolbar_layout"/>
+        <android.support.design.widget.AppBarLayout
+            android:id="@+id/appBar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+            <include layout="@layout/toolbar_layout"/>
 
-        <android.support.design.widget.TabLayout
-            android:id="@+id/tabs"
+        </android.support.design.widget.AppBarLayout>
+
+
+        <RelativeLayout
+            android:layout_marginTop="-2dp"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_below="@+id/toolbar"
-            app:tabGravity="fill"
-            app:tabIndicatorColor="@color/red"
-            app:tabSelectedTextColor="@color/red"
-            app:tabMode="fixed"
+            android:layout_below="@+id/appBar"
             >
-        </android.support.design.widget.TabLayout>
+            <ListView
+                android:id="@+id/listProperty"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_alignParentTop="true"
+                android:layout_centerHorizontal="true" />
+        </RelativeLayout>
 
 
-        <android.support.v4.view.ViewPager
-            android:id="@+id/viewPager"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_below="@+id/tabs">
-        </android.support.v4.view.ViewPager>
 
     </RelativeLayout>
 

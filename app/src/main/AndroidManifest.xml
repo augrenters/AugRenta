@@ -93,6 +93,31 @@
         <activity android:name=".AugmentActivity"
             android:configChanges="orientation|keyboardHidden|screenSize"
             />
+
+        <activity android:name=".ChatMessage"
+            android:label="Chat"/>
+
+        <activity android:name=".MessengerActivity"
+            android:label="Messages"/>
+
+        <activity android:name=".CalendarRequestActivity"
+            android:label="Calendar Requests"/>
+
+        <service
+            android:name=".FirebaseInstanceIDServiceApp">
+            <intent-filter>
+                <action android:name="com.google.firebase.INSTANCE_ID_EVENT"/>
+            </intent-filter>
+        </service>
+
+        <service
+            android:name=".AppFCMService"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="com.google.firebase.MESSAGING_EVENT"/>
+            </intent-filter>
+        </service>
+
     </application>
 
 </manifest>

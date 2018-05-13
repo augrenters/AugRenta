@@ -14,7 +14,7 @@
     app:itemIconTint="@color/white"
     app:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
     app:popupTheme="@style/ThemeOverlay.AppCompat.Light"
+    android:elevation="5dp"
     >
-
 
 </android.support.v7.widget.Toolbar>

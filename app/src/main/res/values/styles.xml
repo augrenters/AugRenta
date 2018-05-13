@@ -35,8 +35,37 @@
         <item name="android:divider">@color/red</item>
         <item name="android:dashWidth">@color/red</item>
         <item name="android:topDark">@drawable/bottom_dialog</item>
-        
     </style>
+
+
+    <!--Progress bar STYLE-->
+
+    <style name="MySeekBar" parent="Widget.AppCompat.SeekBar">
+
+        <item name="android:progress">@color/red</item>
+        <item name="colorControlActivated">#c0392b</item>
+        <item name="colorControlNormal">#e74c3c</item>
+        <item name="android:minHeight">10dp</item>
+        <item name="android:maxHeight">10dp</item>
+    </style>
+
+
+
+    <!-- CALENDAR COLOR   -->
+    <style name="MyThemeOverlay" parent="Theme.AppCompat.Light">
+        <item name="colorAccent">@color/red</item>
+        <item name="colorPrimary">@color/red</item>
+        <item name="colorPrimaryDark">@color/red</item>
+        <item name="android:color">@color/red</item>
+        <item name="android:theme">@color/red</item>
+        <item name="android:datePickerStyle">@color/red</item>
+
+        <item name="colorControlActivated">#33691e</item>
+        <item name="selectableItemBackgroundBorderless">@color/colorPrimaryDark</item>
+        <item name="colorControlHighlight">#d50000</item>
+    </style>
+
+
 
 
 </resources>

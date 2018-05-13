@@ -1,9 +1,8 @@
 package com.example.sejeque.augrenta;
 
+import android.annotation.SuppressLint;
 import android.app.Fragment;
 import android.content.Intent;
-import android.location.Address;
-import android.location.Geocoder;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -13,10 +12,11 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
-import android.widget.Button;
+import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.SimpleAdapter;
@@ -33,32 +33,18 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.squareup.picasso.Picasso;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Locale;
 
 /**
- * Created by Faith on 30/03/2018.
+ * Created by SejeQue on 4/24/2018.
  */
 
-public class PropertyActivity extends AppCompatActivity {
-
-    //this activity is for property lists
+public class MessengerActivity extends AppCompatActivity {
 
     //initiate database reference
-    private DatabaseReference mDatabase;
-
-    //array container for data fetched from firebase database
-    List<Property> properties;
-
-    //used for creating listView ui
-    ListView propertyListHandler;
-    SimpleAdapter sAdapter;
-
-    //array container used for populating listView
-    List<HashMap<String, String>> listItem;
+    private DatabaseReference mDatabase, propDatabase;
 
     //instantiate firebase auth and user
     private FirebaseAuth mAuth;
@@ -70,26 +56,29 @@ public class PropertyActivity extends AppCompatActivity {
     private TextView userNameHandler, emailHandler;
     private ImageView imgHandler;
 
+    final List<Property> properties = new ArrayList<>();
+
+    ListView propertyListHandler;
+    //final ArrayList<String> message_user =new ArrayList<>();
+    List<HashMap<String, String>> message_user;
+
+    SimpleAdapter adapter;
+
+    String prop_ID, sender = null, prop_name;
 
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.property_list);
+        setContentView(R.layout.messenger_activity);
+
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        getSupportActionBar().setTitle("Messages");
 
         //get user information
         mAuth = FirebaseAuth.getInstance();
         currentUser = mAuth.getCurrentUser();
-
-        //instantiate array container for fetched data
-        //from firebase database
-
-        // Setting Toolbar and Navigation Drawer
-
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-        getSupportActionBar().setTitle("My Properties");
-
 
         //function for Drawer toggle when clicking menu icon
         drawerLayout = (DrawerLayout) findViewById(R.id.drawerLayout1);
@@ -136,134 +125,95 @@ public class PropertyActivity extends AppCompatActivity {
 
         // End of Setting Toolbar and Navigation Drawer
 
+        mDatabase = FirebaseDatabase.getInstance().getReference("Messages");
+        propDatabase = FirebaseDatabase.getInstance().getReference("Property");
+        message_user = new ArrayList<>();
 
-        //get reference from firebase database with child node Property
-        mDatabase = FirebaseDatabase.getInstance().getReference("Property");
+    }
 
-        properties = new ArrayList<>();
+    private void populatePropertyList() {
 
-        Button addPropertyBtn = findViewById(R.id.btnAddProperty);
+        message_user.clear();
 
-        propertyListHandler = findViewById(R.id.listProperty);
-
-        //instantiate elements for listView ui
-        listItem = new ArrayList<>();
-        sAdapter = new SimpleAdapter(this, listItem, R.layout.list_item, new String[]{"Item", "SubItem"}, new int[]{R.id.textUploadItem, R.id.textSubItem});
-
-        //if Add Property button is pressed
-        addPropertyBtn.setOnClickListener(new View.OnClickListener() {
+        mDatabase.child(currentUser.getUid()).addValueEventListener(new ValueEventListener() {
             @Override
-            public void onClick(View v) {
-                goToAddProperty();
+            public void onDataChange(DataSnapshot dataSnapshot) {
+
+                for (DataSnapshot userMessages : dataSnapshot.getChildren()) {
+                    Log.d("Users Sender Key", userMessages.getKey());
+                    sender = userMessages.getKey();
+                    mAuth.getUid().equals(sender);
+                    for (DataSnapshot prop_id : userMessages.getChildren()) {
+                        prop_ID = prop_id.getKey();
+                        Log.d("Users Messages/property", prop_ID);
+
+                        HashMap<String, String> resultMap = new HashMap<>();
+                        for (int x = 0; x < properties.size(); x++) {
+                            if (properties.get(x).propertyID.equals(prop_ID)) {
+                                prop_name = properties.get(x).propertyName;
+                                resultMap.put("Sender", sender);
+                                resultMap.put("Property ID", prop_ID);
+                                resultMap.put("Prop_name", prop_name);
+                                message_user.add(resultMap);
+                                Log.d("Found", ""+message_user);
+                            } else {
+                                Log.d("No name found", "");
+                            }
+                        }
+                    }
+                }
+                populateMessagesList();
             }
+            @Override
+            public void onCancelled(DatabaseError databaseError) {}
         });
+
     }
 
     @Override
     protected void onStart() {
         super.onStart();
 
-        //fetched data from firebase database
-        mDatabase.addValueEventListener(new ValueEventListener() {
-
+        propDatabase.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                //remove old data from array container
                 properties.clear();
-                //loop each property from firebase database
-                for(DataSnapshot propertySnapshot: dataSnapshot.getChildren()){
-                    Property property = propertySnapshot.getValue(Property.class);
-                    //insert newly fetched data from firebase database
-                    //to array container
+                for (DataSnapshot propertyNames : dataSnapshot.getChildren()){
+                    Property property = propertyNames.getValue(Property.class);
                     properties.add(property);
                 }
-                //populate listView ui
-                populateList();
+                populatePropertyList();
             }
             @Override
             public void onCancelled(DatabaseError databaseError) {}
         });
+
     }
 
-    //method for starting AddPropertyActivity
-    private void goToAddProperty() {
-        finish();
-        Intent onReturnView = new Intent(PropertyActivity.this, AddPropertyActivity.class);
-        startActivity(onReturnView);
-    }
 
-    //method for populating listView ui
-    private void populateList() {
+    private void populateMessagesList() {
 
-        //remove old data
-        listItem.clear();
+        propertyListHandler = findViewById(R.id.listProperty);
 
-        //instantiate all variables that will be used
-        //to get address using latitude && longitude
-        Geocoder geocoder;
-        List<Address> addresses;
-        String fullAddress = null;
-        geocoder = new Geocoder(this, Locale.getDefault());
+        adapter = new SimpleAdapter(this, message_user, R.layout.list_item, new String[]{"Sender", "Prop_name"}, new int[]{R.id.textUploadItem, R.id.textSubItem});
+        propertyListHandler.setAdapter(adapter);
 
-        //loop each property fetched from firebase database
-        //that is been saved to array container
+        Log.d("Message Adapater", message_user.toString());
 
-
-        //get unique user id that is automatically generated by firebase
-        String ownerID = currentUser.getUid();
-
-
-        for(int x = 0; x<properties.size(); x++) {
-
-            if(properties.get(x).owner.equals(ownerID)){
-
-                Double latVal, longVal;
-                latVal = Double.valueOf(properties.get(x).latitude);
-                longVal = Double.valueOf(properties.get(x).longitude);
-
-                //get address using latitude && longitude
-                try {
-                    addresses = geocoder.getFromLocation(latVal, longVal, 1);
-                    fullAddress = addresses.get(0).getAddressLine(0);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-
-                //insert data to a temporary array container
-                //with property name as Item
-                //and address as SubItem
-                HashMap<String, String> resultMap = new HashMap<>();
-                resultMap.put("Item", properties.get(x).propertyName);
-                resultMap.put("SubItem", fullAddress);
-                resultMap.put("Property Owner", properties.get(x).owner);
-                resultMap.put("Property ID", properties.get(x).propertyID);
-
-                //insert temporary array container to listItem array container
-                //container that will be used to population listView ui
-                listItem.add(resultMap);
-            }
-
-        }
-
-        //generate listView ui
-        propertyListHandler.setAdapter(sAdapter);
-
-        //Click event of list view to pass data and show Property's information
         propertyListHandler.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                //Toast.makeText(PropertyActivity.this, ""+ listItem.get(i).get("Property ID"), Toast.LENGTH_SHORT).show();
 
-                Intent showInfo = new Intent(PropertyActivity.this , Main2Activity.class);
-                showInfo.putExtra("propertyId", listItem.get(i).get("Property ID"));
-                //showInfo.putExtra("ownerId", listItem.get(i).get("Property Owner"));
+                Intent showInfo = new Intent(MessengerActivity.this , ChatMessage.class);
+                showInfo.putExtra("propertyId", message_user.get(i).get("Property ID"));
+                showInfo.putExtra("ownerId", message_user.get(i).get("Sender"));
                 startActivity(showInfo);
             }
         });
+
     }
 
-
-   /*
+     /*
     *  SIDE NAVBAR METHODS
     *  ONCLICK EVENTS OF ITEMS ON SIDENAVBAR
     *
@@ -288,25 +238,26 @@ public class PropertyActivity extends AppCompatActivity {
     //method for refreshing MapsActivity
     private void goToHome() {
         finish();
-        Intent onPropertyView = new Intent(PropertyActivity.this, MainActivity.class);
+        Intent onPropertyView = new Intent(MessengerActivity.this, MainActivity.class);
         startActivity(onPropertyView);
     }
 
     //method for starting PropertyActivity
     private void goToPropertyList() {
         finish();
-        startActivity(getIntent());
-    }
+        Intent onPropertyView = new Intent(MessengerActivity.this, PropertyActivity.class);
+        startActivity(onPropertyView);
 
+    }
     private void goToRequests() {
         finish();
-        Intent onPropertyView = new Intent(PropertyActivity.this, SeekerRequestsActivity.class);
+        Intent onPropertyView = new Intent(MessengerActivity.this, MessengerActivity.class);
         startActivity(onPropertyView);
     }
     private void goToMessages() {
         finish();
-        Intent onPropertyView = new Intent(PropertyActivity.this, MessengerActivity.class);
-        startActivity(onPropertyView);
+        startActivity(getIntent());
+
     }
 
     //method for signing out current user
@@ -314,7 +265,7 @@ public class PropertyActivity extends AppCompatActivity {
     private void signOutUser() {
         mAuth.signOut();
         LoginManager.getInstance().logOut();
-        Toast.makeText(PropertyActivity.this, "You have been logout", Toast.LENGTH_SHORT).show();
+        Toast.makeText(MessengerActivity.this, "You have been logout", Toast.LENGTH_SHORT).show();
         finishAffinity();
         proceed();
     }
@@ -324,7 +275,7 @@ public class PropertyActivity extends AppCompatActivity {
         // init corresponding fragment
         switch (item.getItemId()) {
             case R.id.navigation_person:
-                Intent onUserView = new Intent(PropertyActivity.this, UserPanelActivity.class);
+                Intent onUserView = new Intent(MessengerActivity.this, UserPanelActivity.class);
                 startActivity(onUserView);
         }
     }
@@ -340,7 +291,7 @@ public class PropertyActivity extends AppCompatActivity {
     //method for going back to login panel
     private void proceed() {
         finish();
-        Intent onReturnView = new Intent(PropertyActivity.this, MainActivity.class);
+        Intent onReturnView = new Intent(MessengerActivity.this, MainActivity.class);
         startActivity(onReturnView);
     }
 
@@ -349,7 +300,6 @@ public class PropertyActivity extends AppCompatActivity {
         super.onPostCreate(savedInstanceState);
         actionBarDrawerToggle.syncState();
     }
-
     @Override
     protected void onDestroy() {
         super.onDestroy();

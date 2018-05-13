@@ -18,27 +18,14 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
-        <RelativeLayout
-            android:id="@+id/rellayout2"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_alignParentLeft="true"
-            android:layout_alignParentStart="true"
-            android:layout_alignParentTop="true"
-            tools:layout_editor_absoluteX="0dp"
-            tools:layout_editor_absoluteY="0dp">
 
-            <include layout="@layout/toolbar_layout"/>
-
-
-        </RelativeLayout>
-
-
+        <include layout="@layout/toolbar_layout"/>
 
         <RelativeLayout
+            android:layout_marginTop="-1dp"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_below="@+id/rellayout2"
+            android:layout_below="@+id/toolbar"
             android:layout_above="@id/bottom_bar">
 
 
@@ -93,17 +80,7 @@
 
     </RelativeLayout>
 
-    <android.support.design.widget.NavigationView
-        android:layout_width="wrap_content"
-        android:layout_height="match_parent"
-        android:layout_gravity="start"
-        android:background="@color/navigation_gray"
-        app:itemTextColor="@color/white"
-        app:itemIconTint="@color/white"
-        android:theme="@style/AppTheme"
-        app:headerLayout="@layout/header"
-        app:menu="@menu/navigation">
-    </android.support.design.widget.NavigationView>
+    <include layout="@layout/sidenavbar_layout"/>
 
 
 </android.support.v4.widget.DrawerLayout>

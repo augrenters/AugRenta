@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.design.widget.NavigationView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+
+
+    android:id="@+id/sideNav"
+    android:layout_gravity="start"
+    android:background="#dad9d9"
+    app:itemTextColor="@color/black"
+    app:itemIconTint="@color/red"
+    android:theme="@style/AppTheme"
+    app:headerLayout="@layout/header"
+    app:menu="@menu/navigation"
+    >
+</android.support.design.widget.NavigationView>

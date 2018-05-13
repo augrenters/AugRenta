@@ -45,31 +45,9 @@
                 android:padding="10dp">
 
                 <RelativeLayout
-                    android:id="@+id/addImageLayout"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content">
-
-                    <Button
-                        android:id="@+id/upload_imgbtn"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:background="@drawable/button_placeviewer"
-                        android:text="Upload Images"
-                        android:textColor="@color/white"/>
-
-                    <!--This is where the Image will be displayed-->
-                    <android.support.v7.widget.RecyclerView
-                        android:id="@+id/imgRecHolder"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_below="@+id/upload_imgbtn"></android.support.v7.widget.RecyclerView>
-
-                </RelativeLayout>
-
-                <RelativeLayout
+                    android:id="@+id/panel_info"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:layout_below="@+id/addImageLayout"
                     android:layout_marginTop="10dp"
                     android:paddingBottom="10dp"
                     >
@@ -289,6 +267,34 @@
                         </LinearLayout>
 
 
+
+                </RelativeLayout>
+
+                <RelativeLayout
+                    android:layout_below="@+id/panel_info"
+                    android:id="@+id/addImageLayout"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                    <Button
+                        android:id="@+id/upload_imgbtn"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:background="@drawable/button_placeviewer"
+                        android:text="Upload Images"
+                        android:textColor="@color/white"/>
+
+                    <!--This is where the Image will be displayed-->
+                    <android.support.v7.widget.RecyclerView
+                        android:id="@+id/imgRecHolder"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:layout_below="@+id/upload_imgbtn"
+                        android:layout_marginTop="10dp"
+                        android:descendantFocusability="beforeDescendants">
+
+                    </android.support.v7.widget.RecyclerView>
+
                 </RelativeLayout>
 
             </RelativeLayout>
@@ -347,17 +353,7 @@
 
     </RelativeLayout>
 
-    <android.support.design.widget.NavigationView
-        android:layout_width="wrap_content"
-        android:layout_height="match_parent"
-        android:layout_gravity="start"
-        android:background="@color/navigation_gray"
-        app:itemTextColor="@color/white"
-        app:itemIconTint="@color/white"
-        android:theme="@style/AppTheme"
-        app:headerLayout="@layout/header"
-        app:menu="@menu/navigation">
-    </android.support.design.widget.NavigationView>
+    <include layout="@layout/sidenavbar_layout"/>
 
 
 </android.support.v4.widget.DrawerLayout>
