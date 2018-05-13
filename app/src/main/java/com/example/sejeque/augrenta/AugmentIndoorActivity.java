@@ -1,41 +1,30 @@
 package com.example.sejeque.augrenta;
 
-import android.annotation.TargetApi;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.graphics.Interpolator;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.location.Criteria;
 import android.location.Location;
-import android.location.LocationManager;
 import android.location.LocationListener;
+import android.location.LocationManager;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.SystemClock;
 import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.annotation.RequiresApi;
 import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
+import android.webkit.WebView;
+import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.android.gms.common.api.PendingResult;
-import com.google.android.gms.common.api.Status;
-import com.google.android.gms.location.FusedLocationProviderClient;
-import com.google.android.gms.location.LocationCallback;
-import com.google.android.gms.location.LocationRequest;
-import com.google.android.gms.location.LocationResult;
-import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.firebase.database.DataSnapshot;
@@ -43,44 +32,21 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
-import com.google.firebase.storage.FirebaseStorage;
 import com.wikitude.architect.ArchitectStartupConfiguration;
 import com.wikitude.architect.ArchitectView;
 
 import java.io.IOException;
 
-import android.util.Log;
-import android.view.animation.LinearInterpolator;
-import android.webkit.GeolocationPermissions;
-import android.webkit.WebView;
-import android.widget.Toast;
-
-import org.json.JSONException;
-import org.json.JSONObject;
-
 /**
- * Created by Faith on 08/04/2018.
+ * Created by Faith on 13/05/2018.
  */
 
-public class AugmentActivity extends AppCompatActivity implements OnMapReadyCallback, LocationListener, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, SensorEventListener {
-    final static int PERMISSION_ALL = 1;
-    final static String[] PERMISSIONS = {android.Manifest.permission.ACCESS_COARSE_LOCATION,
-            android.Manifest.permission.ACCESS_FINE_LOCATION};
-    LocationManager locationManager;
-    private ArchitectView architectView;
-    private GoogleMap mMap;
-    GoogleApiClient mGoogleApiClient;
+public class AugmentIndoorActivity extends AppCompatActivity implements SensorEventListener, OnMapReadyCallback, LocationListener, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
     String propertyId;
     private DatabaseReference mDatabase;
     Double propertyLat;
     Double propertyLng;
-    Double countChange = 0.0;
-
-    private float startRotation = 0;
-    private float newRotation = 0;
-
-    Location baseLocation = null;
-    Location prevLocation;
+    private ArchitectView architectView;
 
     int mAzimuth;
     int rotation;
@@ -94,6 +60,14 @@ public class AugmentActivity extends AppCompatActivity implements OnMapReadyCall
     private boolean mLastAccelerometerSet = false;
     private boolean mLastMagnetometerSet = false;
     private boolean hasSensor = true;
+
+    final static int PERMISSION_ALL = 1;
+    final static String[] PERMISSIONS = {android.Manifest.permission.ACCESS_COARSE_LOCATION,
+            android.Manifest.permission.ACCESS_FINE_LOCATION};
+    LocationManager locationManager;
+    private GoogleMap mMap;
+    GoogleApiClient mGoogleApiClient;
+    Double countChange = 0.0;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -124,8 +98,6 @@ public class AugmentActivity extends AppCompatActivity implements OnMapReadyCall
         } else requestLocation();
         if (!isLocationEnabled())
             showAlert(1);
-
-//        setToUserLocation();
     }
 
     public void checkSensors() {
@@ -150,26 +122,31 @@ public class AugmentActivity extends AppCompatActivity implements OnMapReadyCall
         hasSensor =false;
     }
 
-    public void stop() {
-        if(haveSensor && haveSensor2){
-            mSensorManager.unregisterListener(this,mAccelerometer);
-            mSensorManager.unregisterListener(this,mMagnetometer);
-        }
-        else{
-            if(haveSensor)
-                mSensorManager.unregisterListener(this,mRotationV);
-        }
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        this.architectView.onDestroy();
     }
 
-    private void setToUserLocation() {
-        mGoogleApiClient = new GoogleApiClient.Builder(AugmentActivity.this)
-                .addApi(LocationServices.API)
-                .addConnectionCallbacks(AugmentActivity.this)
-                .addOnConnectionFailedListener(AugmentActivity.this)
-                .build();
-        mGoogleApiClient.connect();
+    @Override
+    protected void onResume() {
+        super.onResume();
+        this.architectView.onResume();
+        checkSensors();
     }
 
+    @Override
+    protected void onStop() {
+        super.onStop();
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        this.architectView.onPause();
+    }
+
+    @Override
     protected void onStart() {
         super.onStart();
 
@@ -190,35 +167,45 @@ public class AugmentActivity extends AppCompatActivity implements OnMapReadyCall
     }
 
     @Override
-    protected void onPause() {
-        super.onPause();
-        this.architectView.onPause();
-        stop();
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-        this.architectView.onResume();
-        checkSensors();
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        this.architectView.onDestroy();
-    }
-
-    @Override
     protected void onPostCreate(@Nullable Bundle savedInstanceState) {
         super.onPostCreate(savedInstanceState);
-//
+
         this.architectView.onPostCreate();
+
         try {
-            this.architectView.load("Direction_AR/index.html");
+            this.architectView.load("Indoor_AR/index.html");
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    @Override
+    public void onSensorChanged(SensorEvent event) {
+        if (event.sensor.getType() == Sensor.TYPE_ROTATION_VECTOR) {
+            SensorManager.getRotationMatrixFromVector(rMat, event.values);
+            mAzimuth = (int) (Math.toDegrees(SensorManager.getOrientation(rMat, orientation)[0]) + 360) % 360;
+        }
+
+        if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER) {
+            System.arraycopy(event.values, 0, mLastAccelerometer, 0, event.values.length);
+            mLastAccelerometerSet = true;
+        } else if (event.sensor.getType() == Sensor.TYPE_MAGNETIC_FIELD) {
+            System.arraycopy(event.values, 0, mLastMagnetometer, 0, event.values.length);
+            mLastMagnetometerSet = true;
+        }
+        if (mLastAccelerometerSet && mLastMagnetometerSet) {
+            SensorManager.getRotationMatrix(rMat, null, mLastAccelerometer, mLastMagnetometer);
+            SensorManager.getOrientation(rMat, orientation);
+            mAzimuth = (int) (Math.toDegrees(SensorManager.getOrientation(rMat, orientation)[0]) + 360) % 360;
+        }
+
+        mAzimuth = Math.round(mAzimuth);
+
+        architectView.callJavascript("loadRotationFromJava(" + mAzimuth + "," + hasSensor + ");");
+    }
+
+    @Override
+    public void onAccuracyChanged(Sensor sensor, int accuracy) {
 
     }
 
@@ -239,34 +226,13 @@ public class AugmentActivity extends AppCompatActivity implements OnMapReadyCall
             }
         }
 
-
-        if(location == null){
-            // doesn't work if gps is unabled
-            Toast.makeText(this, "Can't get current location", Toast.LENGTH_SHORT).show();
-        }
-        else{
-            architectView.callJavascript("loadValuesFromJava(" + alti + "," + lat + "," + lng + "," + propertyLat + "," + propertyLng + "," + countChange + ");");
-        }
-    }
-
-    @Override
-    public void onStatusChanged(String provider, int status, Bundle extras) {
-
-    }
-
-    @Override
-    public void onProviderEnabled(String provider) {
-
-    }
-
-    @Override
-    public void onProviderDisabled(String provider) {
-
-    }
-
-    @Override
-    public void onMapReady(GoogleMap googleMap) {
-        mMap = googleMap;
+            if(location == null){
+                // doesn't work if gps is unabled
+                Toast.makeText(this, "Can't get current location", Toast.LENGTH_SHORT).show();
+            }
+            else{
+                architectView.callJavascript("loadValuesFromJava(" + alti + "," + lat + "," + lng + "," + propertyLat + "," + propertyLng + "," + countChange + ");");
+            }
     }
 
     private void requestLocation() {
@@ -325,7 +291,7 @@ public class AugmentActivity extends AppCompatActivity implements OnMapReadyCall
                             Intent myIntent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
                             startActivity(myIntent);
                         } else
-                            ActivityCompat.requestPermissions(AugmentActivity.this, PERMISSIONS, PERMISSION_ALL);
+                            ActivityCompat.requestPermissions(AugmentIndoorActivity.this, PERMISSIONS, PERMISSION_ALL);
                     }
                 })
                 .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
@@ -335,6 +301,21 @@ public class AugmentActivity extends AppCompatActivity implements OnMapReadyCall
                     }
                 });
         dialog.show();
+    }
+
+    @Override
+    public void onStatusChanged(String provider, int status, Bundle extras) {
+
+    }
+
+    @Override
+    public void onProviderEnabled(String provider) {
+
+    }
+
+    @Override
+    public void onProviderDisabled(String provider) {
+
     }
 
     @Override
@@ -353,33 +334,7 @@ public class AugmentActivity extends AppCompatActivity implements OnMapReadyCall
     }
 
     @Override
-    public void onSensorChanged(SensorEvent event) {
-        if (event.sensor.getType() == Sensor.TYPE_ROTATION_VECTOR) {
-            SensorManager.getRotationMatrixFromVector(rMat, event.values);
-            mAzimuth = (int) (Math.toDegrees(SensorManager.getOrientation(rMat, orientation)[0]) + 360) % 360;
-        }
-
-        if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER) {
-            System.arraycopy(event.values, 0, mLastAccelerometer, 0, event.values.length);
-            mLastAccelerometerSet = true;
-        } else if (event.sensor.getType() == Sensor.TYPE_MAGNETIC_FIELD) {
-            System.arraycopy(event.values, 0, mLastMagnetometer, 0, event.values.length);
-            mLastMagnetometerSet = true;
-        }
-        if (mLastAccelerometerSet && mLastMagnetometerSet) {
-            SensorManager.getRotationMatrix(rMat, null, mLastAccelerometer, mLastMagnetometer);
-            SensorManager.getOrientation(rMat, orientation);
-            mAzimuth = (int) (Math.toDegrees(SensorManager.getOrientation(rMat, orientation)[0]) + 360) % 360;
-        }
-
-        mAzimuth = Math.round(mAzimuth);
-        rotation = -mAzimuth;
-
-        architectView.callJavascript("loadRotationFromJava(" + rotation + "," + hasSensor + ");");
-    }
-
-    @Override
-    public void onAccuracyChanged(Sensor sensor, int accuracy) {
-
+    public void onMapReady(GoogleMap googleMap) {
+        mMap = googleMap;
     }
 }

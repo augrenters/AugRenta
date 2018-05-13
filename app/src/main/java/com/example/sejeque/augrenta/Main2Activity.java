@@ -50,6 +50,8 @@ public class Main2Activity extends AppCompatActivity {
     TextView property_name, property_price, property_description,
             property_type, property_area, property_bedroom, property_bathroom, property_pet;
 
+    Button indoor_tour;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -99,6 +101,27 @@ public class Main2Activity extends AppCompatActivity {
             }
         });
 
+        Button direction_tour = (Button) findViewById(R.id.inside_tour);
+        direction_tour.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent starIntent = new Intent(Main2Activity.this, AugmentActivity.class);
+                starIntent.putExtra("propertyId", propertyId);
+                startActivity(starIntent);
+            }
+        });
+
+        indoor_tour = findViewById(R.id.view_indoor_ar);
+        indoor_tour.setVisibility(View.GONE);
+        indoor_tour.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent starIntent = new Intent(Main2Activity.this, AugmentIndoorActivity.class);
+                starIntent.putExtra("propertyId", propertyId);
+                startActivity(starIntent);
+            }
+        });
+
     }
 
     @Override
@@ -134,6 +157,13 @@ public class Main2Activity extends AppCompatActivity {
             property_bedroom.setText(property.rooms);
             property_bathroom.setText(property.bathroom);
             property_pet.setText(property.pets);
+
+            String currentId = currentUser.getUid();
+            String propertyOwner = property.owner;
+            Toast.makeText(this, "Current ID: " + currentId + "\nOwner ID: " + propertyOwner, Toast.LENGTH_SHORT).show();
+            if(propertyOwner.equals(currentId)){
+                indoor_tour.setVisibility(View.VISIBLE);
+            }
 
         //}
     }

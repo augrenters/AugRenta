@@ -292,6 +292,7 @@ public class AddPropertyActivity extends AppCompatActivity {
         //if all variables is not empty
         else {
             final ProgressDialog progressDialog = new ProgressDialog(this);
+            progressDialog.setCancelable(false);
             progressDialog.setTitle("Saving Property..");
             progressDialog.show();
 

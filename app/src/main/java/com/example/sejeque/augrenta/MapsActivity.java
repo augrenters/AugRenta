@@ -78,6 +78,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     private FirebaseAuth mAuth;
     private FirebaseUser currentUser;
     private DatabaseReference mDatabase;
+    private DatabaseReference mUser;
     private StorageReference storageReference;
 
     private CallbackManager mCallbackManager;
@@ -104,6 +105,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         //retrieve user information and store to currentUser
         currentUser = mAuth.getCurrentUser();
         //get reference for firebase database with child node Property
+        mUser = FirebaseDatabase.getInstance().getReference("User");
         mDatabase = FirebaseDatabase.getInstance().getReference("Property");
         storageReference = FirebaseStorage.getInstance().getReference("PropertyImages");
 
@@ -313,6 +315,11 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         String name = currentUser.getDisplayName();
         String email = currentUser.getEmail();
         Uri photoUrl = currentUser.getPhotoUrl();
+        String userId = currentUser.getUid();
+
+        User user = new User(userId, name, email);
+
+        mUser.child(userId).setValue(user);
 
         //set text in header in navigation view
         userNameHandler.setText(name);

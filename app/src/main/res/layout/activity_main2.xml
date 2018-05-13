@@ -242,6 +242,13 @@
                                     android:padding="3dp" />
                             </TableRow>
 
+                            <Button
+                                android:id="@+id/view_indoor_ar"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:text="Indoor Tour"
+                                />
+
 
                         </TableLayout>
 
