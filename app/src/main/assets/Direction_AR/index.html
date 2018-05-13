@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+<title>AugRenta Direction AR</title>
+
+<!-- Important: Let the viewport cover the whole screen -->
+<!-- NOT ALLOWED: , target-densityDpi=device-dpi -->
+<meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1, maximum-scale=1.0, user-scalable=no" />
+
+<!-- Include the ARchitect library -->
+<script src="https://www.wikitude.com/libs/architect.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+<script type="text/javascript" src="http://beneposto.pl/jqueryrotate/js/jQueryRotateCompressed.js"></script>
+
+<link rel="stylesheet" href="css/default.css">
+</head>
+
+<body>
+    <script src="js/directionar.js"></script>
+    <div id="mapHolder">
+        <div id="map"></div>
+    </div>
+    
+    <button id="back">Back To AR</button>
+    
+    <div id="arrowHolder">
+        <img id="greenArrow" src="assets/arrow.png">
+    </div>
+ <script async defer
+    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDpLTj8CuD8Nb0hBpnqNJsK6tnGeseESgw">
+    </script>
+<!--    &callback=initMap-->
+    
+</body>
+
+</html>
