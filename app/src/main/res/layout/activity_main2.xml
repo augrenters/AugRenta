@@ -110,57 +110,61 @@
                         android:id="@+id/favorite_place"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
+                        android:layout_alignParentStart="true"
                         android:layout_below="@+id/imagelayout"
-                        android:background="@drawable/white_border"
-                        android:layout_marginBottom="5dp">
+                        android:background="@drawable/white_border">
 
                         <Button
-                            android:id="@+id/button3"
+                            android:id="@+id/editProperty"
                             android:layout_width="wrap_content"
                             android:layout_height="30dp"
                             android:layout_marginLeft="10dp"
                             android:layout_marginStart="10dp"
                             android:layout_marginTop="10dp"
                             android:background="@drawable/button_actionplaceviewer"
-                            android:drawablePadding="15dp"
                             android:drawableLeft="@drawable/ic_favorite_border"
+                            android:drawablePadding="15dp"
                             android:drawableStart="@drawable/ic_favorite_border"
-                            android:text="Favorite"
+                            android:text="Edit"
                             android:textAllCaps="false" />
 
                         <Button
                             android:id="@+id/message_owner"
                             android:layout_width="wrap_content"
                             android:layout_height="30dp"
+                            android:layout_alignParentTop="true"
                             android:layout_marginLeft="10dp"
                             android:layout_marginStart="10dp"
                             android:layout_marginTop="10dp"
-                            android:layout_alignParentTop="true"
-                            android:layout_toEndOf="@+id/button3"
-                            android:layout_toRightOf="@+id/button3"
-                            android:text="Message"
-                            android:drawableLeft="@drawable/ic_messenger"
+                            android:layout_toEndOf="@+id/editProperty"
+                            android:layout_toRightOf="@+id/editProperty"
                             android:background="@drawable/button_actionplaceviewer"
+                            android:drawableLeft="@drawable/ic_messenger"
                             android:drawablePadding="20dp"
-                            android:textAllCaps="false"
                             android:drawableStart="@drawable/ic_messenger"
-                            />
+                            android:text="Message"
+                            android:textAllCaps="false" />
 
-                        <!--<Button-->
-                            <!--android:layout_width="wrap_content"-->
-                            <!--android:layout_height="wrap_content"-->
-                            <!--android:text="Set Availability"-->
-                            <!--android:background="@drawable/button_actionplaceviewer"-->
-                            <!--android:textAllCaps="false"-->
-                            <!--android:layout_toRightOf="@id/message_owner"/>-->
+                        <Button
+                            android:layout_width="wrap_content"
+                            android:layout_height="30dp"
+                            android:text="Set Availability"
+                            android:background="@drawable/button_actionplaceviewer"
+                            android:textAllCaps="false"
+                            android:layout_toRightOf="@id/message_owner"
+                            android:layout_alignParentTop="true"
+                            android:layout_marginLeft="10dp"
+                            android:layout_marginStart="10dp"
+                            android:layout_marginTop="10dp"
+                            />
 
                         <TextView
                             android:id="@+id/textView4"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_alignLeft="@+id/button3"
-                            android:layout_alignStart="@+id/button3"
-                            android:layout_below="@+id/button3"
+                            android:layout_alignLeft="@+id/editProperty"
+                            android:layout_alignStart="@+id/editProperty"
+                            android:layout_below="@+id/editProperty"
                             android:layout_marginTop="13dp"
                             android:text="Description"
                             android:textColor="@color/black" />
@@ -179,10 +183,10 @@
                         <TableLayout
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:layout_marginBottom="10dp"
                             android:layout_below="@+id/property_description"
-                            android:layout_marginTop="12dp"
-                            android:layout_marginLeft="10dp">
+                            android:layout_marginBottom="10dp"
+                            android:layout_marginLeft="10dp"
+                            android:layout_marginTop="12dp">
 
                             <TableRow>
 
@@ -199,54 +203,62 @@
                             </TableRow>
 
                             <TableRow>
+
                                 <TextView
-                                    android:text="Type"
-                                    android:padding="3dp" />
+                                    android:padding="3dp"
+                                    android:text="Type" />
+
                                 <TextView
                                     android:id="@+id/property_type"
-                                    android:text="House"
                                     android:gravity="left"
-                                    android:padding="3dp" />
+                                    android:padding="3dp"
+                                    android:text="House" />
                             </TableRow>
+
                             <TableRow>
+
                                 <TextView
-                                    android:text="Bedroom"
-                                    android:padding="3dp" />
+                                    android:padding="3dp"
+                                    android:text="Bedroom" />
+
                                 <TextView
                                     android:id="@+id/property_bedroom"
-                                    android:text="3"
                                     android:gravity="left"
-                                    android:padding="3dp" />
+                                    android:padding="3dp"
+                                    android:text="3" />
                             </TableRow>
 
                             <TableRow>
+
                                 <TextView
-                                    android:text="Bathrooms"
-                                    android:padding="3dp" />
+                                    android:padding="3dp"
+                                    android:text="Bathrooms" />
+
                                 <TextView
                                     android:id="@+id/property_bathroom"
-                                    android:text="1"
                                     android:gravity="left"
-                                    android:padding="3dp" />
+                                    android:padding="3dp"
+                                    android:text="1" />
                             </TableRow>
 
                             <TableRow>
+
                                 <TextView
-                                    android:text="Pets"
-                                    android:padding="3dp" />
+                                    android:padding="3dp"
+                                    android:text="Pets" />
+
                                 <TextView
                                     android:id="@+id/property_pets"
-                                    android:text="Allowed"
                                     android:gravity="left"
-                                    android:padding="3dp" />
+                                    android:padding="3dp"
+                                    android:text="Allowed" />
                             </TableRow>
 
                             <Button
                                 android:id="@+id/view_indoor_ar"
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
-                                android:text="Indoor Tour"
-                                />
+                                android:text="Indoor Tour" />
 
 
                         </TableLayout>

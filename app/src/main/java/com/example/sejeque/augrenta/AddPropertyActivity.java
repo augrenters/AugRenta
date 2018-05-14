@@ -118,6 +118,9 @@ public class AddPropertyActivity extends AppCompatActivity {
                 if(itemID == R.id.navigation_home){
                     goToHome();
                 }
+                else if(itemID == R.id.profile){
+                    goToProfile();
+                }
                 else if(itemID == R.id.properties){
                     goToPropertyList();
                 }
@@ -477,6 +480,11 @@ public class AddPropertyActivity extends AppCompatActivity {
         Intent onPropertyView = new Intent(AddPropertyActivity.this, MainActivity.class);
         startActivity(onPropertyView);
     }
+    private void  goToProfile(){
+        finish();
+        Intent onPropertyView = new Intent(AddPropertyActivity.this, UserPanelActivity.class);
+        startActivity(onPropertyView);
+    }
 
     //method for starting PropertyActivity
     private void goToPropertyList() {
@@ -506,15 +514,7 @@ public class AddPropertyActivity extends AppCompatActivity {
         proceed();
     }
 
-    private void selectFragment(MenuItem item) {
-        Fragment frag = null;
-        // init corresponding fragment
-        switch (item.getItemId()) {
-            case R.id.navigation_person:
-                Intent onUserView = new Intent(AddPropertyActivity.this, UserPanelActivity.class);
-                startActivity(onUserView);
-        }
-    }
+
 
 
      /*

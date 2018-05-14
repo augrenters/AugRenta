@@ -63,12 +63,14 @@
 
 
     <LinearLayout
+        android:id="@+id/requestsButtonsPanel"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@+id/requestPanel1"
         android:orientation="horizontal"
         android:weightSum="2"
         android:paddingTop="15dp"
+        android:visibility="visible"
         >
 
         <Button

@@ -56,14 +56,19 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintStart_toStartOf="parent"
+        android:background="@drawable/button_placeviewer"/>
 
     <Button
         android:id="@+id/btnAddProperty"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:layout_marginBottom="20dp"
+        android:background="@drawable/button_placeviewer"
         android:text="Add Property"
+        app:layout_constraintBottom_toTopOf="@+id/btnSignout"
         app:layout_constraintEnd_toEndOf="@+id/btnSignout"
-        app:layout_constraintStart_toStartOf="@+id/btnSignout"
-        tools:layout_editor_absoluteY="348dp" />
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="@+id/btnSignout" />
+
 </android.support.constraint.ConstraintLayout>

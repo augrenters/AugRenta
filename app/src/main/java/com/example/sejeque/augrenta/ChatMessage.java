@@ -293,6 +293,12 @@ public class ChatMessage extends AppCompatActivity {
         startActivity(onPropertyView);
     }
 
+    private void  goToProfile(){
+        finish();
+        Intent onPropertyView = new Intent(ChatMessage.this, UserPanelActivity.class);
+        startActivity(onPropertyView);
+    }
+
     //method for signing out current user
     //then going back to login panel
     private void signOutUser() {
@@ -301,16 +307,6 @@ public class ChatMessage extends AppCompatActivity {
         Toast.makeText(ChatMessage.this, "You have been logout", Toast.LENGTH_SHORT).show();
         finishAffinity();
         proceed();
-    }
-
-    private void selectFragment(MenuItem item) {
-        Fragment frag = null;
-        // init corresponding fragment
-        switch (item.getItemId()) {
-            case R.id.navigation_person:
-                Intent onUserView = new Intent(ChatMessage.this, UserPanelActivity.class);
-                startActivity(onUserView);
-        }
     }
 
 

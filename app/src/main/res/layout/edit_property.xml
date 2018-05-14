@@ -18,24 +18,13 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <RelativeLayout
-            android:id="@+id/rellayout2"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="@drawable/toolbar_bottom"
-
-            tools:layout_editor_absoluteX="0dp"
-            tools:layout_editor_absoluteY="0dp">
-
-            <include layout="@layout/toolbar_layout"/>
-
-        </RelativeLayout>
+        <include layout="@layout/toolbar_layout"/>
 
 
         <ScrollView
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_below="@+id/rellayout2"
+            android:layout_below="@+id/toolbar"
             android:layout_above="@id/bottom_bar"
             android:layout_marginTop="-2dp">
 
@@ -48,9 +37,10 @@
                     android:id="@+id/panel_info"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:layout_marginTop="10dp"
-                    android:paddingBottom="10dp"
-                    >
+                    android:layout_alignParentStart="true"
+                    android:layout_alignParentTop="true"
+                    android:layout_marginTop="11dp"
+                    android:paddingBottom="10dp">
 
 
                     <android.support.design.widget.TextInputLayout
@@ -65,9 +55,8 @@
                             android:layout_height="wrap_content"
                             android:ems="10"
                             android:hint="Property Title"
-                            android:theme="@style/MyEditText"
                             android:inputType="text"
-                            />
+                            android:theme="@style/MyEditText" />
                     </android.support.design.widget.TextInputLayout>
 
 
@@ -83,8 +72,8 @@
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:hint="Price"
-                            android:theme="@style/MyEditText"
-                            android:inputType="number"/>
+                            android:inputType="number"
+                            android:theme="@style/MyEditText" />
 
                     </android.support.design.widget.TextInputLayout>
 
@@ -100,14 +89,14 @@
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:hint="Type (Boarding House, Dormitory)"
-                            android:theme="@style/MyEditText"
-                            android:inputType="text"/>
+                            android:inputType="text"
+                            android:theme="@style/MyEditText" />
 
                         <!--<Spinner-->
-                            <!--android:layout_width="match_parent"-->
-                            <!--android:layout_height="40dp"-->
-                            <!--android:entries="@array/propertyTypeArray"-->
-                            <!--android:layout_marginTop="5dp">-->
+                        <!--android:layout_width="match_parent"-->
+                        <!--android:layout_height="40dp"-->
+                        <!--android:entries="@array/propertyTypeArray"-->
+                        <!--android:layout_marginTop="5dp">-->
                         <!--</Spinner>-->
 
                     </android.support.design.widget.TextInputLayout>
@@ -125,8 +114,8 @@
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:hint="Area"
-                            android:theme="@style/MyEditText"
-                            android:inputType="number"/>
+                            android:inputType="number"
+                            android:theme="@style/MyEditText" />
 
                     </android.support.design.widget.TextInputLayout>
 
@@ -136,16 +125,15 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_below="@+id/textViewArea"
-                        android:theme="@style/MyEditText"
-                        >
+                        android:theme="@style/MyEditText">
 
                         <EditText
                             android:id="@+id/editTextRooms"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:hint="Rooms"
-                            android:theme="@style/MyEditText"
-                            android:inputType="number"/>
+                            android:inputType="number"
+                            android:theme="@style/MyEditText" />
 
                     </android.support.design.widget.TextInputLayout>
 
@@ -154,16 +142,15 @@
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
                         android:layout_below="@+id/textViewRooms"
-                        android:theme="@style/MyEditText"
-                        >
+                        android:theme="@style/MyEditText">
 
                         <EditText
                             android:id="@+id/editTextBathrooms"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:hint="Bathrooms"
-                            android:theme="@style/MyEditText"
-                            android:inputType="number"/>
+                            android:inputType="number"
+                            android:theme="@style/MyEditText" />
 
                     </android.support.design.widget.TextInputLayout>
 
@@ -180,18 +167,18 @@
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:hint="Pets Allowed (Yes or No)"
-                            android:theme="@style/MyEditText"
-                            android:inputType="text"/>
+                            android:inputType="text"
+                            android:theme="@style/MyEditText" />
 
 
                         <!--<Spinner-->
-                            <!--android:id="@+id/selectPets"-->
-                            <!--android:layout_width="match_parent"-->
-                            <!--android:layout_height="40dp"-->
-                            <!--android:layout_below="@+id/textViewBathrooms"-->
-                            <!--android:theme="@style/MyEditText"-->
-                            <!--android:entries="@array/pets"-->
-                            <!--android:layout_marginTop="5dp"-->
+                        <!--android:id="@+id/selectPets"-->
+                        <!--android:layout_width="match_parent"-->
+                        <!--android:layout_height="40dp"-->
+                        <!--android:layout_below="@+id/textViewBathrooms"-->
+                        <!--android:theme="@style/MyEditText"-->
+                        <!--android:entries="@array/pets"-->
+                        <!--android:layout_marginTop="5dp"-->
                         <!--/>-->
 
 
@@ -208,36 +195,11 @@
                             android:id="@+id/editTextDescription"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:theme="@style/MyEditText"
                             android:hint="Description"
                             android:inputType="textMultiLine"
-                            />
+                            android:theme="@style/MyEditText" />
 
                     </android.support.design.widget.TextInputLayout>
-
-
-                        <TextView
-                            android:id="@+id/textViewLocation"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_alignBaseline="@+id/btnGoToMap"
-                            android:layout_alignBottom="@+id/btnGoToMap"
-                            android:layout_alignParentLeft="true"
-                            android:layout_alignParentStart="true"
-                            android:layout_marginLeft="5dp"
-                            android:layout_marginRight="20dp"
-                            android:gravity="bottom"
-                            android:text="Location"
-                            android:textSize="20dp" />
-
-                        <Button
-                            android:id="@+id/btnGoToMap"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:layout_below="@+id/textViewDescription"
-                            android:layout_toRightOf="@+id/textViewLocation"
-                            android:background="@drawable/button_actionplaceviewer"
-                            android:text="Select Location" />
 
 
                 </RelativeLayout>
@@ -297,23 +259,23 @@
 
 
                 <Button
-                    android:id="@+id/btnSubmit"
+                    android:id="@+id/saveEdit"
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
                     android:layout_weight="2"
                     android:background="@drawable/button_placeviewer"
                     android:textColor="@color/white"
-                    android:text="Save"
+                    android:text="Save Edit"
                     />
 
                 <Button
-                    android:id="@+id/btnGoBack"
+                    android:id="@+id/removeProperty"
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
                     android:layout_gravity="center"
                     android:layout_weight="2"
                     android:background="@drawable/button_placeviewer"
-                    android:text="Cancel"
+                    android:text="Remove Property"
                     android:textColor="@color/white" />
 
 

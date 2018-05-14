@@ -7,16 +7,16 @@ package com.example.sejeque.augrenta;
 public class RequestVisit {
 
     private String sender, date, time, type;
-    private boolean isAccepted;
+    private boolean accepted;
 
     public RequestVisit(){
     }
-    public RequestVisit(String sender, String date, String time, String type, boolean isAccepted){
+    public RequestVisit(String sender, String date, String time, String type, boolean accepted){
         this.sender = sender;
         this.date = date;
         this.time = time;
         this.type = type;
-        this.isAccepted = isAccepted;
+        this.accepted = accepted;
     }
 
     public String getSender() {
@@ -52,10 +52,10 @@ public class RequestVisit {
     }
 
     public boolean isAccepted() {
-        return isAccepted;
+        return accepted;
     }
 
     public void setAccepted(boolean accepted) {
-        isAccepted = accepted;
+        this.accepted = accepted;
     }
 }

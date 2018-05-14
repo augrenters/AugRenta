@@ -121,6 +121,9 @@
         <activity android:name=".CalendarRequestActivity"
             android:label="Calendar Requests"/>
 
+        <activity android:name=".EditPropertyActivity"
+            android:label="Edit Property"/>
+
         <service
             android:name=".FirebaseInstanceIDServiceApp">
             <intent-filter>

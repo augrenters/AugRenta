@@ -183,6 +183,9 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                if(itemID == R.id.navigation_home){
                    goToHome();
                }
+               else if(itemID == R.id.profile){
+                   goToProfile();
+               }
                else if(itemID == R.id.properties){
                    goToPropertyList();
                }
@@ -788,6 +791,12 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         startActivity(onPropertyView);
     }
 
+    private void  goToProfile(){
+        finish();
+        Intent onPropertyView = new Intent(MapsActivity.this, UserPanelActivity.class);
+        startActivity(onPropertyView);
+    }
+
     //method for signing out current user
     //then going back to login panel
     private void signOutUser() {
@@ -798,15 +807,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         proceed();
     }
 
-    private void selectFragment(MenuItem item) {
-        Fragment frag = null;
-        // init corresponding fragment
-        switch (item.getItemId()) {
-            case R.id.navigation_person:
-                Intent onUserView = new Intent(MapsActivity.this, UserPanelActivity.class);
-                startActivity(onUserView);
-        }
-    }
+
 
 
     /*

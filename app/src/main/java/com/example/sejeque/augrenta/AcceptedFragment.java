@@ -149,10 +149,12 @@ public class AcceptedFragment extends Fragment {
                                             viewHolder.ll.setVisibility(View.GONE);
                                             viewHolder.ll.setLayoutParams(params);
 
+
                                         }else{
                                             viewHolder.setSender(requestVisit.getSender());
                                             viewHolder.setDate(requestVisit.getDate());
                                             viewHolder.setTime(requestVisit.getTime());
+
                                         }
 
                                     }
@@ -178,14 +180,15 @@ public class AcceptedFragment extends Fragment {
         View mView;
         TextView sender_content, time_content, date_content, propertyName;
         Button chat_user, accept_request, decline_request;
-        LinearLayout ll;
+        LinearLayout ll, buttonsPanel;
 
         public AcceptViewHolder(View itemView) {
             super(itemView);
             mView = itemView;
 
             ll = mView.findViewById(R.id.requestsLayout);
-            //ll.setLayoutParams(params);
+            buttonsPanel = mView.findViewById(R.id.requestsButtonsPanel);
+            buttonsPanel.setVisibility(View.GONE);
             chat_user = mView.findViewById(R.id.chat_user);
             accept_request = mView.findViewById(R.id.accept_request);
             decline_request = mView.findViewById(R.id.decline_request);

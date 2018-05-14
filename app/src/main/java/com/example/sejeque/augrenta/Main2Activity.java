@@ -77,7 +77,7 @@ public class Main2Activity extends AppCompatActivity {
             property_type, property_area, property_bedroom, property_bathroom, property_pet;
 
     RelativeLayout bottomBarPanel;
-    Button message_owner, request_visitBtn, startToAr;
+    Button message_owner, edit_property, request_visitBtn, startToAr;
     CheckBox sunday, monday, tuesday, wednesday, thursday, friday, saturday;
     String prop_name;
 
@@ -91,6 +91,10 @@ public class Main2Activity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main2);
+
+        //get user information
+        mAuth = FirebaseAuth.getInstance();
+        currentUser = mAuth.getCurrentUser();
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -123,6 +127,9 @@ public class Main2Activity extends AppCompatActivity {
                 if(itemID == R.id.navigation_home){
                     goToHome();
                 }
+                else if(itemID == R.id.profile){
+                    goToProfile();
+                }
                 else if(itemID == R.id.properties){
                     goToPropertyList();
                 }
@@ -152,9 +159,7 @@ public class Main2Activity extends AppCompatActivity {
         mDatabase = FirebaseDatabase.getInstance().getReference("Property");
         storageReference = FirebaseStorage.getInstance().getReference("PropertyImages");
 
-        //get user information
-        mAuth = FirebaseAuth.getInstance();
-        currentUser = mAuth.getCurrentUser();
+
 
         //TextView widgets initialisation
         property_name = findViewById(R.id.property_name);
@@ -176,12 +181,23 @@ public class Main2Activity extends AppCompatActivity {
         senderID = currentUser.getUid();
         //checkDatabase = FirebaseDatabase.getInstance().getReference().child("Requests").child(senderID).child(ownerId).child(propertyId);
 
-        message_owner = (Button) findViewById(R.id.message_owner);
+        message_owner = findViewById(R.id.message_owner);
+        edit_property = findViewById(R.id.editProperty);
 
         message_owner.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 Intent starIntent = new Intent(Main2Activity.this, ChatMessage.class);
+                starIntent.putExtra("propertyId", propertyId);
+                starIntent.putExtra("ownerId", ownerId);
+                startActivity(starIntent);
+            }
+        });
+
+        edit_property.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent starIntent = new Intent(Main2Activity.this, EditPropertyActivity.class);
                 starIntent.putExtra("propertyId", propertyId);
                 starIntent.putExtra("ownerId", ownerId);
                 startActivity(starIntent);
@@ -223,28 +239,7 @@ public class Main2Activity extends AppCompatActivity {
     }
 
 
-        Button direction_tour = (Button) findViewById(R.id.inside_tour);
-        direction_tour.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent starIntent = new Intent(Main2Activity.this, AugmentActivity.class);
-                starIntent.putExtra("propertyId", propertyId);
-                startActivity(starIntent);
-            }
-        });
 
-        indoor_tour = findViewById(R.id.view_indoor_ar);
-        indoor_tour.setVisibility(View.GONE);
-        indoor_tour.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent starIntent = new Intent(Main2Activity.this, AugmentIndoorActivity.class);
-                starIntent.putExtra("propertyId", propertyId);
-                startActivity(starIntent);
-            }
-        });
-
-    }
 
     @Override
     protected void onStart() {
@@ -284,10 +279,8 @@ public class Main2Activity extends AppCompatActivity {
             prop_name = property.propertyName.toUpperCase();
             String currentId = currentUser.getUid();
             String propertyOwner = property.owner;
-            Toast.makeText(this, "Current ID: " + currentId + "\nOwner ID: " + propertyOwner, Toast.LENGTH_SHORT).show();
-            if(propertyOwner.equals(currentId)){
-                indoor_tour.setVisibility(View.VISIBLE);
-            }
+            //Toast.makeText(this, "Current ID: " + currentId + "\nOwner ID: " + propertyOwner, Toast.LENGTH_SHORT).show();
+
 
             checkCredentials();
         //}
@@ -298,6 +291,7 @@ public class Main2Activity extends AppCompatActivity {
         if(currentUser.getUid().equals(ownerId)){
             message_owner.setVisibility(View.GONE);
             bottomBarPanel.setVisibility(View.GONE);
+            edit_property.setVisibility(View.GONE);
         }
 
         requestDatabase.child(senderID).child(ownerId).child(propertyId).
@@ -509,6 +503,12 @@ public class Main2Activity extends AppCompatActivity {
         startActivity(onPropertyView);
     }
 
+    private void  goToProfile(){
+        finish();
+        Intent onPropertyView = new Intent(Main2Activity.this, UserPanelActivity.class);
+        startActivity(onPropertyView);
+    }
+
     //method for starting PropertyActivity
     private void goToPropertyList() {
         finish();
@@ -537,15 +537,6 @@ public class Main2Activity extends AppCompatActivity {
         proceed();
     }
 
-    private void selectFragment(MenuItem item) {
-        Fragment frag = null;
-        // init corresponding fragment
-        switch (item.getItemId()) {
-            case R.id.navigation_person:
-                Intent onUserView = new Intent(Main2Activity.this, UserPanelActivity.class);
-                startActivity(onUserView);
-        }
-    }
 
 
 

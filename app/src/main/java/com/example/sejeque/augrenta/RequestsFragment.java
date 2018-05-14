@@ -127,37 +127,22 @@ public class  RequestsFragment extends Fragment {
                 requestDatabase.child(user_id).child(key).addValueEventListener(new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
+                        if(dataSnapshot.exists()){
+                            for(DataSnapshot propKey : dataSnapshot.getChildren()) {
+                                RequestVisit requestVisit = propKey.getValue(RequestVisit.class);
+                                HashMap<String, String> resultMap = new HashMap<>();
 
-                        for(DataSnapshot propKey : dataSnapshot.getChildren()) {
-                            RequestVisit requestVisit = propKey.getValue(RequestVisit.class);
-                            HashMap<String, String> resultMap = new HashMap<>();
+                                resultMap.put("Property ID", propKey.getKey());
+                                resultMap.put("Sender", requestVisit.getSender());
+                                resultMap.put("Date", requestVisit.getDate());
+                                resultMap.put("Time", requestVisit.getTime());
+                                resultMap.put("Type", requestVisit.getType());
+                                resultMap.put("accepted", String.valueOf(requestVisit.isAccepted()));
+                                resultMap.put("Owner ID", key);
+                                request_user.add(resultMap);
 
-                            resultMap.put("Property ID", propKey.getKey());
-                            resultMap.put("Sender", requestVisit.getSender());
-                            resultMap.put("Date", requestVisit.getDate());
-                            resultMap.put("Time", requestVisit.getTime());
-                            resultMap.put("Type", requestVisit.getType());
-                            resultMap.put("accepted", String.valueOf(requestVisit.isAccepted()));
-                            resultMap.put("Owner ID", key);
-                            request_user.add(resultMap);
+                                if(requestVisit.getType().equals("sender")){
 
-                            if(requestVisit.getType().equals("sender")){
-
-                                ViewGroup.LayoutParams params = viewHolder.ll.getLayoutParams();
-                                params.height=0;
-                                params.width= 0;
-
-                                viewHolder.ll.setVisibility(View.GONE);
-                                viewHolder.ll.setLayoutParams(params);
-                            }
-                            else if (requestVisit.getType().equals("receiver")){
-                                //Toast.makeText(getContext(), ""+requestVisit.isAccepted(), Toast.LENGTH_SHORT).show();
-                                if(!requestVisit.isAccepted()){
-                                    viewHolder.setSender(requestVisit.getSender());
-                                    viewHolder.setDate(requestVisit.getDate());
-                                    viewHolder.setTime(requestVisit.getTime());
-
-                                }else{
                                     ViewGroup.LayoutParams params = viewHolder.ll.getLayoutParams();
                                     params.height=0;
                                     params.width= 0;
@@ -165,9 +150,28 @@ public class  RequestsFragment extends Fragment {
                                     viewHolder.ll.setVisibility(View.GONE);
                                     viewHolder.ll.setLayoutParams(params);
                                 }
+                                else if (requestVisit.getType().equals("receiver")){
+                                    //Toast.makeText(getContext(), ""+requestVisit.isAccepted(), Toast.LENGTH_SHORT).show();
+                                    if(!requestVisit.isAccepted()){
+                                        viewHolder.setSender(requestVisit.getSender());
+                                        viewHolder.setDate(requestVisit.getDate());
+                                        viewHolder.setTime(requestVisit.getTime());
 
+                                    }else{
+                                        ViewGroup.LayoutParams params = viewHolder.ll.getLayoutParams();
+                                        params.height=0;
+                                        params.width= 0;
+
+                                        viewHolder.ll.setVisibility(View.GONE);
+                                        viewHolder.ll.setLayoutParams(params);
+                                    }
+
+                                }
                             }
+                        }else{
+                            Log.d("Data exists", "No database exists");
                         }
+
                     }
 
                     @Override
