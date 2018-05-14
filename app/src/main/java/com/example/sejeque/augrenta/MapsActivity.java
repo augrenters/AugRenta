@@ -72,6 +72,7 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
@@ -96,6 +97,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 
+import static com.example.sejeque.augrenta.R.mipmap.available;
+import static com.example.sejeque.augrenta.R.mipmap.blue_marker;
+import static com.example.sejeque.augrenta.R.mipmap.red_marker;
+import static com.example.sejeque.augrenta.R.mipmap.yellow_marker;
 import static com.google.firebase.auth.FirebaseAuth.*;
 public class MapsActivity extends AppCompatActivity implements OnMapReadyCallback, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, LocationListener {
 
@@ -110,12 +115,14 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     private FirebaseAuth mAuth;
     private FirebaseUser currentUser;
     private DatabaseReference mDatabase;
+    private DatabaseReference mUser;
 
     private TextView userNameHandler, emailHandler;
     private ImageView imgHandler;
 
     //Array container for fetched data from firebase database
     List<Property> properties;
+    List<Property> filteredProperties;
 
     DrawerLayout drawerLayout;
     ActionBarDrawerToggle actionBarDrawerToggle;
@@ -130,6 +137,11 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     String shit = "";
     EditText etRooms, etbathroom;
 
+    String filterShowProp;
+    int[] priceValueProgress = {0};
+
+    RadioGroup filterPropBy;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -141,9 +153,11 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         currentUser = mAuth.getCurrentUser();
         //get reference for firebase database with child node Property
         mDatabase = FirebaseDatabase.getInstance().getReference("Property");
+        mUser = FirebaseDatabase.getInstance().getReference("User");
 
         //instantiate array container for fetched data from firebase database
         properties = new ArrayList<>();
+        filteredProperties = new ArrayList<>();
 
         //if user is not logged in, go back to login panel
         if(currentUser == null){
@@ -229,18 +243,10 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             }
         });
 
-
-
-
-
-        final RadioGroup filterPropBy = findViewById(R.id.radioGrpFilterProp);
-        int selectedId= filterPropBy.getCheckedRadioButtonId();
-        final RadioButton radioSexButton = findViewById(selectedId);
-        final String filterShowProp = radioSexButton.getText().toString();
+        filterPropBy = findViewById(R.id.radioGrpFilterProp);
 
         final SeekBar seekbarFilterPrice = findViewById(R.id.seekBarPrice);
         final TextView seekbarPriceTextView = findViewById(R.id.textView2);
-        final int[] priceValueProgress = {0};
         seekbarFilterPrice.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
@@ -356,6 +362,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         }
         else {
+            mMap.clear();
             //loop to every property saved to firebase database
             //that has been stored to array container
             for(int x=0; x<properties.size(); x++){
@@ -364,13 +371,31 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 //that has been stored to array container
                 lat = Double.valueOf(properties.get(x).latitude);
                 longT = Double.valueOf(properties.get(x).longitude);
+                String avail = properties.get(x).availability;
+                String owner = properties.get(x).owner;
+                String currentId = currentUser.getUid();
+
+                BitmapDescriptor markerIcon = null;
+
+                if(owner.equals(currentId)){
+                    markerIcon = BitmapDescriptorFactory.fromResource(blue_marker);
+                }
+                else if(avail.equals("Available")){
+                    markerIcon = BitmapDescriptorFactory.fromResource(available);
+                }
+                else if(avail.equals("Not Available")){
+                    markerIcon = BitmapDescriptorFactory.fromResource(red_marker);
+                }
+//
+//                BitmapDescriptor markerYellowImg = BitmapDescriptorFactory.fromResource(yellow_marker);
 
                 //create marker
                 LatLng markerPos = new LatLng(lat, longT);
                 marker = mMap.addMarker(new MarkerOptions()
                                                 .position(markerPos)
                                                 .title(properties.get(x).propertyName)
-                                                .snippet("Price: " + properties.get(x).price + " Php\n" ));
+                                                .snippet("Price: " + properties.get(x).price + " Php\n" )
+                                                .icon(markerIcon));
                 //getting property ID
                 resultMap.put(marker, properties.get(x).propertyID);
                 mMap.getUiSettings().setMapToolbarEnabled(false);
@@ -525,7 +550,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         final String prop_Id = s;
 
-        AlertDialog.Builder alertDialog = new AlertDialog.Builder(this, R.style.CustomDialogTheme);
+        AlertDialog.Builder alertDialog = new AlertDialog.Builder(this);
         LayoutInflater inflater = this.getLayoutInflater();
         View view = inflater.inflate(R.layout.dialoginfo_layout, null);
 
@@ -693,51 +718,181 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 hiddenPanel.startAnimation(animationSlideUp);
                 hiddenPanel.setVisibility(ViewGroup.GONE);
 
-                shit = "";
+                filteredProperties.clear();
+
+                String cr;
+
+                int selectedId= filterPropBy.getCheckedRadioButtonId();
+                RadioButton radioSexButton = findViewById(selectedId);
+                filterShowProp = radioSexButton.getText().toString();
+
                 filterCR = etbathroom.getText().toString();
                 filterRooms = etRooms.getText().toString();
 
-                if(!filterType[0].equals("All")){
-                    shit = shit + "type_";
-                }
-                if(!filterPets[0].equals("All")){
-                    shit = shit + "pets_";
-                }
-                if(!filterRooms.isEmpty()){
-                    shit = shit + "rooms_";
-                }
-                if(!filterCR.isEmpty()){
-                    shit = shit + "bathroom";
+                for(int x = 0; x < properties.size(); x++){
+                    filteredProperties.add(properties.get(x));
                 }
 
-                if (shit != null && shit.length() > 0 && shit.charAt(shit.length() - 1) == '_') {
-                    shit = shit.substring(0, shit.length() - 1);
-                }
 
-                Log.d("Data Input for Filter", filterType[0] +", " + filterPets[0] + "," + filterRooms +", " + filterCR);
-                Log.d("Data Filter for Filter", shit);
 
-                mDatabase.orderByChild("bathroom").equalTo("1")
-                        .addValueEventListener(new ValueEventListener() {
-                            @Override
-                            public void onDataChange(DataSnapshot dataSnapshot) {
 
-                                for(DataSnapshot propertySnapshot: dataSnapshot.getChildren()){
-                                    Property property = dataSnapshot.getValue(Property.class);
+                //if show all is chosen
+                if(filterShowProp.equals("Show All")) {
+                    Toast.makeText(MapsActivity.this, "Showing All Properties", Toast.LENGTH_SHORT).show();
+                    addMarkers();
+                }else {
+                    Toast.makeText(MapsActivity.this, "Removing " + filterShowProp + " Properties", Toast.LENGTH_SHORT).show();
+                    //filter for availability
+                    for(int x = 0; x < filteredProperties.size(); x++){
+                        if(!filteredProperties.get(x).availability.equals(filterShowProp)){
+                            Toast.makeText(MapsActivity.this, "Removing " + filteredProperties.get(x).propertyName, Toast.LENGTH_SHORT).show();
+                            filteredProperties.remove(x);
+                            x-=1;
+                        }
 
-                                    Toast.makeText(getApplicationContext(), "" + propertySnapshot.getKey(), Toast.LENGTH_SHORT).show();
-                                    Log.d("Data Filter for Filter", ""+property);
+                        //filter for price
+                        if(priceValueProgress[0] != 0){
+                            Toast.makeText(MapsActivity.this, "Removing Properties With Price Higher Than" + priceValueProgress[0], Toast.LENGTH_SHORT).show();
+                            for(int y = 0; y < filteredProperties.size(); y++){
+                                if(Integer.valueOf(filteredProperties.get(y).price) > priceValueProgress[0]){
+                                    Toast.makeText(MapsActivity.this, "Removing " + filteredProperties.get(y).propertyName, Toast.LENGTH_SHORT).show();
+                                    filteredProperties.remove(y);
+                                    y-=1;
                                 }
                             }
+                        }
 
-                            @Override
-                            public void onCancelled(DatabaseError databaseError) {
-
+                        //filter for type
+                        if(!filterType[0].equals("All")){
+                            for(int z = 0; z < filteredProperties.size(); z++){
+                                if(!filteredProperties.get(z).type.equals(filterType[0])){
+                                    filteredProperties.remove(z);
+                                    z-=1;
+                                }
                             }
-                        });
+                        }
+
+                        //filter for pets
+                        if(!filterPets[0].equals("All")){
+                            for(int a = 0; a < filteredProperties.size(); a++){
+                                if(!filteredProperties.get(a).pets.equals(filterPets[0])){
+                                    filteredProperties.remove(a);
+                                    a-=1;
+                                }
+                            }
+                        }
+
+                        //filter for rooms
+                        if(!filterRooms.isEmpty()){
+                            for(int b = 0; b < filteredProperties.size(); b++){
+                                if(Integer.valueOf(filteredProperties.get(b).rooms) > Integer.valueOf(filterRooms)){
+                                    filteredProperties.remove(b);
+                                    b-=1;
+                                }
+                            }
+                        }
+
+                        //filter for cr
+                        if(!filterCR.isEmpty()){
+                            for(int c = 0; c < filteredProperties.size(); c++){
+                                if(Integer.valueOf(filteredProperties.get(c).bathroom) > Integer.valueOf(filterCR)){
+                                    filteredProperties.remove(c);
+                                    c-=1;
+                                }
+                            }
+                        }
+                    }
+                    addFilteredMarkers();
+                }
+
+//                Toast.makeText(MapsActivity.this, "Status: " + filterShowProp  + "\nPrice: " + priceValueProgress[0] + "\nType: " + filterType[0] + "\nPets? " + filterPets[0] + "\nNo. Rooms: " + filterRooms + "\nNo. CRs" + filterCR, Toast.LENGTH_LONG).show();
+
+
+//                shit = "";
+//                filterCR = etbathroom.getText().toString();
+//                filterRooms = etRooms.getText().toString();
+//
+//                if(!filterType[0].equals("All")){
+//                    shit = shit + "type_";
+//                }
+//                if(!filterPets[0].equals("All")){
+//                    shit = shit + "pets_";
+//                }
+//                if(!filterRooms.isEmpty()){
+//                    shit = shit + "rooms_";
+//                }
+//                if(!filterCR.isEmpty()){
+//                    shit = shit + "bathroom";
+//                }
+//
+//                if (shit != null && shit.length() > 0 && shit.charAt(shit.length() - 1) == '_') {
+//                    shit = shit.substring(0, shit.length() - 1);
+//                }
+//
+//                Log.d("Data Input for Filter", filterType[0] +", " + filterPets[0] + "," + filterRooms +", " + filterCR);
+//                Log.d("Data Filter for Filter", shit);
+//
+//                mDatabase.orderByChild("bathroom").equalTo("1")
+//                        .addValueEventListener(new ValueEventListener() {
+//                            @Override
+//                            public void onDataChange(DataSnapshot dataSnapshot) {
+//
+//                                for(DataSnapshot propertySnapshot: dataSnapshot.getChildren()){
+//                                    Property property = dataSnapshot.getValue(Property.class);
+//
+//                                    Toast.makeText(getApplicationContext(), "" + propertySnapshot.getKey(), Toast.LENGTH_SHORT).show();
+//                                    Log.d("Data Filter for Filter", ""+property);
+//                                }
+//                            }
+//
+//                            @Override
+//                            public void onCancelled(DatabaseError databaseError) {
+//
+//                            }
+//                        });
             }
         });
 
+    }
+
+    private void addFilteredMarkers(){
+        mMap.clear();
+        for(int x=0; x<filteredProperties.size(); x++){
+            Double lat, longT;
+            //get latitude and longitude value from firebase database
+            //that has been stored to array container
+            lat = Double.valueOf(filteredProperties.get(x).latitude);
+            longT = Double.valueOf(filteredProperties.get(x).longitude);
+            String avail = properties.get(x).availability;
+            String owner = properties.get(x).owner;
+            String currentId = currentUser.getUid();
+
+            BitmapDescriptor markerIcon = null;
+
+            if(owner.equals(currentId)){
+                markerIcon = BitmapDescriptorFactory.fromResource(blue_marker);
+            }
+            else if(avail.equals("Available")){
+                markerIcon = BitmapDescriptorFactory.fromResource(available);
+            }
+            else if(avail.equals("Not Available")){
+                markerIcon = BitmapDescriptorFactory.fromResource(red_marker);
+            }
+//
+//                BitmapDescriptor markerYellowImg = BitmapDescriptorFactory.fromResource(yellow_marker);
+
+            //create marker
+            LatLng markerPos = new LatLng(lat, longT);
+            marker = mMap.addMarker(new MarkerOptions()
+                    .position(markerPos)
+                    .title(filteredProperties.get(x).propertyName)
+                    .snippet("Price: " + filteredProperties.get(x).price + " Php\n" )
+                    .icon(markerIcon));
+            //getting property ID
+            resultMap.put(marker, filteredProperties.get(x).propertyID);
+            mMap.getUiSettings().setMapToolbarEnabled(false);
+
+        }
     }
 
 
@@ -757,6 +912,11 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         String name = currentUser.getDisplayName();
         String email = currentUser.getEmail();
         Uri photoUrl = currentUser.getPhotoUrl();
+        String userId = currentUser.getUid();
+
+        User user = new User(userId, name, email);
+
+        mUser.child(userId).setValue(user);
 
         //set text in header in navigation view
         userNameHandler.setText(name);

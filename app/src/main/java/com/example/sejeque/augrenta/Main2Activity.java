@@ -159,8 +159,6 @@ public class Main2Activity extends AppCompatActivity {
         mDatabase = FirebaseDatabase.getInstance().getReference("Property");
         storageReference = FirebaseStorage.getInstance().getReference("PropertyImages");
 
-
-
         //TextView widgets initialisation
         property_name = findViewById(R.id.property_name);
         property_price = findViewById(R.id.property_price);
@@ -236,10 +234,27 @@ public class Main2Activity extends AppCompatActivity {
             }
         });
 
+        startToAr.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent starIntent = new Intent(Main2Activity.this, AugmentActivity.class);
+                starIntent.putExtra("propertyId", propertyId);
+                startActivity(starIntent);
+            }
+        });
+//
+//        indoor_tour = findViewById(R.id.view_indoor_ar);
+//        indoor_tour.setVisibility(View.GONE);
+//        indoor_tour.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                Intent starIntent = new Intent(Main2Activity.this, AugmentIndoorActivity.class);
+//                starIntent.putExtra("propertyId", propertyId);
+//                startActivity(starIntent);
+//            }
+//        });
+
     }
-
-
-
 
     @Override
     protected void onStart() {
@@ -279,8 +294,10 @@ public class Main2Activity extends AppCompatActivity {
             prop_name = property.propertyName.toUpperCase();
             String currentId = currentUser.getUid();
             String propertyOwner = property.owner;
-            //Toast.makeText(this, "Current ID: " + currentId + "\nOwner ID: " + propertyOwner, Toast.LENGTH_SHORT).show();
-
+            Toast.makeText(this, "Current ID: " + currentId + "\nOwner ID: " + propertyOwner, Toast.LENGTH_SHORT).show();
+//            if(propertyOwner.equals(currentId)){
+//                indoor_tour.setVisibility(View.VISIBLE);
+//            }
 
             checkCredentials();
         //}
@@ -352,7 +369,7 @@ public class Main2Activity extends AppCompatActivity {
     // Dialog box when user request to visit
     private void request_dialog() {
 
-        AlertDialog.Builder alertDialog = new AlertDialog.Builder(this, R.style.CustomDialogTheme);
+        AlertDialog.Builder alertDialog = new AlertDialog.Builder(this);
         LayoutInflater inflater = this.getLayoutInflater();
         View view = inflater.inflate(R.layout.requestvisit_datetime, null);
 
@@ -536,9 +553,6 @@ public class Main2Activity extends AppCompatActivity {
         finishAffinity();
         proceed();
     }
-
-
-
 
      /*
     *  UTILITES

@@ -17,7 +17,6 @@ var markerAlt;
 var globalCount;
 var propName;
 var directionsDisplay;
-var nextMarker = 0;
 
 var drawing;
 
@@ -80,14 +79,17 @@ function loadRotationFromJava(rotation, hasSensor){
         var markIndex;
         if(stepMarkerLat.length != 0){
             var temp = stepMarkerLat.length - 1;
-            if(nextMarker == temp){
-                markIndex = nextMarker;
+            if(NearMarker == temp){
+                markIndex = NearMarker;
             }
             else{
-                markIndex = nextMarker + 1;
+                markIndex = NearMarker + 1;
             }
-        
-            var angleDeg = Math.atan2(north.lng - stepMarkerLng[markIndex], north.lat - stepMarkerLat[markIndex]) * 180 / Math.PI;
+            
+            var sideOpposite = userPos.lat - propertyPos.lat;
+            var sideadjacent = userPos.lng = propertyPos.lng;
+            
+            var angleDeg = Math.atan(sideOpposite/sideadjacent);
             rotation = rotation - angleDeg;
         }
         $("#greenArrow").rotate(rotation);
@@ -273,7 +275,6 @@ function checkMarkerStatus() {
         if(distance < 15){
             augmentedStepMarkers.create(i);
             NearMarker = i;
-            nextMarker = nextMarker + 1;
             isMarkerNearby = true;
         }
     } 

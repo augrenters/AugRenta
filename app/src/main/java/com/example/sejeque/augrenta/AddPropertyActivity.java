@@ -44,7 +44,9 @@ import com.squareup.picasso.Picasso;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by Faith on 20/03/2018.
@@ -349,29 +351,40 @@ public class AddPropertyActivity extends AppCompatActivity {
             //get unique id that will be given to a child node of Property
             final String key = mDatabase.push().getKey();
             final String deviceToken = FirebaseInstanceId.getInstance().getToken();
+            String availability = "Available";
+            String rating = "0";
+            String profImage = fileNameList.get(0);
+
+            final Map<String, Object> childUpdates = new HashMap<>();
+
+            for(int x= 0; x<fileUriList.size(); x++){
+                childUpdates.put("image" + x, fileNameList.get(x));
+            }
+
             //pass variable to model Property
             Property property = new Property(propDesc, latVal, longVal, propOwner, propPrice, propName,
-                                                key, propType, propArea, propRooms, propBathrooms, propPets, deviceToken);
+                                                key, propType, propArea, propRooms, propBathrooms, propPets, deviceToken, availability, rating, profImage);
 
             //save property object to firebase database
+            mDatabase.child(key).child("images").setValue(childUpdates);
             mDatabase.child(key).setValue(property)
                     .addOnSuccessListener(new OnSuccessListener<Void>() {
                         @Override
                         public void onSuccess(Void aVoid) {
-                            for (int x = 0; x<fileUriList.size(); x++){
+                            for (int x = 0; x<fileUriList.size(); x++) {
                                 Uri imgUpload = fileUriList.get(x);
                                 String filenameUpload = fileNameList.get(x);
                                 storageReference.child(key).child(filenameUpload).putFile(imgUpload)
                                         .addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
-                                    @Override
-                                    public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                                        progressDialog.dismiss();
-                                        Toast.makeText(AddPropertyActivity.this, "Property Saved", Toast.LENGTH_SHORT).show();
-                                        finish();
-                                        Intent onMapView = new Intent(AddPropertyActivity.this, MapsActivity.class);
-                                        startActivity(onMapView);
-                                    }
-                                })
+                                            @Override
+                                            public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                                                progressDialog.dismiss();
+                                                Toast.makeText(AddPropertyActivity.this, "Property Saved", Toast.LENGTH_SHORT).show();
+                                                finish();
+                                                Intent onMapView = new Intent(AddPropertyActivity.this, MapsActivity.class);
+                                                startActivity(onMapView);
+                                            }
+                                        })
                                         .addOnFailureListener(new OnFailureListener() {
                                             @Override
                                             public void onFailure(@NonNull Exception e) {

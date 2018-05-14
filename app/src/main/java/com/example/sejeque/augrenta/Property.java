@@ -23,6 +23,9 @@ public class Property {
     public String bathroom;
     public String pets;
     public String deviceToken;
+    public String availability;
+    public String rating;
+    public String propertyImage;
 
     //DO NOT REMOVE
     //critical for fetching data from firebase database
@@ -31,7 +34,7 @@ public class Property {
 
     public Property(String description, String latitude, String longitude, String owner, String price,
                     String propertyName, String propertyID, String type, String area, String rooms,
-                    String bathroom, String pets, String deviceToken)
+                    String bathroom, String pets, String deviceToken, String availability, String rating, String propertyImage)
     {
         this.description = description;
         this.latitude = latitude;
@@ -46,5 +49,8 @@ public class Property {
         this.bathroom = bathroom;
         this.pets = pets;
         this.deviceToken = deviceToken;
+        this.availability = availability;
+        this.rating = rating;
+        this.propertyImage = propertyImage;
     }
 }
