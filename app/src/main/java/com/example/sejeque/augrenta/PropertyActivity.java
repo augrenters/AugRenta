@@ -129,6 +129,9 @@ public class PropertyActivity extends AppCompatActivity {
                 else if(itemID == R.id.messenger){
                     goToMessages();
                 }
+                else if (itemID == R.id.favorite_properties){
+                    goToFavorite();
+                }
                 else if(itemID == R.id.signOut){
                     signOutUser();
                 }
@@ -313,6 +316,12 @@ public class PropertyActivity extends AppCompatActivity {
     private void goToMessages() {
         finish();
         Intent onPropertyView = new Intent(PropertyActivity.this, MessengerActivity.class);
+        startActivity(onPropertyView);
+    }
+
+    private void goToFavorite() {
+        finish();
+        Intent onPropertyView = new Intent(PropertyActivity.this, FavoritesActivity.class);
         startActivity(onPropertyView);
     }
 

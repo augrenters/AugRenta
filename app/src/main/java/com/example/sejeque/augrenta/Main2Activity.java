@@ -25,6 +25,7 @@ import android.widget.CheckBox;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.RatingBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.TimePicker;
@@ -59,11 +60,11 @@ public class Main2Activity extends AppCompatActivity {
     ActionBarDrawerToggle actionBarDrawerToggle;
     Toolbar toolbar;
 
-    String ownerId, propertyId;
+    String ownerId, propertyId, propertyName;
 
     /// Database
     //initiate database reference
-    private DatabaseReference requestDatabase, notifDatabase;
+    private DatabaseReference requestDatabase, notifDatabase, ratingDatabse, favDatabse;
     private DatabaseReference mDatabase;
     private StorageReference storageReference;
 
@@ -77,9 +78,11 @@ public class Main2Activity extends AppCompatActivity {
             property_type, property_area, property_bedroom, property_bathroom, property_pet;
 
     RelativeLayout bottomBarPanel;
-    Button message_owner, edit_property, request_visitBtn, startToAr;
+    Button message_owner, edit_property, request_visitBtn, startToAr, submitRate, favoriteBtn;
     CheckBox sunday, monday, tuesday, wednesday, thursday, friday, saturday;
     String prop_name;
+
+    RatingBar rateProperty;
 
     private TextView userNameHandler, emailHandler;
     private ImageView imgHandler;
@@ -139,6 +142,9 @@ public class Main2Activity extends AppCompatActivity {
                 else if(itemID == R.id.messenger){
                     goToMessages();
                 }
+                else if (itemID == R.id.favorite_properties){
+                    goToFavorite();
+                }
                 else if(itemID == R.id.signOut){
                     signOutUser();
                 }
@@ -173,12 +179,15 @@ public class Main2Activity extends AppCompatActivity {
         // House seeker request
         requestDatabase = FirebaseDatabase.getInstance().getReference().child("Requests");
         notifDatabase = FirebaseDatabase.getInstance().getReference().child("Notifications");
+        ratingDatabse = FirebaseDatabase.getInstance().getReference().child("Ratings");
+        favDatabse = FirebaseDatabase.getInstance().getReference().child("Favorites");
         notifDatabase.keepSynced(true);
 
         sender = currentUser.getDisplayName();
         senderID = currentUser.getUid();
         //checkDatabase = FirebaseDatabase.getInstance().getReference().child("Requests").child(senderID).child(ownerId).child(propertyId);
 
+        favoriteBtn = findViewById(R.id.favorite_prop);
         message_owner = findViewById(R.id.message_owner);
         edit_property = findViewById(R.id.editProperty);
 
@@ -199,6 +208,16 @@ public class Main2Activity extends AppCompatActivity {
                 starIntent.putExtra("propertyId", propertyId);
                 starIntent.putExtra("ownerId", ownerId);
                 startActivity(starIntent);
+            }
+        });
+        favoriteBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if(FAVORITE_STATE.equals("not faved")){
+                    goToFavoriteProp();
+                }else{
+                    goToRemoveFav();
+                }
             }
         });
 
@@ -222,6 +241,14 @@ public class Main2Activity extends AppCompatActivity {
         saturday.setOnClickListener(checkboxClickListener);
 
         startToAr = findViewById(R.id.startAR);
+        startToAr.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent startAr = new Intent(Main2Activity.this, AugmentActivity.class);
+                startAr.putExtra("propertyId", propertyId);
+            }
+        });
+
         request_visitBtn = findViewById(R.id.request_visit);
         request_visitBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -254,6 +281,19 @@ public class Main2Activity extends AppCompatActivity {
 //            }
 //        });
 
+
+        rateProperty = findViewById(R.id.ratingBarProperty);
+        submitRate = findViewById(R.id.submitRateBtn);
+
+        submitRate.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                goToRateProperty();
+            }
+        });
+
+
+
     }
 
     @Override
@@ -263,7 +303,13 @@ public class Main2Activity extends AppCompatActivity {
         mDatabase.child(propertyId).addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                showData(dataSnapshot);
+
+                if(dataSnapshot.exists()){
+                    showData(dataSnapshot);
+                }else{
+                    proceed();
+                }
+
                 //Toast.makeText(Main2Activity.this, ""+dataSnapshot, Toast.LENGTH_SHORT).show();
             }
 
@@ -282,6 +328,7 @@ public class Main2Activity extends AppCompatActivity {
             //Toast.makeText(this, ""+property.propertyName, Toast.LENGTH_SHORT).show();
 
             ownerId = property.owner;
+            propertyName = property.propertyName;
             property_name.setText(property.propertyName);
             property_price.setText(property.price + " PHP");
             property_description.setText(property.description);
@@ -294,7 +341,7 @@ public class Main2Activity extends AppCompatActivity {
             prop_name = property.propertyName.toUpperCase();
             String currentId = currentUser.getUid();
             String propertyOwner = property.owner;
-            Toast.makeText(this, "Current ID: " + currentId + "\nOwner ID: " + propertyOwner, Toast.LENGTH_SHORT).show();
+            //Toast.makeText(this, "Current ID: " + currentId + "\nOwner ID: " + propertyOwner, Toast.LENGTH_SHORT).show();
 //            if(propertyOwner.equals(currentId)){
 //                indoor_tour.setVisibility(View.VISIBLE);
 //            }
@@ -306,8 +353,11 @@ public class Main2Activity extends AppCompatActivity {
     // Disable Message Button if current User is also the property owner
     private void checkCredentials() {
         if(currentUser.getUid().equals(ownerId)){
+            favoriteBtn.setVisibility(View.GONE);
             message_owner.setVisibility(View.GONE);
             bottomBarPanel.setVisibility(View.GONE);
+            submitRate.setVisibility(View.GONE);
+        }else{
             edit_property.setVisibility(View.GONE);
         }
 
@@ -337,7 +387,7 @@ public class Main2Activity extends AppCompatActivity {
                     public void onCancelled(DatabaseError databaseError) {}
                 });
 
-
+        initFavDatabase();
     }
 
     private void cancelVisitRequest() {
@@ -369,7 +419,7 @@ public class Main2Activity extends AppCompatActivity {
     // Dialog box when user request to visit
     private void request_dialog() {
 
-        AlertDialog.Builder alertDialog = new AlertDialog.Builder(this);
+        AlertDialog.Builder alertDialog = new AlertDialog.Builder(this, R.style.CustomDialogTheme);
         LayoutInflater inflater = this.getLayoutInflater();
         View view = inflater.inflate(R.layout.requestvisit_datetime, null);
 
@@ -423,8 +473,8 @@ public class Main2Activity extends AppCompatActivity {
         final String type1 = "sender", type2 = "receiver";
 //        String message_sender_ref = "Requests/" + senderID + "/" + ownerId + "/" + propertyId;
 //        String message_receiver_ref = "Requests/" + ownerId + "/" + senderID  + "/" + propertyId;
-        RequestVisit request = new RequestVisit(sender, formattedDate, timeRequest, type1, false);
-        final RequestVisit request2 = new RequestVisit(sender, formattedDate, timeRequest, type2, false);
+        RequestVisit request = new RequestVisit(propertyName, sender, formattedDate, timeRequest, type1, false);
+        final RequestVisit request2 = new RequestVisit(propertyName, sender, formattedDate, timeRequest, type2, false);
 
         requestDatabase.child(senderID).child(ownerId).child(propertyId).setValue(request)
                 .addOnCompleteListener(new OnCompleteListener<Void>() {
@@ -489,7 +539,20 @@ public class Main2Activity extends AppCompatActivity {
 
     }
 
+    public void goToRateProperty(){
+        String rating=String.valueOf(rateProperty.getRating());
+        Toast.makeText(getApplicationContext(), rating, Toast.LENGTH_LONG).show();
 
+        ratingDatabse.child(propertyId).child(senderID).child("rate").setValue(rating).addOnCompleteListener(new OnCompleteListener<Void>() {
+            @Override
+            public void onComplete(@NonNull Task<Void> task) {
+                if (task.isSuccessful()){
+                    Toast.makeText(Main2Activity.this, "Rating successfully submitted", Toast.LENGTH_SHORT).show();
+                    Log.d("Rating", "Rating successfully submitted");
+                }
+            }
+        });
+    }
 
     /*
     *  SIDE NAVBAR METHODS
@@ -511,6 +574,56 @@ public class Main2Activity extends AppCompatActivity {
         //Picasso turns photoUrl to bitmap
         //then changes the pic in header in navigation view
         Picasso.get().load(photoUrl).into(imgHandler);
+    }
+
+    String FAVORITE_STATE = "not faved";
+
+    public void initFavDatabase(){
+
+        favDatabse.child(currentUser.getUid()).child(propertyId).addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                if (dataSnapshot.exists()){
+                    favoriteBtn.setBackgroundColor(getResources().getColor(R.color.red));
+                    favoriteBtn.setText("Favorited");
+                    FAVORITE_STATE = "faved";
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+    }
+
+    public void goToFavoriteProp(){
+
+        favDatabse.child(currentUser.getUid()).child(propertyId).child("favorite").setValue("favorite").addOnCompleteListener(new OnCompleteListener<Void>() {
+            @Override
+            public void onComplete(@NonNull Task<Void> task) {
+                if(task.isSuccessful()){
+                    Toast.makeText(Main2Activity.this, "Property added to your Favorites", Toast.LENGTH_SHORT).show();
+                    favoriteBtn.setBackgroundColor(getResources().getColor(R.color.red));
+                    favoriteBtn.setText("Favorited");
+                    FAVORITE_STATE = "faved";
+                }
+            }
+        });
+    }
+
+    public void goToRemoveFav(){
+        favDatabse.child(currentUser.getUid()).child(propertyId).child("favorite").removeValue().addOnCompleteListener(new OnCompleteListener<Void>() {
+            @Override
+            public void onComplete(@NonNull Task<Void> task) {
+                if(task.isSuccessful()){
+                    Toast.makeText(Main2Activity.this, "Removed to your Favorites", Toast.LENGTH_SHORT).show();
+                    favoriteBtn.setBackground(getResources().getDrawable(R.drawable.button_actionplaceviewer));
+                    favoriteBtn.setText("Favorite");
+                    FAVORITE_STATE = "not faved";
+                }
+            }
+        });
     }
 
     //method for refreshing MapsActivity
@@ -541,6 +654,11 @@ public class Main2Activity extends AppCompatActivity {
     private void goToMessages() {
         finish();
         Intent onPropertyView = new Intent(Main2Activity.this, MessengerActivity.class);
+        startActivity(onPropertyView);
+    }
+    private void goToFavorite() {
+        finish();
+        Intent onPropertyView = new Intent(Main2Activity.this, FavoritesActivity.class);
         startActivity(onPropertyView);
     }
 

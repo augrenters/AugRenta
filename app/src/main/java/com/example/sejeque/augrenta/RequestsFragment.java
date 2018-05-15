@@ -65,6 +65,12 @@ public class  RequestsFragment extends Fragment {
 
     private static FirebaseRecyclerAdapter<RequestVisit, RequestViewHolder> requestAdapter;
 
+    private RequestAdapter requestAdpater;
+
+    List<RequestVisitData> requestList = new ArrayList<>();
+
+    LinearLayout ll;
+
     public RequestsFragment(){
         //empty constructor
     }
@@ -74,39 +80,101 @@ public class  RequestsFragment extends Fragment {
         requestsView = inflater.inflate(R.layout.requests_fragment, container, false);
         mContext = inflater.getContext();
 
+        View v = inflater.inflate(R.layout.seekerrequests_layout, container, false);
         //get user information
         mAuth = FirebaseAuth.getInstance();
         currentUser = mAuth.getCurrentUser();
 
         if(currentUser != null){
             user_id = currentUser.getUid();
+        }else{
+            Toast.makeText(mContext, " No user here", Toast.LENGTH_SHORT).show();
         }
 
-        request_user = new ArrayList<>();
-        requestTemp = new ArrayList<>();;
+//        request_user = new ArrayList<>();
+//        requestTemp = new ArrayList<>();;
+//
+//        requestDatabase = FirebaseDatabase.getInstance().getReference().child("Requests");
+//        mDatabase = FirebaseDatabase.getInstance().getReference().child("Property");
+//
+//        requestVisitList = requestsView.findViewById(R.id.requestsRecycleView);
+//        requestVisitList.setHasFixedSize(true);
+//
+//        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getContext());
+//        //linearLayoutManager.setReverseLayout(true);
+//        requestVisitList.setLayoutManager(linearLayoutManager);
+//        return requestsView;
+
+        ll = v.findViewById(R.id.requestsLayout);
+        //ll.setLayoutParams(params);
+
 
         requestDatabase = FirebaseDatabase.getInstance().getReference().child("Requests");
-        mDatabase = FirebaseDatabase.getInstance().getReference().child("Property");
-
+        requestAdpater = new RequestAdapter(requestList);
         requestVisitList = requestsView.findViewById(R.id.requestsRecycleView);
         requestVisitList.setHasFixedSize(true);
+
 
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getContext());
         //linearLayoutManager.setReverseLayout(true);
         requestVisitList.setLayoutManager(linearLayoutManager);
+        requestVisitList.setAdapter(requestAdpater);
         return requestsView;
-
-
-
     }
 
     @Override
     public void onStart() {
         super.onStart();
 
-        request_user.clear();
+        //request_user.clear();
 
-        populateRequestUser();
+        //populateRequestUser();
+
+
+//        requestAdpater.notifyItemRangeRemoved(0, requestList.size());
+//        requestVisitList.removeAllViewsInLayout();
+
+        requestDatabase.child(user_id).addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                requestList.clear();
+                if(dataSnapshot.exists()){
+                    for (DataSnapshot sender: dataSnapshot.getChildren()){
+                        //Toast.makeText(mContext, "" + sender.getKey(), Toast.LENGTH_SHORT).show();
+                        for(DataSnapshot reqProp : sender.getChildren()){
+                            //Toast.makeText(mContext, "" + properties, Toast.LENGTH_SHORT).show();
+                            Log.d("Properties", ""+reqProp.getValue());
+
+
+                            RequestVisit req = reqProp.getValue(RequestVisit.class);
+                            RequestVisitData requestVisitData = new RequestVisitData
+                                    (reqProp.getKey(), sender.getKey(), req.getSender(), req.getDate(), req.getTime(), req.getType(), req.getPropertyName(), req.isAccepted());
+
+                            if(req.isAccepted()){
+                                ViewGroup.LayoutParams params = ll.getLayoutParams();
+                                params.height=0;
+                                params.width= 0;
+
+                                ll.setVisibility(View.GONE);
+                                ll.setLayoutParams(params);
+                            }
+                            requestList.add(requestVisitData);
+                            requestAdpater.notifyDataSetChanged();
+                            Log.d("New Requests", ""+requestList.toString());
+                            //Toast.makeText(mContext, "" + requestList, Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                }else{
+                    //Toast.makeText(mContext, " No data here", Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+        requestAdpater.notifyDataSetChanged();
     }
 
     private void populateRequestUser() {
@@ -197,7 +265,6 @@ public class  RequestsFragment extends Fragment {
             super(itemView);
             mView = itemView;
 
-
             ll = mView.findViewById(R.id.requestsLayout);
             //ll.setLayoutParams(params);
             chat_user = mView.findViewById(R.id.chat_user);
@@ -240,9 +307,9 @@ public class  RequestsFragment extends Fragment {
                 //Toast.makeText(view.getContext(), "Accept User" + getAdapterPosition(), Toast.LENGTH_SHORT).show();
                 goToAcceptRequest();
             }else if(view.getId() == R.id.decline_request){
-                Toast.makeText(view.getContext(), "Decline User" + getAdapterPosition(), Toast.LENGTH_SHORT).show();
+                //Toast.makeText(view.getContext(), "Decline User" + getAdapterPosition(), Toast.LENGTH_SHORT).show();
             }else{
-                Toast.makeText(view.getContext(), "No buttons Found", Toast.LENGTH_SHORT).show();
+               // Toast.makeText(view.getContext(), "No buttons Found", Toast.LENGTH_SHORT).show();
             }
         }
 

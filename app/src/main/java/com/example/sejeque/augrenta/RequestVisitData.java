@@ -1,33 +1,42 @@
 package com.example.sejeque.augrenta;
 
 /**
- * Created by SejeQue on 5/11/2018.
+ * Created by SejeQue on 5/15/2018.
  */
 
-public class RequestVisit {
+public class RequestVisitData {
 
-    private String propertyName, sender, date, time, type;
+    private String propertyId, senderId, sender, date, time, type, propertyName;
     private boolean accepted;
 
-    public RequestVisit(){
+    public RequestVisitData() {
     }
 
-
-    public RequestVisit(String propertyName, String sender, String date, String time, String type, boolean accepted) {
-        this.propertyName = propertyName;
+    public RequestVisitData(String propertyId, String senderId, String sender, String date, String time, String type, String propertyName, boolean accepted) {
+        this.propertyId = propertyId;
+        this.senderId = senderId;
         this.sender = sender;
         this.date = date;
         this.time = time;
         this.type = type;
+        this.propertyName = propertyName;
         this.accepted = accepted;
     }
 
-    public String getPropertyName() {
-        return propertyName;
+    public String getPropertyId() {
+        return propertyId;
     }
 
-    public void setPropertyName(String propertyName) {
-        this.propertyName = propertyName;
+    public void setPropertyId(String propertyId) {
+        this.propertyId = propertyId;
+    }
+
+    public String getSenderId() {
+        return senderId;
+    }
+
+    public void setSenderId(String senderId) {
+        this.senderId = senderId;
     }
 
     public String getSender() {
@@ -60,6 +69,14 @@ public class RequestVisit {
 
     public void setType(String type) {
         this.type = type;
+    }
+
+    public String getPropertyName() {
+        return propertyName;
+    }
+
+    public void setPropertyName(String propertyName) {
+        this.propertyName = propertyName;
     }
 
     public boolean isAccepted() {

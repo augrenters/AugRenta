@@ -124,6 +124,9 @@
         <activity android:name=".EditPropertyActivity"
             android:label="Edit Property"/>
 
+        <activity android:name=".FavoritesActivity"
+            android:label="My Favorites"/>
+
         <service
             android:name=".FirebaseInstanceIDServiceApp">
             <intent-filter>

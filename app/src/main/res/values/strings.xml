@@ -18,7 +18,7 @@
     <string name ="title_requests">Requests</string>
     <string name ="title_messenger">Messenger</string>
     <string name ="title_availability">Availability</string>
-    <string name ="title_landlord">Add Landlord</string>
+    <string name ="title_landlord">My Favorites</string>
     <string name ="title_signout">Sign Out</string>
 
     <string-array name="pets">

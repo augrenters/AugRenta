@@ -26,6 +26,7 @@ import android.widget.Toast;
 import com.facebook.login.LoginManager;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -44,7 +45,7 @@ import java.util.List;
 public class MessengerActivity extends AppCompatActivity {
 
     //initiate database reference
-    private DatabaseReference mDatabase, propDatabase;
+    private DatabaseReference mDatabase, propDatabase, usersDatabase;
 
     //instantiate firebase auth and user
     private FirebaseAuth mAuth;
@@ -61,10 +62,11 @@ public class MessengerActivity extends AppCompatActivity {
     ListView propertyListHandler;
     //final ArrayList<String> message_user =new ArrayList<>();
     List<HashMap<String, String>> message_user;
+    List<HashMap<String, String>> user_name;
 
     SimpleAdapter adapter;
 
-    String prop_ID, sender = null, prop_name;
+    String prop_ID, sender = null, prop_name, senderName;
 
 
     @Override
@@ -118,6 +120,9 @@ public class MessengerActivity extends AppCompatActivity {
                 else if(itemID == R.id.messenger){
                     goToMessages();
                 }
+                else if (itemID == R.id.favorite_properties){
+                    goToFavorite();
+                }
                 else if(itemID == R.id.signOut){
                     signOutUser();
                 }
@@ -130,13 +135,17 @@ public class MessengerActivity extends AppCompatActivity {
 
         mDatabase = FirebaseDatabase.getInstance().getReference("Messages");
         propDatabase = FirebaseDatabase.getInstance().getReference("Property");
+        usersDatabase = FirebaseDatabase.getInstance().getReference("User");
         message_user = new ArrayList<>();
+        user_name = new ArrayList<>();
 
     }
 
     private void populatePropertyList() {
 
         message_user.clear();
+
+
 
         mDatabase.child(currentUser.getUid()).addValueEventListener(new ValueEventListener() {
             @Override
@@ -150,11 +159,21 @@ public class MessengerActivity extends AppCompatActivity {
                         prop_ID = prop_id.getKey();
                         Log.d("Users Messages/property", prop_ID);
 
-                        HashMap<String, String> resultMap = new HashMap<>();
+                        final HashMap<String, String> resultMap = new HashMap<>();
+                        String nameTemp = "";
                         for (int x = 0; x < properties.size(); x++) {
                             if (properties.get(x).propertyID.equals(prop_ID)) {
+                                //Toast.makeText(MessengerActivity.this, "again "+ user_name, Toast.LENGTH_SHORT).show();
+                                for(int y = 0; y <user_name.size(); y++){
+                                    ///Toast.makeText(MessengerActivity.this, "here "+user_name.get(y).get("SenderId"), Toast.LENGTH_SHORT).show();
+                                    if(user_name.get(y).get("SenderId").equals(sender)){
+                                        nameTemp = user_name.get(y).get("SenderName");
+                                        resultMap.put("Sender", nameTemp);
+                                    }
+                                }
                                 prop_name = properties.get(x).propertyName;
-                                resultMap.put("Sender", sender);
+
+                                resultMap.put("SenderId", sender);
                                 resultMap.put("Property ID", prop_ID);
                                 resultMap.put("Prop_name", prop_name);
                                 message_user.add(resultMap);
@@ -177,6 +196,32 @@ public class MessengerActivity extends AppCompatActivity {
     protected void onStart() {
         super.onStart();
 
+
+        usersDatabase.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+
+                for(final DataSnapshot userSender: dataSnapshot.getChildren()){
+
+                    usersDatabase.child(userSender.getKey()).child("username").addValueEventListener(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(DataSnapshot dataSnapshot) {
+
+                            final HashMap<String, String> usersResult = new HashMap<>();
+                            usersResult.put("SenderId", userSender.getKey());
+                            usersResult.put("SenderName", dataSnapshot.getValue().toString());
+                            user_name.add(usersResult);
+                            //Toast.makeText(MessengerActivity.this, ""+user_name, Toast.LENGTH_SHORT).show();
+                        }
+                        @Override
+                        public void onCancelled(DatabaseError databaseError) {}
+                    });
+                }
+            }
+            @Override
+            public void onCancelled(DatabaseError databaseError) {}
+        });
+
         propDatabase.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
@@ -185,11 +230,14 @@ public class MessengerActivity extends AppCompatActivity {
                     Property property = propertyNames.getValue(Property.class);
                     properties.add(property);
                 }
+
                 populatePropertyList();
             }
             @Override
             public void onCancelled(DatabaseError databaseError) {}
         });
+
+
 
     }
 
@@ -209,7 +257,7 @@ public class MessengerActivity extends AppCompatActivity {
 
                 Intent showInfo = new Intent(MessengerActivity.this , ChatMessage.class);
                 showInfo.putExtra("propertyId", message_user.get(i).get("Property ID"));
-                showInfo.putExtra("ownerId", message_user.get(i).get("Sender"));
+                showInfo.putExtra("ownerId", message_user.get(i).get("SenderId"));
                 startActivity(showInfo);
             }
         });
@@ -264,7 +312,12 @@ public class MessengerActivity extends AppCompatActivity {
     private void goToMessages() {
         finish();
         startActivity(getIntent());
+    }
 
+    private void goToFavorite(){
+        finish();
+        Intent onPropertyView = new Intent(MessengerActivity.this, FavoritesActivity.class);
+        startActivity(onPropertyView);
     }
 
     //method for signing out current user
@@ -302,5 +355,20 @@ public class MessengerActivity extends AppCompatActivity {
     protected void onDestroy() {
         super.onDestroy();
         finish();
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+    }
+
+    @Override
+    protected void onRestart() {
+        super.onRestart();
     }
 }

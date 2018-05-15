@@ -1,11 +1,13 @@
 package com.example.sejeque.augrenta;
 
 
+import android.content.Context;
 import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -56,11 +58,22 @@ public class AcceptedFragment extends Fragment {
 
     View acceptedView;
 
+
+    private AcceptAdapter requestAdpater;
+
+    List<RequestVisitData> requestList = new ArrayList<>();
+
+    LinearLayout ll;
+    View requestsView;
+    Context mContext;
+
     @Nullable
     @Override
 
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, Bundle savedInstanceState) {
         acceptedView = inflater.inflate(R.layout.accepted_fragment, container, false);
+
+        View v = inflater.inflate(R.layout.seekerrequests_layout, container, false);
 
         mAuth = FirebaseAuth.getInstance();
         currentUser = mAuth.getCurrentUser();
@@ -72,17 +85,33 @@ public class AcceptedFragment extends Fragment {
         user_id = currentUser.getUid();
         requestDatabase = FirebaseDatabase.getInstance().getReference().child("Requests");
 
-        request_user = new ArrayList<>();
+//        request_user = new ArrayList<>();
+//
+//        requestDatabase = FirebaseDatabase.getInstance().getReference().child("Requests");
+//        mDatabase = FirebaseDatabase.getInstance().getReference().child("Property");
+//
+//        acceptedVisitList = acceptedView.findViewById(R.id.acceptedRecycleView);
+//        acceptedVisitList.setHasFixedSize(true);
+//
+//        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getContext());
+//        //linearLayoutManager.setReverseLayout(true);
+//        acceptedVisitList.setLayoutManager(linearLayoutManager);
+
+        ll = v.findViewById(R.id.requestsLayout);
+        //ll.setLayoutParams(params);
+
 
         requestDatabase = FirebaseDatabase.getInstance().getReference().child("Requests");
-        mDatabase = FirebaseDatabase.getInstance().getReference().child("Property");
-
+        requestAdpater = new AcceptAdapter(requestList);
         acceptedVisitList = acceptedView.findViewById(R.id.acceptedRecycleView);
-        acceptedVisitList.setHasFixedSize(true);
+
+
 
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getContext());
         //linearLayoutManager.setReverseLayout(true);
+        acceptedVisitList.setHasFixedSize(true);
         acceptedVisitList.setLayoutManager(linearLayoutManager);
+        acceptedVisitList.setAdapter(requestAdpater);
 
         return acceptedView;
     }
@@ -91,11 +120,51 @@ public class AcceptedFragment extends Fragment {
     public void onStart() {
         super.onStart();
 
-        request_user.clear();
+        //populateRequestUser();
+        requestList.clear();
 
-        populateRequestUser();
+        requestDatabase.child(user_id).addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+
+                if(dataSnapshot.exists()){
+                    for (DataSnapshot sender: dataSnapshot.getChildren()){
+                        //Toast.makeText(mContext, "" + sender.getKey(), Toast.LENGTH_SHORT).show();
+                        for(DataSnapshot reqProp : sender.getChildren()){
+                            //Toast.makeText(mContext, "" + properties, Toast.LENGTH_SHORT).show();
+                            Log.d("Properties", ""+reqProp.getValue());
 
 
+                            RequestVisit req = reqProp.getValue(RequestVisit.class);
+                            RequestVisitData requestVisitData = new RequestVisitData
+                                    (reqProp.getKey(), sender.getKey(), req.getSender(), req.getDate(), req.getTime(), req.getType(), req.getPropertyName(), req.isAccepted());
+
+
+                            if(!req.isAccepted()){
+                                ViewGroup.LayoutParams params = ll.getLayoutParams();
+                                params.height=0;
+                                params.width= 0;
+
+                                ll.setVisibility(View.GONE);
+                                ll.setLayoutParams(params);
+                            }
+                            requestList.add(requestVisitData);
+                            requestAdpater.notifyDataSetChanged();
+                            Log.d("New Requests", ""+requestList.toString());
+                            //Toast.makeText(mContext, "" + requestList, Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                }else{
+                    //Toast.makeText(getContext(), " No data here", Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+        requestAdpater.notifyDataSetChanged();
 
     }
 
@@ -172,8 +241,6 @@ public class AcceptedFragment extends Fragment {
         acceptedVisitList.setAdapter(acceptAdapter);
         Log.d("List Seeker", ""+requestDatabase);
     }
-
-
 
     public static class AcceptViewHolder extends RecyclerView.ViewHolder {
 

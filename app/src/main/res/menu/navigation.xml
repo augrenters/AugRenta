@@ -26,9 +26,9 @@
         android:icon="@drawable/ic_messenger"
         android:title="@string/title_messenger" />
     <item
-        android:id="@+id/landlord"
+        android:id="@+id/favorite_properties"
         android:title="@string/title_landlord"
-        android:icon="@drawable/ic_landlord"
+        android:icon="@drawable/ic_favorite_border"
         />
 
     <item

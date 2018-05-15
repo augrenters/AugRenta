@@ -142,6 +142,8 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     RadioGroup filterPropBy;
 
+    private boolean isDown = false;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -208,6 +210,8 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                }
                else if(itemID == R.id.messenger){
                    goToMessages();
+               }else if (itemID == R.id.favorite_properties){
+                   goToFavorite();
                }
                else if(itemID == R.id.signOut){
                    signOutUser();
@@ -702,6 +706,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             public void onClick(View view) {
                 hiddenPanel.startAnimation(animationSlideUp);
                 hiddenPanel.setVisibility(ViewGroup.GONE);
+                isDown = false;
             }
         });
 
@@ -715,6 +720,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 //                properties.clear();
 //                resultMap.clear();
 //                marker.remove();
+                isDown = false;
                 hiddenPanel.startAnimation(animationSlideUp);
                 hiddenPanel.setVisibility(ViewGroup.GONE);
 
@@ -956,6 +962,11 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         Intent onPropertyView = new Intent(MapsActivity.this, UserPanelActivity.class);
         startActivity(onPropertyView);
     }
+    private void goToFavorite(){
+        finish();
+        Intent onPropertyView = new Intent(MapsActivity.this, FavoritesActivity.class);
+        startActivity(onPropertyView);
+    }
 
     //method for signing out current user
     //then going back to login panel
@@ -1006,7 +1017,12 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         switch (item.getItemId()){
             case R.id.filter_menu:
-                filterSearch();
+                if(isDown){
+                    //don't do anything
+                }else{
+                    filterSearch();
+                    isDown = true;
+                }
                 return true;
         }
         return super.onOptionsItemSelected(item);

@@ -95,20 +95,20 @@
                         android:layout_below="@+id/textViewPrice"
                         android:theme="@style/MyEditText">
 
-                        <!--<EditText-->
-                            <!--android:id="@+id/editTextType"-->
-                            <!--android:layout_width="match_parent"-->
-                            <!--android:layout_height="wrap_content"-->
-                            <!--android:hint="Type (Boarding House, Dormitory)"-->
-                            <!--android:theme="@style/MyEditText"-->
-                            <!--android:inputType="text"/>-->
-
-                        <Spinner
+                        <EditText
+                            android:id="@+id/editTextType"
                             android:layout_width="match_parent"
-                            android:layout_height="40dp"
-                            android:entries="@array/propertyTypeArray"
-                            android:layout_marginTop="5dp">
-                        </Spinner>
+                            android:layout_height="wrap_content"
+                            android:hint="Type (Boarding House, Dormitory)"
+                            android:theme="@style/MyEditText"
+                            android:inputType="text"/>
+
+                        <!--<Spinner-->
+                            <!--android:layout_width="match_parent"-->
+                            <!--android:layout_height="40dp"-->
+                            <!--android:entries="@array/propertyTypeArray"-->
+                            <!--android:layout_marginTop="5dp">-->
+                        <!--</Spinner>-->
 
                     </android.support.design.widget.TextInputLayout>
 
@@ -175,24 +175,24 @@
                         android:layout_below="@+id/textViewBathrooms"
                         android:theme="@style/MyEditText">
 
-                        <!--<EditText-->
-                            <!--android:id="@+id/editTextPets"-->
-                            <!--android:layout_width="match_parent"-->
-                            <!--android:layout_height="wrap_content"-->
-                            <!--android:hint="Pets Allowed (Yes or No)"-->
-                            <!--android:theme="@style/MyEditText"-->
-                            <!--android:inputType="text"/>-->
-
-
-                        <Spinner
-                            android:id="@+id/selectPets"
+                        <EditText
+                            android:id="@+id/editTextPets"
                             android:layout_width="match_parent"
-                            android:layout_height="40dp"
-                            android:layout_below="@+id/textViewBathrooms"
+                            android:layout_height="wrap_content"
+                            android:hint="Pets Allowed (Yes or No)"
                             android:theme="@style/MyEditText"
-                            android:entries="@array/pets"
-                            android:layout_marginTop="5dp"
-                        />
+                            android:inputType="text"/>
+
+
+                        <!--<Spinner-->
+                            <!--android:id="@+id/selectPets"-->
+                            <!--android:layout_width="match_parent"-->
+                            <!--android:layout_height="40dp"-->
+                            <!--android:layout_below="@+id/textViewBathrooms"-->
+                            <!--android:theme="@style/MyEditText"-->
+                            <!--android:entries="@array/pets"-->
+                            <!--android:layout_marginTop="5dp"-->
+                        <!--/>-->
 
 
                     </android.support.design.widget.TextInputLayout>

@@ -129,6 +129,10 @@ public class ChatMessage extends AppCompatActivity {
                 else if(itemID == R.id.messenger){
                     goToMessages();
                 }
+                else if (itemID == R.id.favorite_properties){
+                    goToFavorite();
+                }
+
                 else if(itemID == R.id.signOut){
                     signOutUser();
                 }
@@ -296,6 +300,12 @@ public class ChatMessage extends AppCompatActivity {
     private void  goToProfile(){
         finish();
         Intent onPropertyView = new Intent(ChatMessage.this, UserPanelActivity.class);
+        startActivity(onPropertyView);
+    }
+
+    private void goToFavorite(){
+        finish();
+        Intent onPropertyView = new Intent(ChatMessage.this, FavoritesActivity.class);
         startActivity(onPropertyView);
     }
 

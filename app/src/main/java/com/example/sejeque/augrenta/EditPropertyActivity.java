@@ -2,14 +2,18 @@ package com.example.sejeque.augrenta;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -35,10 +39,12 @@ public class EditPropertyActivity extends AppCompatActivity{
 
     String ownerId, propertyId;
 
-    TextView property_name, property_price, property_description,
-            property_type, property_area, property_bedroom, property_bathroom, property_pet;
+    private EditText propertyNameHandler, priceHandler, descriptionHandler, typeHandler,
+            areaHandler, roomsHandler, bathroomsHandler, petsHandler;
 
     Button saveEdit, removeProperty;
+
+    Property property, edited_property;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -56,24 +62,40 @@ public class EditPropertyActivity extends AppCompatActivity{
         propertyId = getIntent().getExtras().getString("propertyId");
         ownerId = getIntent().getExtras().getString("ownerId");
 
-        property_name = findViewById(R.id.property_name);
-        property_price = findViewById(R.id.property_price);
-        property_description = findViewById(R.id.property_description);
-        property_area = findViewById(R.id.property_area);
-        property_type = findViewById(R.id.property_type);
-        property_bedroom = findViewById(R.id.property_bedroom);
-        property_bathroom = findViewById(R.id.property_bathroom);
-        property_pet = findViewById(R.id.property_pets);
+        propertyNameHandler = findViewById(R.id.editTextPropertyName);
+        priceHandler = findViewById(R.id.editTextPrice);
+        descriptionHandler = findViewById(R.id.editTextDescription);
+        typeHandler = findViewById(R.id.editTextType);
+        areaHandler = findViewById(R.id.editTextArea);
+        roomsHandler = findViewById(R.id.editTextRooms);
+        bathroomsHandler = findViewById(R.id.editTextBathrooms);
+        petsHandler = findViewById(R.id.editTextPets);
 
         saveEdit = findViewById(R.id.saveEdit);
         removeProperty = findViewById(R.id.removeProperty);
 
-        mDatabase = FirebaseDatabase.getInstance().getReference("Property").child("propertyId");
+        mDatabase = FirebaseDatabase.getInstance().getReference("Property").child(propertyId);
 
         mDatabase.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                Toast.makeText(getApplicationContext(), " "+ dataSnapshot.getKey(), Toast.LENGTH_SHORT).show();
+
+                if (dataSnapshot.exists()){
+                    property = dataSnapshot.getValue(Property.class);
+                    //Toast.makeText(EditPropertyActivity.this, ""+property.propertyName, Toast.LENGTH_SHORT).show();
+
+                    propertyNameHandler.setText(property.propertyName);
+                    priceHandler.setText(property.price);
+                    descriptionHandler.setText(property.description);
+                    areaHandler.setText(property.area);
+                    typeHandler.setText(property.type);
+                    roomsHandler.setText(property.rooms);
+                    bathroomsHandler.setText(property.bathroom);
+                    petsHandler.setText(property.pets);
+                }else{
+                    proceed();
+                }
+
             }
 
             @Override
@@ -86,7 +108,58 @@ public class EditPropertyActivity extends AppCompatActivity{
         saveEdit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                Toast.makeText(EditPropertyActivity.this, ""+propertyNameHandler.getText().toString(), Toast.LENGTH_SHORT).show();
+                String propDesc, latVal, longVal, propOwner, propPrice, propName,
+                        key, propType, propArea, propRooms, propBathrooms, propPets, deviceToken, availability, rating, profImage;
 
+                propName = propertyNameHandler.getText().toString();
+                propPrice = priceHandler.getText().toString();
+                propDesc = descriptionHandler.getText().toString();
+                propArea = areaHandler.getText().toString();
+                propType = typeHandler.getText().toString();
+                propRooms = roomsHandler.getText().toString();
+                propBathrooms = bathroomsHandler.getText().toString();
+                propPets = petsHandler.getText().toString();
+
+                latVal = property.latitude;
+                longVal = property.longitude;
+                propOwner = property.owner;
+                key = property.propertyID;
+                deviceToken = property.deviceToken;
+                availability = property.availability;
+                rating = property.rating;
+                profImage = property.propertyImage;
+
+                edited_property = new Property(propDesc, latVal, longVal, propOwner, propPrice, propName,
+                        key, propType, propArea, propRooms, propBathrooms, propPets, deviceToken, availability, rating, profImage);
+
+                mDatabase.setValue(edited_property).addOnCompleteListener(new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Void> task) {
+                        if(task.isSuccessful()){
+                            Toast.makeText(EditPropertyActivity.this, "New Property Information Saved", Toast.LENGTH_SHORT).show();
+                            Intent goBack = new Intent(EditPropertyActivity.this, Main2Activity.class);
+                            goBack.putExtra("propertyId", propertyId);
+                            startActivity(goBack);
+                        }
+                    }
+                });
+            }
+        });
+
+        removeProperty.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                mDatabase.removeValue().addOnCompleteListener(new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Void> task) {
+                        if (task.isSuccessful()){
+                            Toast.makeText(EditPropertyActivity.this, "Removed Property", Toast.LENGTH_SHORT).show();
+                            Intent goBack = new Intent(EditPropertyActivity.this, MapsActivity.class);
+                            startActivity(goBack);
+                        }
+                    }
+                });
             }
         });
 
