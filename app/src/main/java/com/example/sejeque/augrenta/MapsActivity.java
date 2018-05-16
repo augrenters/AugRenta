@@ -339,15 +339,16 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 properties.clear();
 
                 //fetching data from every child of Property in firebase database
-                for(DataSnapshot propertySnapshot: dataSnapshot.getChildren()){
-                    Property property = propertySnapshot.getValue(Property.class);
-                    //put fetched data from firebase database to array container
-                    properties.add(property);
+                if (dataSnapshot.exists()){
+                    for(DataSnapshot propertySnapshot: dataSnapshot.getChildren()){
+                        Property property = propertySnapshot.getValue(Property.class);
+                        //put fetched data from firebase database to array container
+                        properties.add(property);
+                    }
+
+                    //put markers for each property on the map
+                    addMarkers();
                 }
-
-                //put markers for each property on the map
-                addMarkers();
-
             }
             @Override
             public void onCancelled(DatabaseError databaseError) {
@@ -370,24 +371,29 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             //loop to every property saved to firebase database
             //that has been stored to array container
             for(int x=0; x<properties.size(); x++){
-                Double lat, longT;
+                Double lat = 0.0, longT = 0.0;
                 //get latitude and longitude value from firebase database
                 //that has been stored to array container
-                lat = Double.valueOf(properties.get(x).latitude);
-                longT = Double.valueOf(properties.get(x).longitude);
+                String longS = properties.get(x).longitude, latS=properties.get(x).latitude;
+
+                if(longS !=null && latS!=null){
+                    lat = Double.valueOf(latS);
+                    longT = Double.valueOf(longS);
+                }
+
                 String avail = properties.get(x).availability;
                 String owner = properties.get(x).owner;
                 String currentId = currentUser.getUid();
 
                 BitmapDescriptor markerIcon = null;
 
-                if(owner.equals(currentId)){
+                if(owner!= null && owner.equals(currentId)){
                     markerIcon = BitmapDescriptorFactory.fromResource(blue_marker);
                 }
-                else if(avail.equals("Available")){
+                else if(avail != null && avail.equals("Available")){
                     markerIcon = BitmapDescriptorFactory.fromResource(available);
                 }
-                else if(avail.equals("Not Available")){
+                else if(avail != null && avail.equals("Not Available")){
                     markerIcon = BitmapDescriptorFactory.fromResource(red_marker);
                 }
 //
@@ -554,7 +560,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         final String prop_Id = s;
 
-        AlertDialog.Builder alertDialog = new AlertDialog.Builder(this);
+        AlertDialog.Builder alertDialog = new AlertDialog.Builder(this, R.style.CustomDialogTheme);
         LayoutInflater inflater = this.getLayoutInflater();
         View view = inflater.inflate(R.layout.dialoginfo_layout, null);
 

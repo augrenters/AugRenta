@@ -246,7 +246,7 @@ public class SelectLocationActivity extends AppCompatActivity implements OnMapRe
                 public void onMapClick(LatLng latLng) {
                     String locality = null;
 
-                    Toast.makeText(SelectLocationActivity.this, "You clicked here" + latLng, Toast.LENGTH_SHORT).show();
+                    //Toast.makeText(SelectLocationActivity.this, "You clicked here" + latLng, Toast.LENGTH_SHORT).show();
 
                     Geocoder gc = new Geocoder(SelectLocationActivity.this);
 
@@ -314,7 +314,7 @@ public class SelectLocationActivity extends AppCompatActivity implements OnMapRe
         double lng = address.getLongitude();
         gotoLocationZoom(lat, lng, 15);
 
-        Toast.makeText(this, "Lat: " + lat + "& Long " + lng, Toast.LENGTH_SHORT).show();
+        //Toast.makeText(this, "Lat: " + lat + "& Long " + lng, Toast.LENGTH_SHORT).show();
 
 
         // adding Marker

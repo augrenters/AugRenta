@@ -20,6 +20,7 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
@@ -29,8 +30,10 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.facebook.login.LoginManager;
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
@@ -350,6 +353,7 @@ public class AddPropertyActivity extends AppCompatActivity {
             final ProgressDialog progressDialog = new ProgressDialog(this);
             progressDialog.setTitle("Saving Property..");
             progressDialog.show();
+            progressDialog.setCancelable(false);
 
             //get unique id that will be given to a child node of Property
             final String key = mDatabase.push().getKey();
@@ -364,16 +368,33 @@ public class AddPropertyActivity extends AppCompatActivity {
                 childUpdates.put("image" + x, fileNameList.get(x));
             }
 
+            //Toast.makeText(this, "file "+ childUpdates, Toast.LENGTH_SHORT).show();
             //pass variable to model Property
+            Log.d("Images", "file "+ childUpdates);
             Property property = new Property(propDesc, latVal, longVal, propOwner, propPrice, propName,
                                                 key, propType, propArea, propRooms, propBathrooms, propPets, deviceToken, availability, rating, profImage);
 
             //save property object to firebase database
-            mDatabase.child(key).child("images").setValue(childUpdates);
+
             mDatabase.child(key).setValue(property)
                     .addOnSuccessListener(new OnSuccessListener<Void>() {
                         @Override
                         public void onSuccess(Void aVoid) {
+                            mDatabase.child(key).child("images").setValue(childUpdates).addOnCompleteListener(new OnCompleteListener<Void>() {
+                                @Override
+                                public void onComplete(@NonNull Task<Void> task) {
+                                    if (task.isComplete()){
+                                        progressDialog.dismiss();
+                                        Toast.makeText(AddPropertyActivity.this, "Property Saved", Toast.LENGTH_SHORT).show();
+                                        finish();
+                                        Intent onMapView = new Intent(AddPropertyActivity.this, MapsActivity.class);
+                                        startActivity(onMapView);
+
+                                    }
+
+                                }
+                            });
+
                             for (int x = 0; x<fileUriList.size(); x++) {
                                 Uri imgUpload = fileUriList.get(x);
                                 String filenameUpload = fileNameList.get(x);
@@ -382,10 +403,6 @@ public class AddPropertyActivity extends AppCompatActivity {
                                             @Override
                                             public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
                                                 progressDialog.dismiss();
-                                                Toast.makeText(AddPropertyActivity.this, "Property Saved", Toast.LENGTH_SHORT).show();
-                                                finish();
-                                                Intent onMapView = new Intent(AddPropertyActivity.this, MapsActivity.class);
-                                                startActivity(onMapView);
                                             }
                                         })
                                         .addOnFailureListener(new OnFailureListener() {
@@ -396,7 +413,6 @@ public class AddPropertyActivity extends AppCompatActivity {
                                             }
                                         });
                             }
-
                         }
                     })
                     .addOnFailureListener(new OnFailureListener() {

@@ -158,6 +158,11 @@ public class FavoritesActivity extends AppCompatActivity {
                             resultMap.put("Property ID", properties.get(x).propertyID);
                             resultMap.put("Prop_name", properties.get(x).propertyName);
                             resultMap.put("OwnerId", properties.get(x).owner);
+                            if (properties.get(x).availability.equals("Available")){
+                                resultMap.put("Image", Integer.toString(R.mipmap.available));
+                            }else {
+                                resultMap.put("Image", Integer.toString(R.mipmap.red_marker));
+                            }
                             favorites_user.add(resultMap);
                         }
                     }
@@ -174,7 +179,7 @@ public class FavoritesActivity extends AppCompatActivity {
 
         favoriteListHandler = findViewById(R.id.listFavoriteProperty);
 
-        adapter = new SimpleAdapter(this, favorites_user, R.layout.list_item, new String[]{"Prop_name", ""}, new int[]{R.id.textUploadItem, R.id.textSubItem});
+        adapter = new SimpleAdapter(this, favorites_user, R.layout.list_item, new String[]{"Image", "Prop_name", ""}, new int[]{R.id.imageViewAvail, R.id.textUploadItem, R.id.textSubItem});
         favoriteListHandler.setAdapter(adapter);
 
         Log.d("Message Adapater", favorites_user.toString());

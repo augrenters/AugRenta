@@ -52,7 +52,8 @@ import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 
-
+import static com.example.sejeque.augrenta.R.mipmap.available;
+import static com.example.sejeque.augrenta.R.mipmap.red_marker;
 
 public class Main2Activity extends AppCompatActivity {
 
@@ -65,7 +66,7 @@ public class Main2Activity extends AppCompatActivity {
     /// Database
     //initiate database reference
     private DatabaseReference requestDatabase, notifDatabase, ratingDatabse, favDatabse;
-    private DatabaseReference mDatabase;
+    private DatabaseReference mDatabase, imageDatbase;
     private StorageReference storageReference;
 
     private FirebaseAuth mAuth;
@@ -77,8 +78,10 @@ public class Main2Activity extends AppCompatActivity {
     TextView property_name, property_price, property_description,
             property_type, property_area, property_bedroom, property_bathroom, property_pet;
 
+    ImageView availMarker;
+
     RelativeLayout bottomBarPanel;
-    Button message_owner, edit_property, request_visitBtn, startToAr, submitRate, favoriteBtn;
+    Button message_owner, edit_property, request_visitBtn, startToAr, submitRate, favoriteBtn, setAvailBtn;
     CheckBox sunday, monday, tuesday, wednesday, thursday, friday, saturday;
     String prop_name;
 
@@ -89,6 +92,7 @@ public class Main2Activity extends AppCompatActivity {
 
     String sender, senderID;
     String REQUEST_STATE = "not sent";
+    String isAvailable="";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -164,6 +168,7 @@ public class Main2Activity extends AppCompatActivity {
         //get reference from firebase database with child node Property
         mDatabase = FirebaseDatabase.getInstance().getReference("Property");
         storageReference = FirebaseStorage.getInstance().getReference("PropertyImages");
+        imageDatbase = FirebaseDatabase.getInstance().getReference("Property");
 
         //TextView widgets initialisation
         property_name = findViewById(R.id.property_name);
@@ -174,6 +179,7 @@ public class Main2Activity extends AppCompatActivity {
         property_bedroom = findViewById(R.id.property_bedroom);
         property_bathroom = findViewById(R.id.property_bathroom);
         property_pet = findViewById(R.id.property_pets);
+        availMarker = findViewById(R.id.availMarker);
 
 
         // House seeker request
@@ -221,6 +227,15 @@ public class Main2Activity extends AppCompatActivity {
             }
         });
 
+        setAvailBtn = findViewById(R.id.setAvailability);
+        setAvailBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                goToSetAvailability();
+            }
+        });
+
+
         bottomBarPanel = findViewById(R.id.bottom_bar);
 
 
@@ -258,6 +273,7 @@ public class Main2Activity extends AppCompatActivity {
                 }else if(REQUEST_STATE.equals("sent")){
                     cancelVisitRequest();
                 }
+
             }
         });
 
@@ -341,12 +357,15 @@ public class Main2Activity extends AppCompatActivity {
             prop_name = property.propertyName.toUpperCase();
             String currentId = currentUser.getUid();
             String propertyOwner = property.owner;
+
+            isAvailable = property.availability;
             //Toast.makeText(this, "Current ID: " + currentId + "\nOwner ID: " + propertyOwner, Toast.LENGTH_SHORT).show();
 //            if(propertyOwner.equals(currentId)){
 //                indoor_tour.setVisibility(View.VISIBLE);
 //            }
 
             checkCredentials();
+            getImagesData();
         //}
     }
 
@@ -359,6 +378,18 @@ public class Main2Activity extends AppCompatActivity {
             submitRate.setVisibility(View.GONE);
         }else{
             edit_property.setVisibility(View.GONE);
+            setAvailBtn.setVisibility(View.GONE);
+        }
+
+        if (isAvailable.equals("Not Available")){
+            request_visitBtn.setEnabled(false);
+            request_visitBtn.setText("Request Visit not available");
+            request_visitBtn.setBackground(getResources().getDrawable(R.drawable.button_actionplaceviewer));
+            request_visitBtn.setTextColor(getResources().getColor(R.color.red));
+
+            availMarker.setImageResource(R.mipmap.red_marker);
+        }else{
+            availMarker.setImageResource(R.mipmap.available);
         }
 
         requestDatabase.child(senderID).child(ownerId).child(propertyId).
@@ -625,6 +656,74 @@ public class Main2Activity extends AppCompatActivity {
             }
         });
     }
+
+
+    // SET AVAILABILITY
+    AlertDialog levelDialog;
+    String selected;
+
+    public void goToSetAvailability(){
+
+        final String items[] = {"Available", "Not Available"};
+
+        final AlertDialog.Builder builder = new AlertDialog.Builder(this, R.style.CustomDialogTheme);
+        builder.setTitle("Select Property Availability");
+
+        builder.setSingleChoiceItems(items, -1, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                selected = items[i];
+                property_name.setText("sample here");
+            }
+        });
+
+        builder.setPositiveButton("Set", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+              setPropertyAvailability(selected);
+//                Intent intent = getIntent();
+//                finish();
+//                startActivity(intent);
+            }
+        });
+
+        builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {}
+        });
+
+        levelDialog = builder.create();
+        levelDialog.show();
+    }
+
+    public void setPropertyAvailability(final String selected){
+        mDatabase.child(propertyId).child("availability").setValue(selected).addOnCompleteListener(new OnCompleteListener<Void>() {
+            @Override
+            public void onComplete(@NonNull Task<Void> task) {
+                if (task.isSuccessful()){
+                    Toast.makeText(Main2Activity.this, "Property updated to "+ selected, Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+
+    }
+
+
+    // SET AVAILABILITY
+
+    public void getImagesData(){
+
+        imageDatbase.child(propertyId).child("images").addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                Toast.makeText(Main2Activity.this, ""+ dataSnapshot.getValue(), Toast.LENGTH_SHORT).show();
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {}
+        });
+    }
+
 
     //method for refreshing MapsActivity
     private void goToHome() {

@@ -2,7 +2,9 @@ package com.example.sejeque.augrenta;
 
 import android.annotation.SuppressLint;
 import android.app.Fragment;
+import android.content.Context;
 import android.content.Intent;
+import android.media.Image;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -13,8 +15,10 @@ import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewParent;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
@@ -139,6 +143,7 @@ public class MessengerActivity extends AppCompatActivity {
         message_user = new ArrayList<>();
         user_name = new ArrayList<>();
 
+
     }
 
     private void populatePropertyList() {
@@ -176,6 +181,7 @@ public class MessengerActivity extends AppCompatActivity {
                                 resultMap.put("SenderId", sender);
                                 resultMap.put("Property ID", prop_ID);
                                 resultMap.put("Prop_name", prop_name);
+                                resultMap.put("Image", prop_name);
                                 message_user.add(resultMap);
                                 Log.d("Found", ""+message_user);
                             } else {
@@ -244,9 +250,14 @@ public class MessengerActivity extends AppCompatActivity {
 
     private void populateMessagesList() {
 
+
         propertyListHandler = findViewById(R.id.listProperty);
 
-        adapter = new SimpleAdapter(this, message_user, R.layout.list_item, new String[]{"Sender", "Prop_name"}, new int[]{R.id.textUploadItem, R.id.textSubItem});
+        View view = getLayoutInflater().inflate(R.layout.list_item, null);
+        ImageView availImg = view.findViewById(R.id.imageViewAvail);
+        availImg.setVisibility(View.GONE);
+
+        adapter = new SimpleAdapter(this, message_user, R.layout.list_item, new String[]{"Image", "Sender", "Prop_name"}, new int[]{R.id.imageViewAvail,R.id.textUploadItem, R.id.textSubItem});
         propertyListHandler.setAdapter(adapter);
 
         Log.d("Message Adapater", message_user.toString());
