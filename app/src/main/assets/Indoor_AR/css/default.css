@@ -2,13 +2,25 @@ body {
     color: #fff;
 }
 
-#addObject {
+#bottomPanel {
     position: fixed;
     bottom: 0;
     right: 0;
-    margin: 0 0 10px 10px;
+    text-align: right;
+    width: 100%;
+}
+
+#addObject {
+    margin: 0 10px 10px 5px;
     background-color: #e6413f;
     color: #fff;
     border: none;
     padding: 15px 30px;
+}
+
+input {
+     margin: 0 5px 10px 5px;
+    padding: 12px 30px;
+    width: 40%;
+    text-align: center;
 }

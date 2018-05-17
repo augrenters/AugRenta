@@ -5,24 +5,20 @@ package com.example.sejeque.augrenta;
  */
 
 public class IndoorObjects {
-    public String propertyId;
+    public String label;
+    public String distance;
     public String latitude;
     public String longitude;
-    public String altitude;
-    public String title;
-    public String description;
 
     //DO NOT REMOVE
     //critical for fetching data from firebase database
     public IndoorObjects() {
     }
 
-    public IndoorObjects(String propertyId, String latitude, String longitude, String altitude, String title, String description) {
-        this.propertyId = propertyId;
+    public IndoorObjects(String label, String distance, String latitude, String longitude) {
+        this.label = label;
+        this.distance = distance;
         this.latitude = latitude;
         this.longitude = longitude;
-        this.altitude = altitude;
-        this.title = title;
-        this.description = description;
     }
 }

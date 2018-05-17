@@ -61,11 +61,6 @@ $('document').ready(function(){
         backClasses.add('backFull');
         
     });
-    
-//    var pos = {
-//        lat: newLat,
-//        lng: newLng
-//    }
         
 });
 
@@ -74,10 +69,13 @@ var north = {
     lng: 0
 }
 
+var initBearing;
+var finBearing;
+
 function loadRotationFromJava(rotation, hasSensor){
     if(hasSensor == true){
         var markIndex;
-        if(stepMarkerLat.length != 0){
+        if(stepMarkerLat.length > 0){
             var temp = stepMarkerLat.length - 1;
             if(NearMarker == temp){
                 markIndex = NearMarker;
@@ -86,19 +84,43 @@ function loadRotationFromJava(rotation, hasSensor){
                 markIndex = NearMarker + 1;
             }
             
-            var sideOpposite = userPos.lat - propertyPos.lat;
-            var sideadjacent = userPos.lng = propertyPos.lng;
+           initBearing = bearingInitial(userPos.lat, userPos.lng, stepMarkerLat[markIndex], stepMarkerLng[markIndex]);
+            finBearing = bearingFinal(userPos.lat, userPos.lng, stepMarkerLat[markIndex], stepMarkerLng[markIndex]);
             
-            var angleDeg = Math.atan(sideOpposite/sideadjacent);
-            rotation = rotation - angleDeg;
+            var arrowRot = finBearing + rotation;
         }
-        $("#greenArrow").rotate(rotation);
+        $("#greenArrow").rotate(arrowRot);
     }
     if(hasSensor == false){
         alert("Compass will not work because required sensors not found on device.");
     }
 
 }
+
+
+function bearingInitial (lat1, long1, lat2, long2)
+{
+    return (bearingDegrees(lat1, long1, lat2, long2) + 360) % 360;
+}
+
+function bearingFinal(lat1, long1, lat2, long2) {
+    return (bearingDegrees(lat2, long2, lat1, long1) + 180) % 360;
+}
+
+function bearingDegrees (lat1, long1, lat2, long2)
+{
+    var degToRad= Math.PI/180.0;
+
+    var phi1= lat1 * degToRad;
+    var phi2= lat2 * degToRad;
+    var lam1= long1 * degToRad;
+    var lam2= long2 * degToRad;
+
+    return Math.atan2(Math.sin(lam2-lam1) * Math.cos(phi2),
+                      Math.cos(phi1)*Math.sin(phi2) - Math.sin(phi1)*Math.cos(phi2)*Math.cos(lam2-lam1)
+                     ) * 180/Math.PI;
+}
+
 
 function loadValuesFromJava(altitude,latitude,longitude,propertyLatitude,propertyLongitude,count){
     globalCount = count;
@@ -128,7 +150,6 @@ function loadValuesFromJava(altitude,latitude,longitude,propertyLatitude,propert
                 scale: 7,
                 strokeColor: '#ca2f2d',
                 strokeWeight: 1
-//                rotation: rotation
             };
             
         startMarker = new google.maps.Marker({
@@ -148,7 +169,6 @@ function loadValuesFromJava(altitude,latitude,longitude,propertyLatitude,propert
     else if(count > 1){
         updateUI();
     }
-    
 }
 
 function updateUI(){
@@ -225,6 +245,11 @@ function setAugmentedMarkers(directionResult) {
     for (var i = 1; i < myRoute.steps.length; i++) {
         
         var stepMarkerLoc = myRoute.steps[i].start_location;
+        
+         var objectMarker = new google.maps.Marker({
+            position: stepMarkerLoc,
+            map: map
+        });
 
         stepMarkerLat[i] = stepMarkerLoc.lat();
         stepMarkerLng[i] = stepMarkerLoc.lng();

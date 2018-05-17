@@ -79,7 +79,7 @@
             android:name=".MapsActivity"
             android:label="@string/title_activity_maps">
             <intent-filter>
-                <action android:name="com.example.sejeque.augrenta_TARGET_NOTIFICATION"/>
+                <action android:name="com.example.sejeque.augrenta_MAPS_TARGET_NOTIFICATION"/>
                 <category android:name="android.intent.category.DEFAULT"> </category>
             </intent-filter>
         </activity>
@@ -87,7 +87,7 @@
             android:name=".Main2Activity"
             android:label="@string/title_activity_main2">
             <intent-filter>
-                <action android:name="com.example.sejeque.augrenta_TARGET_NOTIFICATION"/>
+                <action android:name="com.example.sejeque.augrenta_MAIN_TARGET_NOTIFICATION"/>
                 <category android:name="android.intent.category.DEFAULT"> </category>
             </intent-filter>
         </activity>
@@ -129,7 +129,7 @@
         <activity android:name=".ChatMessage"
             android:label="Chat">
             <intent-filter>
-                <action android:name="com.example.sejeque.augrenta_TARGET_NOTIFICATION"/>
+                <action android:name="com.example.sejeque.augrenta_CHAT_TARGET_NOTIFICATION"/>
                 <category android:name="android.intent.category.DEFAULT"> </category>
             </intent-filter>
         </activity>

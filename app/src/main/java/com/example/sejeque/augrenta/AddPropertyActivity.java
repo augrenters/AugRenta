@@ -375,7 +375,6 @@ public class AddPropertyActivity extends AppCompatActivity {
                                                 key, propType, propArea, propRooms, propBathrooms, propPets, deviceToken, availability, rating, profImage);
 
             //save property object to firebase database
-
             mDatabase.child(key).setValue(property)
                     .addOnSuccessListener(new OnSuccessListener<Void>() {
                         @Override
@@ -413,6 +412,7 @@ public class AddPropertyActivity extends AppCompatActivity {
                                             }
                                         });
                             }
+
                         }
                     })
                     .addOnFailureListener(new OnFailureListener() {

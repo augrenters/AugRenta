@@ -32,8 +32,13 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.wikitude.architect.ArchitectJavaScriptInterfaceListener;
 import com.wikitude.architect.ArchitectStartupConfiguration;
 import com.wikitude.architect.ArchitectView;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.IOException;
 
@@ -41,9 +46,10 @@ import java.io.IOException;
  * Created by Faith on 13/05/2018.
  */
 
-public class AugmentIndoorActivity extends AppCompatActivity implements SensorEventListener, OnMapReadyCallback, LocationListener, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
+public class AugmentIndoorActivity extends AppCompatActivity implements SensorEventListener, OnMapReadyCallback, LocationListener, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, ArchitectJavaScriptInterfaceListener {
     String propertyId;
     private DatabaseReference mDatabase;
+    private DatabaseReference objectDatabase;
     Double propertyLat;
     Double propertyLng;
     private ArchitectView architectView;
@@ -83,11 +89,13 @@ public class AugmentIndoorActivity extends AppCompatActivity implements SensorEv
         final ArchitectStartupConfiguration config = new ArchitectStartupConfiguration();
         config.setLicenseKey("Ey14mdrn+mDHTFgnUTl74BPegIFwI4EzXeTSQni4J0SL+rBT0XU6QQOC6s+yFyXFLWEg7qd05XXvdeJbHD/yf+V84XM1UDFb5cDc6jCF0EUzr7Q8/xH/61RhbuuXDzgCbJyIHZAhnDYU6FksrHoAFeyKnztZSX6DdQSywB2yQjxTYWx0ZWRfX6sdVpVO8uCJZ6rumx7yrv8Eh52iZRczHgirrh2UsS0ogYbw1+PGiyxQBkBfhVIs6dSvR9gRJC+ZgcN/YCGAhaR4A40wQVMLgA0tTSzjFyS4iatBI35OQdedsevW3P5BZcX9klCvDNcZrb+LXnbWZvFPnyt71kAdszGEV4Zvn1P0twcjRk5mYlAZnPGbkbjsixn7dbuaS6wdcSuBIQo2ZqrzwuYgZWs8V8aINmnK1hEUnpQnrDE1LsA9vgYN8UZxW0Ul9NWzF98M6SjkEojfFqMNiTDVUMqiqrvkogmv1gSz2JKOtZaokj+VMd9Embe9F8LGz2cc2N77GRsBgLjNlQ1Nzt3KwQKjm7M7u4hXlYBMtGjQI1TJua4r8xeh+BshF/I04VZt/xjxGzQ9OgOysedXsCv0GLMnqVzSLHZpoueYSVlcgTp/xIli7gHrzeDPgzut7GqPAu9T1ANpVZGzlFAzgCqkpRvPYWNYnI69BO6GTrpbAYGQ9O0=");
         architectView.onCreate(config);
+        architectView.addArchitectJavaScriptInterfaceListener(this);
 
         propertyId = getIntent().getExtras().getString("propertyId");
 
         //get reference from firebase database with child node Property
         mDatabase = FirebaseDatabase.getInstance().getReference("Property");
+        objectDatabase = FirebaseDatabase.getInstance().getReference("AugmentedObjects");
 
         mSensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
         checkSensors();
@@ -150,14 +158,47 @@ public class AugmentIndoorActivity extends AppCompatActivity implements SensorEv
     protected void onStart() {
         super.onStart();
 
-        mDatabase.child(propertyId).addValueEventListener(new ValueEventListener() {
+        //needed to retrieve data from firebase database
+        objectDatabase.child(propertyId).addValueEventListener(new ValueEventListener() {
+
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                Property property = dataSnapshot.getValue(Property.class);
-                propertyLat = Double.valueOf(property.latitude);
-                propertyLng = Double.valueOf(property.longitude);
-            }
 
+                String label = null;
+                Double distance = null;
+                Double latitude = null;
+                Double longitude = null;
+
+                JSONArray jsonArray = new JSONArray();
+
+                //fetching data from every child of Property in firebase database
+                if (dataSnapshot.exists()){
+                    for(DataSnapshot objectSnapshot: dataSnapshot.getChildren()){
+                        IndoorObjects indoorObjects = objectSnapshot.getValue(IndoorObjects.class);
+                        //put fetched data from firebase database to array container
+
+                        label = indoorObjects.label;
+                        distance = Double.valueOf(indoorObjects.distance);
+                        latitude = Double.valueOf(indoorObjects.latitude);
+                        longitude = Double.valueOf(indoorObjects.longitude);
+
+                        JSONObject perObject = new JSONObject();
+                        try {
+                            perObject.put("label", label);
+                            perObject.put("distance", distance);
+                            perObject.put("latitude", latitude);
+                            perObject.put("longitude", longitude);
+
+                            jsonArray.put(perObject);
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                    architectView.callJavascript("retrieveObjects(" + jsonArray + " );");
+
+//                    architectView.callJavascript("retrieveObjects(" + label + "," + distance + "," + latitude + "," + longitude + " );");
+                }
+            }
             @Override
             public void onCancelled(DatabaseError databaseError) {
 
@@ -218,7 +259,7 @@ public class AugmentIndoorActivity extends AppCompatActivity implements SensorEv
         double alti = location.getAltitude();
 
         if (architectView != null) {
-            // check if location has altitude at certain accuracy level & call right architect method (the one with altitude information)
+//             check if location has altitude at certain accuracy level & call right architect method (the one with altitude information)
             if (location.hasAltitude() && location.hasAccuracy() && location.getAccuracy() < 7) {
                 architectView.setLocation(location.getLatitude(), location.getLongitude(), location.getAltitude(), location.getAccuracy());
             } else {
@@ -336,5 +377,21 @@ public class AugmentIndoorActivity extends AppCompatActivity implements SensorEv
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
+    }
+
+    @Override
+    public void onJSONObjectReceived(JSONObject jsonObject){
+        try {
+            String label = jsonObject.getString("label");
+            String distance = jsonObject.getString("distance");
+            String latitude = jsonObject.getString("latitude");
+            String longitude = jsonObject.getString("longitude");
+
+            IndoorObjects indoorObjects = new IndoorObjects(label, distance, latitude, longitude);
+
+            objectDatabase.child(propertyId).child(label).setValue(indoorObjects);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
     }
 }

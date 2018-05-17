@@ -36,9 +36,6 @@ public class AppFCMService extends FirebaseMessagingService {
         String click_action = remoteMessage.getNotification().getClickAction();
         String response_user = remoteMessage.getData().get("response");
 
-        String property_id = remoteMessage.getData().get("property");
-        String owner_id = remoteMessage.getData().get("from_userID");
-
         Intent intent = new Intent(click_action);
 
         if (response_user != null && response_user.equals("request")){
@@ -46,6 +43,9 @@ public class AppFCMService extends FirebaseMessagingService {
 
         }
         else if(response_user != null && response_user.equals("accept")){
+
+            String property_id = remoteMessage.getData().get("property");
+            String owner_id = remoteMessage.getData().get("from_userID");
 
             //intent = new Intent(this, Main2Activity.class);
 
@@ -55,6 +55,9 @@ public class AppFCMService extends FirebaseMessagingService {
 
         }else if(response_user != null && response_user.equals("message")) {
             //intent = new Intent(this, ChatMessage.class);
+
+            String property_id = remoteMessage.getData().get("property");
+            String owner_id = remoteMessage.getData().get("from_userID");
 
             intent.putExtra("propertyId", property_id);
             intent.putExtra("ownerId", owner_id);
@@ -66,7 +69,7 @@ public class AppFCMService extends FirebaseMessagingService {
         Bitmap notifyImage = BitmapFactory.decodeResource(getResources(), R.drawable.ic_notifications_black_24dp);
         Uri defaultSoundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
         NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(this)
-                .setSmallIcon(R.drawable.ic_notifications_black_24dp)
+                .setSmallIcon(R.mipmap.ic_launcher)
                 .setLargeIcon(notifyImage)
                 .setColor(Color.parseColor("#FFE74C3C"))
                 .setContentTitle(title)

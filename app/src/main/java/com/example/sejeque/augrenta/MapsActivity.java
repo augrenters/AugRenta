@@ -100,6 +100,7 @@ import java.util.Locale;
 
 import static com.example.sejeque.augrenta.R.mipmap.available;
 import static com.example.sejeque.augrenta.R.mipmap.blue_marker;
+import static com.example.sejeque.augrenta.R.mipmap.man;
 import static com.example.sejeque.augrenta.R.mipmap.red_marker;
 import static com.example.sejeque.augrenta.R.mipmap.yellow_marker;
 import static com.google.firebase.auth.FirebaseAuth.*;
@@ -144,6 +145,9 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     RadioGroup filterPropBy;
 
     private boolean isDown = false;
+    private Marker userMarker;
+    private boolean userLocation;
+    private LatLng userPosition;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -190,6 +194,8 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         actionBarDrawerToggle = new ActionBarDrawerToggle(this, drawerLayout, toolbar, R.string.oper_drawer, R.string.close_drawer);
         drawerLayout.setDrawerListener(actionBarDrawerToggle);
+
+        filterPropBy = findViewById(R.id.radioGrpFilterProp);
 
         //if an item is clicked on navigation view
         sideNavBar.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
@@ -248,10 +254,13 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             }
         });
 
-        filterPropBy = findViewById(R.id.radioGrpFilterProp);
+//        int selectedId= filterPropBy.getCheckedRadioButtonId();
+//        final RadioButton radioSexButton = findViewById(selectedId);
+//        final String filterShowProp = radioSexButton.getText().toString();
 
         final SeekBar seekbarFilterPrice = findViewById(R.id.seekBarPrice);
         final TextView seekbarPriceTextView = findViewById(R.id.textView2);
+        final int[] priceValueProgress = {0};
         seekbarFilterPrice.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
@@ -369,6 +378,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         }
         else {
             mMap.clear();
+            createUserMarker();
             //loop to every property saved to firebase database
             //that has been stored to array container
             for(int x=0; x<properties.size(); x++){
@@ -468,6 +478,8 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 .addOnConnectionFailedListener(MapsActivity.this)
                 .build();
         mGoogleApiClient.connect();
+
+        userLocation = true;
     }
 
     // zoom on map
@@ -548,6 +560,28 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             } catch (IOException e) {
                 e.printStackTrace();
             }
+
+
+            if(userLocation){
+               userPosition = new LatLng(lat, lng);
+               createUserMarker();
+            }
+        }
+    }
+
+    private void createUserMarker(){
+        if(userMarker != null){
+            userMarker.remove();
+        }
+
+        if(userPosition != null){
+            userMarker = mMap.addMarker(new MarkerOptions()
+                    .position(userPosition)
+                    .title("You Are Here")
+                    .icon(BitmapDescriptorFactory.fromResource(man))
+                    .zIndex(5));
+
+            userLocation = false;
         }
     }
 
@@ -817,52 +851,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                     }
                     addFilteredMarkers();
                 }
-
-//                Toast.makeText(MapsActivity.this, "Status: " + filterShowProp  + "\nPrice: " + priceValueProgress[0] + "\nType: " + filterType[0] + "\nPets? " + filterPets[0] + "\nNo. Rooms: " + filterRooms + "\nNo. CRs" + filterCR, Toast.LENGTH_LONG).show();
-
-
-//                shit = "";
-//                filterCR = etbathroom.getText().toString();
-//                filterRooms = etRooms.getText().toString();
-//
-//                if(!filterType[0].equals("All")){
-//                    shit = shit + "type_";
-//                }
-//                if(!filterPets[0].equals("All")){
-//                    shit = shit + "pets_";
-//                }
-//                if(!filterRooms.isEmpty()){
-//                    shit = shit + "rooms_";
-//                }
-//                if(!filterCR.isEmpty()){
-//                    shit = shit + "bathroom";
-//                }
-//
-//                if (shit != null && shit.length() > 0 && shit.charAt(shit.length() - 1) == '_') {
-//                    shit = shit.substring(0, shit.length() - 1);
-//                }
-//
-//                Log.d("Data Input for Filter", filterType[0] +", " + filterPets[0] + "," + filterRooms +", " + filterCR);
-//                Log.d("Data Filter for Filter", shit);
-//
-//                mDatabase.orderByChild("bathroom").equalTo("1")
-//                        .addValueEventListener(new ValueEventListener() {
-//                            @Override
-//                            public void onDataChange(DataSnapshot dataSnapshot) {
-//
-//                                for(DataSnapshot propertySnapshot: dataSnapshot.getChildren()){
-//                                    Property property = dataSnapshot.getValue(Property.class);
-//
-//                                    Toast.makeText(getApplicationContext(), "" + propertySnapshot.getKey(), Toast.LENGTH_SHORT).show();
-//                                    Log.d("Data Filter for Filter", ""+property);
-//                                }
-//                            }
-//
-//                            @Override
-//                            public void onCancelled(DatabaseError databaseError) {
-//
-//                            }
-//                        });
             }
         });
 
@@ -870,20 +858,24 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     private void addFilteredMarkers(){
         mMap.clear();
+        createUserMarker();
         for(int x=0; x<filteredProperties.size(); x++){
             Double lat, longT;
             //get latitude and longitude value from firebase database
             //that has been stored to array container
             lat = Double.valueOf(filteredProperties.get(x).latitude);
             longT = Double.valueOf(filteredProperties.get(x).longitude);
-            String avail = properties.get(x).availability;
-            String owner = properties.get(x).owner;
+            String avail = filteredProperties.get(x).availability;
+            String owner = filteredProperties.get(x).owner;
             String currentId = currentUser.getUid();
 
             BitmapDescriptor markerIcon = null;
 
             if(owner.equals(currentId)){
                 markerIcon = BitmapDescriptorFactory.fromResource(blue_marker);
+            }
+            else if(avail.equals(null)){
+                markerIcon = BitmapDescriptorFactory.fromResource(available);
             }
             else if(avail.equals("Available")){
                 markerIcon = BitmapDescriptorFactory.fromResource(available);
@@ -986,7 +978,15 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         proceed();
     }
 
-
+//    private void selectFragment(MenuItem item) {
+//        Fragment frag = null;
+//        // init corresponding fragment
+//        switch (item.getItemId()) {
+//            case R.id.navigation_person:
+//                Intent onUserView = new Intent(MapsActivity.this, UserPanelActivity.class);
+//                startActivity(onUserView);
+//        }
+//    }
 
 
     /*

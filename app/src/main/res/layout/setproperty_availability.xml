@@ -91,19 +91,19 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@+id/relPanel1"
-        android:layout_marginTop="10dp">
+        android:layout_marginTop="10dp"
+        android:visibility="gone">
 
         <RelativeLayout
             android:id="@+id/relPanelSunday"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:visibility="gone">
+            android:layout_height="wrap_content">
 
             <TextView
                 android:id="@+id/tvSunday"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Monday Schedule"
+                android:text="Sunday Schedule"
                 android:padding="10dp" />
 
             <LinearLayout
@@ -136,5 +136,320 @@
         </RelativeLayout>
 
     </RelativeLayout>
+
+    <RelativeLayout
+        android:id="@+id/relPanel3"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/relPanel2"
+        android:layout_marginTop="10dp"
+        android:visibility="gone">
+
+        <RelativeLayout
+            android:id="@+id/relPanelMonday"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:id="@+id/tvMonday"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Monday Schedule"
+                android:padding="10dp" />
+
+            <LinearLayout
+                android:id="@+id/etMonday"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:weightSum="2"
+                android:paddingTop="2dp"
+                android:layout_below="@+id/tvMonday">
+                <EditText
+                    android:id="@+id/etMondayFrom"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:hint="Start time"
+                    android:inputType="time"
+                    android:focusable="false"
+                    />
+
+                <EditText
+                    android:id="@+id/etMondayTo"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:hint="End time"
+                    android:inputType="time"
+                    android:focusable="false"/>
+            </LinearLayout>
+        </RelativeLayout>
+
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:id="@+id/relPanel4"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/relPanel3"
+        android:layout_marginTop="10dp"
+        android:visibility="gone">
+
+        <RelativeLayout
+            android:id="@+id/relPanelTuesday"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:id="@+id/tvTuesday"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Tuesday Schedule"
+                android:padding="10dp" />
+
+            <LinearLayout
+                android:id="@+id/etTuesday"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:weightSum="2"
+                android:paddingTop="2dp"
+                android:layout_below="@+id/tvTuesday">
+                <EditText
+                    android:id="@+id/etTuesdayFrom"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:hint="Start time"
+                    android:inputType="time"
+                    android:focusable="false"
+                    />
+
+                <EditText
+                    android:id="@+id/etTuesdayTo"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:hint="End time"
+                    android:inputType="time"
+                    android:focusable="false"/>
+            </LinearLayout>
+        </RelativeLayout>
+
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:id="@+id/relPanel5"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/relPanel4"
+        android:layout_marginTop="10dp"
+        android:visibility="gone">
+
+        <RelativeLayout
+            android:id="@+id/relPanelWednesday"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:id="@+id/tvWednesday"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Wednesday Schedule"
+                android:padding="10dp" />
+
+            <LinearLayout
+                android:id="@+id/etWednesday"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:weightSum="2"
+                android:paddingTop="2dp"
+                android:layout_below="@+id/tvWednesday">
+                <EditText
+                    android:id="@+id/etWednesdayFrom"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:hint="Start time"
+                    android:inputType="time"
+                    android:focusable="false"
+                    />
+
+                <EditText
+                    android:id="@+id/etWednesdayTo"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:hint="End time"
+                    android:inputType="time"
+                    android:focusable="false"/>
+            </LinearLayout>
+        </RelativeLayout>
+
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:id="@+id/relPanel6"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/relPanel5"
+        android:layout_marginTop="10dp"
+        android:visibility="gone">
+
+        <RelativeLayout
+            android:id="@+id/relPanelThursday"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:id="@+id/tvThursday"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Thursday Schedule"
+                android:padding="10dp" />
+
+            <LinearLayout
+                android:id="@+id/etThursday"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:weightSum="2"
+                android:paddingTop="2dp"
+                android:layout_below="@+id/tvThursday">
+                <EditText
+                    android:id="@+id/etThursdayFrom"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:hint="Start time"
+                    android:inputType="time"
+                    android:focusable="false"
+                    />
+
+                <EditText
+                    android:id="@+id/etThursdayTo"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:hint="End time"
+                    android:inputType="time"
+                    android:focusable="false"/>
+            </LinearLayout>
+        </RelativeLayout>
+
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:id="@+id/relPanel8"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/relPanel7"
+        android:layout_marginTop="10dp"
+        android:visibility="gone">
+
+        <RelativeLayout
+            android:id="@+id/relPanelSaturday"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:id="@+id/tvSaturday"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Saturday Schedule"
+                android:padding="10dp" />
+
+            <LinearLayout
+                android:id="@+id/etSaturday"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:weightSum="2"
+                android:paddingTop="2dp"
+                android:layout_below="@+id/tvSaturday">
+                <EditText
+                    android:id="@+id/etSaturdayFrom"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:hint="Start time"
+                    android:inputType="time"
+                    android:focusable="false"
+                    />
+
+                <EditText
+                    android:id="@+id/etSaturdayTo"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:hint="End time"
+                    android:inputType="time"
+                    android:focusable="false"/>
+            </LinearLayout>
+        </RelativeLayout>
+
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:id="@+id/relPanel7"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/relPanel6"
+        android:layout_marginTop="10dp"
+        android:visibility="gone">
+
+        <RelativeLayout
+            android:id="@+id/relPanelFriday"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:id="@+id/tvFriday"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Friday Schedule"
+                android:padding="10dp" />
+
+            <LinearLayout
+                android:id="@+id/etFriday"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:weightSum="2"
+                android:paddingTop="2dp"
+                android:layout_below="@+id/tvFriday">
+                <EditText
+                    android:id="@+id/etFridayFrom"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:hint="Start time"
+                    android:inputType="time"
+                    android:focusable="false"
+                    />
+
+                <EditText
+                    android:id="@+id/etFridayTo"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:hint="End time"
+                    android:inputType="time"
+                    android:focusable="false"/>
+            </LinearLayout>
+        </RelativeLayout>
+
+    </RelativeLayout>
+
+    <Button
+        android:id="@+id/setSchedule"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="SET SCHEDULE"
+        android:layout_below="@+id/relPanel8"
+        android:visibility="gone"
+        />
 
 </RelativeLayout>
