@@ -26,6 +26,8 @@ import android.widget.Toast;
 
 import com.facebook.login.LoginManager;
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.ChildEventListener;
@@ -58,7 +60,8 @@ public class ChatMessage extends AppCompatActivity {
 
     private FirebaseAuth mAuth;
     private FirebaseUser currentUser;
-    DatabaseReference mDatabase;
+    DatabaseReference mDatabase,notifDatabase;
+
 
     DrawerLayout drawerLayout;
     ActionBarDrawerToggle actionBarDrawerToggle;
@@ -89,6 +92,8 @@ public class ChatMessage extends AppCompatActivity {
         //retrieve user information and store to currentUser
         currentUser = mAuth.getCurrentUser();
         mDatabase = FirebaseDatabase.getInstance().getReference();
+        notifDatabase = FirebaseDatabase.getInstance().getReference().child("Notifications");
+        notifDatabase.keepSynced(true);
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -206,6 +211,25 @@ public class ChatMessage extends AppCompatActivity {
 
                     if (databaseError != null) {
                         Log.d("Chat Log", databaseError.getMessage());
+                    }else{
+                        HashMap<String, String> notificationData = new HashMap<String, String>();
+                        notificationData.put("fromName", currentUser.getDisplayName());
+                        notificationData.put("fromID", currentUser.getUid());
+                        notificationData.put("type", "receiver");
+                        notificationData.put("response", "message");
+                        notificationData.put("propertyId", propertyId);
+
+                        notifDatabase.child(ownerId).push().setValue(notificationData)
+                                .addOnCompleteListener(new OnCompleteListener<Void>() {
+                                    @Override
+                                    public void onComplete(@NonNull Task<Void> task) {
+                                        if (task.isSuccessful()){
+                                            Log.d("Updated Req/Sender End", "Completed");
+                                            editMessage.setText("");
+                                        }
+                                    }
+                                });
+                        editMessage.setText("");
                     }
                     editMessage.setText("");
                 }

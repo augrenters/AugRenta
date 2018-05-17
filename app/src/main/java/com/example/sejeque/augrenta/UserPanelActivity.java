@@ -42,10 +42,12 @@ public class UserPanelActivity extends AppCompatActivity {
         mAuth = FirebaseAuth.getInstance();
 
         Button signout;
-        Button addProperty;
+        Button addProperty, userRequestBtn;
 
         signout = findViewById(R.id.btnSignout);
         addProperty = findViewById(R.id.btnAddProperty);
+        userRequestBtn = findViewById(R.id.buttonUserRequest);
+
         user_image = findViewById(R.id.profImage);
         nameHandler = findViewById(R.id.viewName);
         emailHandler = findViewById(R.id.viewEmail);
@@ -69,6 +71,13 @@ public class UserPanelActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 goToAdd();
+            }
+        });
+        userRequestBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent gotoYourRequest = new Intent(UserPanelActivity.this, UserRequestsActivity.class);
+                startActivity(gotoYourRequest);
             }
         });
     }
@@ -101,7 +110,7 @@ public class UserPanelActivity extends AppCompatActivity {
 
         String uid = currentUser.getUid();
 
-        Toast.makeText(UserPanelActivity.this, uid, Toast.LENGTH_LONG).show();
+        //Toast.makeText(UserPanelActivity.this, uid, Toast.LENGTH_LONG).show();
 
 
         nameHandler.setText(name);

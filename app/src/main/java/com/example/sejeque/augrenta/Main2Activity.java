@@ -109,7 +109,7 @@ public class Main2Activity extends AppCompatActivity {
 
         //function for Drawer toggle when clicking menu icon
         //function for Drawer toggle when clicking menu icon
-        drawerLayout = (DrawerLayout) findViewById(R.id.drawerLayout1);
+        drawerLayout = findViewById(R.id.drawerLayout1);
         NavigationView sideNavBar = findViewById(R.id.sideNav);
         //get reference for header in navigation view
         View headerView = sideNavBar.getHeaderView(0);
@@ -450,7 +450,7 @@ public class Main2Activity extends AppCompatActivity {
     // Dialog box when user request to visit
     private void request_dialog() {
 
-        AlertDialog.Builder alertDialog = new AlertDialog.Builder(this, R.style.CustomDialogTheme);
+        AlertDialog.Builder alertDialog = new AlertDialog.Builder(this);
         LayoutInflater inflater = this.getLayoutInflater();
         View view = inflater.inflate(R.layout.requestvisit_datetime, null);
 
@@ -520,9 +520,11 @@ public class Main2Activity extends AppCompatActivity {
                                     if (task.isSuccessful()){
 
                                         HashMap<String, String> notificationData = new HashMap<String, String>();
-                                        notificationData.put("from", sender);
+                                        notificationData.put("fromName", sender);
                                         notificationData.put("fromID", senderID );
                                         notificationData.put("type", type1);
+                                        notificationData.put("response", "request");
+                                        notificationData.put("propertyId", propertyId);
 
                                         notifDatabase.child(ownerId).push().setValue(notificationData)
                                                 .addOnCompleteListener(new OnCompleteListener<Void>() {
@@ -716,7 +718,7 @@ public class Main2Activity extends AppCompatActivity {
         imageDatbase.child(propertyId).child("images").addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                Toast.makeText(Main2Activity.this, ""+ dataSnapshot.getValue(), Toast.LENGTH_SHORT).show();
+                //Toast.makeText(Main2Activity.this, ""+ dataSnapshot.getValue(), Toast.LENGTH_SHORT).show();
             }
 
             @Override

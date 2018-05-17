@@ -71,4 +71,16 @@
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="@+id/btnSignout" />
 
+    <Button
+        android:id="@+id/buttonUserRequest"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="20dp"
+        android:background="@drawable/button_placeviewer"
+        android:text="Your Requests"
+        app:layout_constraintBottom_toTopOf="@+id/btnAddProperty"
+        app:layout_constraintEnd_toEndOf="@+id/btnAddProperty"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="@+id/btnAddProperty" />
+
 </android.support.constraint.ConstraintLayout>

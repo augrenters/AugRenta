@@ -39,7 +39,7 @@ public class RequestAdapter extends RecyclerView.Adapter<RequestAdapter.RequestA
     private FirebaseUser currentUser;
     List<Property> properties;
 
-    private DatabaseReference requestDatabase, propDatabase;
+    private DatabaseReference requestDatabase, propDatabase, notifDatabase;
     View v;
     Context mContext;
 
@@ -66,6 +66,9 @@ public class RequestAdapter extends RecyclerView.Adapter<RequestAdapter.RequestA
 
         requestDatabase = FirebaseDatabase.getInstance().getReference().child("Requests");
         propDatabase = FirebaseDatabase.getInstance().getReference().child("Property");
+        notifDatabase = FirebaseDatabase.getInstance().getReference().child("Notifications");
+        notifDatabase.keepSynced(true);
+
         prop_name = new ArrayList<>();
         properties = new ArrayList<>();
 
@@ -106,11 +109,6 @@ public class RequestAdapter extends RecyclerView.Adapter<RequestAdapter.RequestA
     public void onBindViewHolder(@NonNull final RequestAdapterHolder holder, final int position) {
 
         RequestVisitData request = userRequestList.get(position);
-
-
-
-
-        //Toast.makeText(mContext, ""+prop_name, Toast.LENGTH_SHORT).show();
 
         if(request.getType().equals("sender")){
             ViewGroup.LayoutParams params = holder.ll.getLayoutParams();
@@ -172,7 +170,6 @@ public class RequestAdapter extends RecyclerView.Adapter<RequestAdapter.RequestA
     @Override
     public int getItemCount() { return userRequestList.size();}
 
-    View mView;
     public class RequestAdapterHolder extends RecyclerView.ViewHolder implements View.OnClickListener{
 
         View mView;
@@ -256,6 +253,25 @@ public class RequestAdapter extends RecyclerView.Adapter<RequestAdapter.RequestA
                             @Override
                             public void onComplete(@NonNull Task<Void> task) {
                                 if(task.isSuccessful()){
+
+                                    HashMap<String, String> notificationData = new HashMap<String, String>();
+                                    notificationData.put("fromName", currentUser.getDisplayName());
+                                    notificationData.put("fromID", currentUser.getUid());
+                                    notificationData.put("type", "receiver");
+                                    notificationData.put("response", "accept");
+                                    notificationData.put("propertyId", prop_Id);
+
+                                    notifDatabase.child(userRequestList.get(adapterPos).getSenderId()).push().setValue(notificationData)
+                                            .addOnCompleteListener(new OnCompleteListener<Void>() {
+                                                @Override
+                                                public void onComplete(@NonNull Task<Void> task) {
+                                                    if (task.isSuccessful()){
+                                                        Log.d("Updated Req/Sender End", "Completed");
+                                                    }
+                                                }
+                                            });
+
+
                                     Log.d("Updated Req/Sender End", "Completed");
                                     Toast.makeText(mContext, "You accepted the Request " + prop_Id, Toast.LENGTH_SHORT).show();
                                     notifyItemRemoved(adapterPos);
@@ -276,6 +292,7 @@ public class RequestAdapter extends RecyclerView.Adapter<RequestAdapter.RequestA
         private void goToDeclineRequest(final int adapterPos) {
             int pos = adapterPos;
             final String prop_Id = userRequestList.get(pos).getPropertyId();
+            final String senderId = userRequestList.get(adapterPos).getSenderId();
 
             requestDatabase.child(currentUser.getUid())
                     .child(userRequestList.get(adapterPos).getSenderId())
@@ -286,13 +303,30 @@ public class RequestAdapter extends RecyclerView.Adapter<RequestAdapter.RequestA
                     if(task.isSuccessful()){
                         //Toast.makeText(mContext, "You accepted the Request " + userRequestList.get(adapterPos).getPropertyId(), Toast.LENGTH_SHORT).show();
                         requestDatabase
-                                .child(userRequestList.get(adapterPos).getSenderId())
+                                .child(senderId)
                                 .child(currentUser.getUid())
                                 .child(prop_Id)
                                 .removeValue().addOnCompleteListener(new OnCompleteListener<Void>() {
                             @Override
                             public void onComplete(@NonNull Task<Void> task) {
                                 if(task.isSuccessful()){
+
+                                    HashMap<String, String> notificationData = new HashMap<String, String>();
+                                    notificationData.put("fromName", currentUser.getUid());
+                                    notificationData.put("fromID", currentUser.getDisplayName() );
+                                    notificationData.put("type", "receiver");
+                                    notificationData.put("response", "declined");
+                                    notificationData.put("propertyId", prop_Id);
+
+                                    notifDatabase.child(senderId).push().setValue(notificationData)
+                                            .addOnCompleteListener(new OnCompleteListener<Void>() {
+                                                @Override
+                                                public void onComplete(@NonNull Task<Void> task) {
+                                                    if (task.isSuccessful()){
+                                                        Log.d("Updated Req/Sender End", "Completed");
+                                                    }
+                                                }
+                                            });
                                     Log.d("Updated Req/Sender End", "Completed");
                                     Toast.makeText(mContext, "You Declined the Request ", Toast.LENGTH_SHORT).show();
                                     notifyItemRemoved(adapterPos);

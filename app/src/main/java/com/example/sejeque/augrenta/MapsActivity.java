@@ -88,6 +88,7 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.iid.FirebaseInstanceId;
 import com.squareup.picasso.Picasso;
 
 
@@ -560,7 +561,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         final String prop_Id = s;
 
-        AlertDialog.Builder alertDialog = new AlertDialog.Builder(this, R.style.CustomDialogTheme);
+        AlertDialog.Builder alertDialog = new AlertDialog.Builder(this);
         LayoutInflater inflater = this.getLayoutInflater();
         View view = inflater.inflate(R.layout.dialoginfo_layout, null);
 
@@ -925,8 +926,9 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         String email = currentUser.getEmail();
         Uri photoUrl = currentUser.getPhotoUrl();
         String userId = currentUser.getUid();
+        String deviceToken = FirebaseInstanceId.getInstance().getToken();
 
-        User user = new User(userId, name, email);
+        User user = new User(userId, name, email, deviceToken);
 
         mUser.child(userId).setValue(user);
 
