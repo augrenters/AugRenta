@@ -1,8 +1,10 @@
 package com.example.sejeque.augrenta;
 
 import android.annotation.SuppressLint;
+import android.app.AlertDialog;
 import android.app.Fragment;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.media.Image;
 import android.net.Uri;
@@ -21,6 +23,8 @@ import android.view.View;
 import android.view.ViewParent;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.SimpleAdapter;
@@ -68,6 +72,7 @@ public class MessengerActivity extends AppCompatActivity {
     List<HashMap<String, String>> message_user;
     List<HashMap<String, String>> user_name;
 
+    List<HashMap<String, String>> newmessage;
     SimpleAdapter adapter;
 
     String prop_ID, sender = null, prop_name, senderName;
@@ -155,7 +160,7 @@ public class MessengerActivity extends AppCompatActivity {
         mDatabase.child(currentUser.getUid()).addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-
+                message_user.clear();
                 for (DataSnapshot userMessages : dataSnapshot.getChildren()) {
                     Log.d("Users Sender Key", userMessages.getKey());
                     sender = userMessages.getKey();
@@ -190,7 +195,8 @@ public class MessengerActivity extends AppCompatActivity {
                         }
                     }
                 }
-                populateMessagesList();
+                //populateMessagesList();
+                sampleAdapter();
             }
             @Override
             public void onCancelled(DatabaseError databaseError) {}
@@ -247,6 +253,27 @@ public class MessengerActivity extends AppCompatActivity {
 
     }
 
+    public void sampleAdapter(){
+
+
+        propertyListHandler = findViewById(R.id.listProperty);
+
+        MessengerAdapter messageAdapter = new MessengerAdapter(this, message_user);
+        propertyListHandler.setAdapter(messageAdapter);
+
+        propertyListHandler.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                Toast.makeText(MessengerActivity.this, "I am clicked", Toast.LENGTH_SHORT).show();
+                Intent showInfo = new Intent(MessengerActivity.this , ChatMessage.class);
+                showInfo.putExtra("propertyId", message_user.get(i).get("Property ID"));
+                showInfo.putExtra("ownerId", message_user.get(i).get("SenderId"));
+                startActivity(showInfo);
+            }
+        });
+
+    }
+
 
     private void populateMessagesList() {
 
@@ -257,23 +284,35 @@ public class MessengerActivity extends AppCompatActivity {
         ImageView availImg = view.findViewById(R.id.imageViewAvail);
         availImg.setVisibility(View.GONE);
 
-        adapter = new SimpleAdapter(this, message_user, R.layout.list_item, new String[]{"Image", "Sender", "Prop_name"}, new int[]{R.id.imageViewAvail,R.id.textUploadItem, R.id.textSubItem});
+        adapter = new SimpleAdapter(this, message_user, R.layout.list_item_chat, new String[]{"Sender", "Prop_name"}, new int[]{R.id.textUploadItem, R.id.textSubItem});
         propertyListHandler.setAdapter(adapter);
 
         Log.d("Message Adapater", message_user.toString());
 
         propertyListHandler.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
-            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+            public void onItemClick(final AdapterView<?> adapterView, View view, int i, long l) {
 
                 Intent showInfo = new Intent(MessengerActivity.this , ChatMessage.class);
                 showInfo.putExtra("propertyId", message_user.get(i).get("Property ID"));
                 showInfo.putExtra("ownerId", message_user.get(i).get("SenderId"));
                 startActivity(showInfo);
+
+                ImageButton delete_message = view.findViewById(R.id.delete_button);
+                delete_message.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+
+                    }
+                });
+
+
+
             }
         });
 
     }
+
 
      /*
     *  SIDE NAVBAR METHODS

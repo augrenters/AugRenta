@@ -3,8 +3,11 @@ package com.example.sejeque.augrenta;
 import android.app.AlertDialog;
 import android.app.Fragment;
 import android.app.TimePickerDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.location.Address;
+import android.location.Geocoder;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -31,8 +34,14 @@ import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.Registry;
+import com.bumptech.glide.annotation.GlideModule;
+import com.bumptech.glide.module.AppGlideModule;
 import com.facebook.login.LoginManager;
+import com.firebase.ui.storage.images.FirebaseImageLoader;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -45,17 +54,22 @@ import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.squareup.picasso.Picasso;
 
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 import java.sql.Time;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
+
 
 import static com.example.sejeque.augrenta.R.mipmap.available;
 import static com.example.sejeque.augrenta.R.mipmap.red_marker;
 
-public class Main2Activity extends AppCompatActivity {
+public class Main2Activity extends AppCompatActivity  {
 
     DrawerLayout drawerLayout;
     ActionBarDrawerToggle actionBarDrawerToggle;
@@ -65,7 +79,7 @@ public class Main2Activity extends AppCompatActivity {
 
     /// Database
     //initiate database reference
-    private DatabaseReference requestDatabase, notifDatabase, ratingDatabse, favDatabse;
+    private DatabaseReference requestDatabase, notifDatabase, ratingDatabse, favDatabse, ratingDatabase;
     private DatabaseReference mDatabase, imageDatbase;
     private StorageReference storageReference;
 
@@ -76,14 +90,15 @@ public class Main2Activity extends AppCompatActivity {
     List<Property> properties;
 
     TextView property_name, property_price, property_description,
-            property_type, property_area, property_bedroom, property_bathroom, property_pet;
+            property_type, property_area, property_bedroom, property_bathroom, property_pet,
+            prop_address;
 
     ImageView availMarker;
 
     RelativeLayout bottomBarPanel;
     Button message_owner, edit_property, request_visitBtn, startToAr, submitRate, favoriteBtn, setAvailBtn;
     CheckBox sunday, monday, tuesday, wednesday, thursday, friday, saturday;
-    String prop_name;
+    String prop_name, image_prop;
 
     RatingBar rateProperty;
 
@@ -168,7 +183,7 @@ public class Main2Activity extends AppCompatActivity {
         //get reference from firebase database with child node Property
         mDatabase = FirebaseDatabase.getInstance().getReference("Property");
         storageReference = FirebaseStorage.getInstance().getReference("PropertyImages");
-        imageDatbase = FirebaseDatabase.getInstance().getReference("Property");
+
 
         //TextView widgets initialisation
         property_name = findViewById(R.id.property_name);
@@ -180,6 +195,7 @@ public class Main2Activity extends AppCompatActivity {
         property_bathroom = findViewById(R.id.property_bathroom);
         property_pet = findViewById(R.id.property_pets);
         availMarker = findViewById(R.id.availMarker);
+        prop_address = findViewById(R.id.propAddress);
 
 
         // House seeker request
@@ -299,12 +315,16 @@ public class Main2Activity extends AppCompatActivity {
 
 
         rateProperty = findViewById(R.id.ratingBarProperty);
+
         submitRate = findViewById(R.id.submitRateBtn);
 
         submitRate.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                goToRateProperty();
+                //goToRateProperty();
+                Intent rateIntent = new Intent(Main2Activity.this, RateActivity.class);
+                rateIntent.putExtra("propertyId", propertyId);
+                startActivity(rateIntent);
             }
         });
 
@@ -343,6 +363,23 @@ public class Main2Activity extends AppCompatActivity {
             Property property = dataSnapshot.getValue(Property.class);
             //Toast.makeText(this, ""+property.propertyName, Toast.LENGTH_SHORT).show();
 
+            Geocoder geocoder;
+            List<Address> addresses;
+            String fullAddress = null;
+            geocoder = new Geocoder(this, Locale.getDefault());
+
+            Double latVal, longVal;
+            latVal = Double.valueOf(property.latitude);
+            longVal = Double.valueOf(property.longitude);
+
+            //get address using latitude && longitude
+            try {
+                addresses = geocoder.getFromLocation(latVal, longVal, 1);
+                fullAddress = addresses.get(0).getAddressLine(0);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
             ownerId = property.owner;
             propertyName = property.propertyName;
             property_name.setText(property.propertyName);
@@ -353,7 +390,9 @@ public class Main2Activity extends AppCompatActivity {
             property_bedroom.setText(property.rooms);
             property_bathroom.setText(property.bathroom);
             property_pet.setText(property.pets);
+            prop_address.setText(fullAddress);
 
+            image_prop = property.propertyImage;
             prop_name = property.propertyName.toUpperCase();
             String currentId = currentUser.getUid();
             String propertyOwner = property.owner;
@@ -366,6 +405,7 @@ public class Main2Activity extends AppCompatActivity {
 
             checkCredentials();
             getImagesData();
+            getRatingData();
         //}
     }
 
@@ -450,7 +490,7 @@ public class Main2Activity extends AppCompatActivity {
     // Dialog box when user request to visit
     private void request_dialog() {
 
-        AlertDialog.Builder alertDialog = new AlertDialog.Builder(this);
+        AlertDialog.Builder alertDialog = new AlertDialog.Builder(this, R.style.CustomDialogTheme);
         LayoutInflater inflater = this.getLayoutInflater();
         View view = inflater.inflate(R.layout.requestvisit_datetime, null);
 
@@ -715,16 +755,59 @@ public class Main2Activity extends AppCompatActivity {
 
     public void getImagesData(){
 
-        imageDatbase.child(propertyId).child("images").addValueEventListener(new ValueEventListener() {
+        final StorageReference imageRef = storageReference.child(propertyId+"/"+image_prop);
+
+        imageRef.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+            @Override
+            public void onSuccess(Uri uri) {
+                Toast.makeText(getApplicationContext(), ""+uri.toString(), Toast.LENGTH_SHORT).show();
+                ImageView imageView = findViewById(R.id.propertyImages);
+
+                Glide.with(getApplicationContext())
+                        .load(uri)
+                        .into(imageView);
+            }
+        });
+
+    }
+
+    public void getRatingData(){
+
+        ratingDatabse.child(propertyId).addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                //Toast.makeText(Main2Activity.this, ""+ dataSnapshot.getValue(), Toast.LENGTH_SHORT).show();
+                if(dataSnapshot.exists()){
+                    float totalRatings =0;
+                    long count = dataSnapshot.getChildrenCount();;
+                    for (DataSnapshot ratings : dataSnapshot.getChildren()){
+
+                        for (DataSnapshot rateVal : ratings.getChildren()){
+                            String ratingVal = rateVal.getValue().toString();
+                            float val = 0;
+                            try {
+                                val = Float.valueOf(ratingVal);
+                            }catch (NumberFormatException e){
+                                Log.d("Parsing String to Float", e.getMessage());
+                            }
+                            totalRatings = totalRatings + val;
+                        }
+                    }
+
+                    float averageRate = totalRatings/count;
+                    rateProperty.setRating(averageRate);
+                    Toast.makeText(Main2Activity.this, ""+ averageRate, Toast.LENGTH_SHORT).show();
+                }else{
+                    Log.d("Ratings", "This property does not have ratings");
+                }
             }
 
             @Override
-            public void onCancelled(DatabaseError databaseError) {}
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
         });
     }
+
 
 
     //method for refreshing MapsActivity
@@ -789,6 +872,14 @@ public class Main2Activity extends AppCompatActivity {
     protected void onPostCreate(@Nullable Bundle savedInstanceState) {
         super.onPostCreate(savedInstanceState);
         actionBarDrawerToggle.syncState();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        Intent intent_o = getIntent();
+        propertyId = intent_o.getStringExtra("propertyId");
     }
 
     @Override
@@ -880,4 +971,6 @@ public class Main2Activity extends AppCompatActivity {
         }
     };
 
+
 }
+
