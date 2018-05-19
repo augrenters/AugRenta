@@ -595,7 +595,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         final String prop_Id = s;
 
-        AlertDialog.Builder alertDialog = new AlertDialog.Builder(this);
+        AlertDialog.Builder alertDialog = new AlertDialog.Builder(this, R.style.CustomDialogTheme);
         LayoutInflater inflater = this.getLayoutInflater();
         View view = inflater.inflate(R.layout.dialoginfo_layout, null);
 

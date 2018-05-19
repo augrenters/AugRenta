@@ -150,6 +150,11 @@
             android:label="Your Requests">
         </activity>
 
+        <activity android:name=".RateActivity"
+            android:label="Rate Property">
+
+        </activity>
+
         <service
             android:name=".FirebaseInstanceIDServiceApp">
             <intent-filter>

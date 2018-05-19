@@ -121,12 +121,12 @@ public class AcceptedFragment extends Fragment {
         super.onStart();
 
         //populateRequestUser();
-        requestList.clear();
+
 
         requestDatabase.child(user_id).addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-
+                requestList.clear();
                 if(dataSnapshot.exists()){
                     for (DataSnapshot sender: dataSnapshot.getChildren()){
                         //Toast.makeText(mContext, "" + sender.getKey(), Toast.LENGTH_SHORT).show();

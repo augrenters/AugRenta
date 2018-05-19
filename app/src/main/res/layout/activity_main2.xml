@@ -52,14 +52,14 @@
                             android:layout_marginTop="0dp">
 
                             <ImageView
-
+                                android:id="@+id/propertyImages"
                                 android:layout_width="0dp"
                                 android:layout_height="fill_parent"
                                 android:layout_weight="100"
                                 android:adjustViewBounds="true"
                                 android:scaleType="fitXY"
                                 android:src="@drawable/sample_image"
-
+                                android:visibility="visible"
                                 />
 
                         </LinearLayout>
@@ -87,7 +87,7 @@
                             android:textStyle="bold" />
 
                         <TextView
-                            android:id="@+id/textView3"
+                            android:id="@+id/propAddress"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_below="@+id/property_name"
@@ -99,9 +99,9 @@
                             android:id="@+id/property_price"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_alignLeft="@+id/textView3"
-                            android:layout_alignStart="@+id/textView3"
-                            android:layout_below="@+id/textView3"
+                            android:layout_alignLeft="@+id/propAddress"
+                            android:layout_alignStart="@+id/propAddress"
+                            android:layout_below="@+id/propAddress"
                             android:layout_marginBottom="10dp"
                             android:text="5,000 PHP"
                             android:textColor="@color/red"
@@ -331,6 +331,9 @@
                             android:layout_alignParentStart="true"
                             android:layout_marginTop="5dp"
                             android:theme="@style/CustomRatingBar"
+                            android:clickable="false"
+                            android:focusable="false"
+                            android:isIndicator="true"
                             />
 
                         <Button
