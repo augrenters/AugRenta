@@ -2,11 +2,13 @@ package com.example.sejeque.augrenta;
 
 import android.app.AlertDialog;
 import android.app.Fragment;
+import android.content.AsyncQueryHandler;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.location.Address;
@@ -14,6 +16,7 @@ import android.location.Geocoder;
 import android.location.Location;
 import android.net.Uri;
 import android.nfc.Tag;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -78,6 +81,7 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.android.gms.maps.model.RuntimeRemoteException;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -92,7 +96,17 @@ import com.google.firebase.iid.FirebaseInstanceId;
 import com.squareup.picasso.Picasso;
 
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -356,7 +370,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                         properties.add(property);
                     }
 
-                    //put markers for each property on the map
+//                    put markers for each property on the map
                     addMarkers();
                 }
             }
@@ -570,11 +584,10 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     }
 
     private void createUserMarker(){
+
         if(userMarker != null){
             userMarker.remove();
-        }
 
-        if(userPosition != null){
             userMarker = mMap.addMarker(new MarkerOptions()
                     .position(userPosition)
                     .title("You Are Here")

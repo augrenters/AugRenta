@@ -20,6 +20,10 @@ var directionsDisplay;
 
 var drawing;
 
+var nearCount = 0;
+
+var userDistance = 200;
+
 $('document').ready(function(){
     
     var arrowHolderClasses = document.getElementById("arrowHolder").classList;
@@ -121,6 +125,42 @@ function bearingDegrees (lat1, long1, lat2, long2)
                      ) * 180/Math.PI;
 }
 
+function checkDistance(){
+    
+    var rad = function(x) {
+        return x * Math.PI / 180;
+    };
+    
+    var getDistance = function() {
+        var R = 6378137; // Earth’s mean radius in meter
+        var dLat = rad(propertyPos.lat - userPos.lat);
+        var dLong = rad(propertyPos.lng - userPos.lng);
+
+        var a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+                Math.cos(rad(userPos.lat)) * Math.cos(rad(propertyPos.lat)) *
+                Math.sin(dLong / 2) * Math.sin(dLong / 2);
+
+        var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+        var d = R * c;
+                    
+        return d; // returns the distance in meter
+    };
+        
+    userDistance = getDistance();
+    
+    if(userDistance < 120 && nearCount == 0){
+        nearCount += 1;
+        markUserNear();
+    }
+}
+
+function markUserNear(){
+    alert("Property in less than 100 meters from current location");
+         AR.platform.sendJSONObject({ 
+            isUserNear: true 
+        });
+
+}
 
 function loadValuesFromJava(altitude,latitude,longitude,propertyLatitude,propertyLongitude,count){
     globalCount = count;
@@ -135,6 +175,8 @@ function loadValuesFromJava(altitude,latitude,longitude,propertyLatitude,propert
         lat: propertyLatitude,
         lng: propertyLongitude
     }
+    
+    checkDistance();
     
     if(count == 1){
         

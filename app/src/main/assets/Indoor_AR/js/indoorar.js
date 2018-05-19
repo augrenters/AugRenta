@@ -113,7 +113,7 @@ var augmentedStepMarkers = {
         var estLng = Math.round(longitude * 100) / 100;
         
 //        var gLocation = new AR.GeoLocation(propertyPos.lat, propertyPos.lng, userPos.alt);
-        var stepMarkerLocation = new AR.RelativeLocation(null, estLat, estLng, -2);
+        var stepMarkerLocation = new AR.RelativeLocation(null, estLat, estLng, 0);
         augmentedStepMarkers.markerDrawable_idle = new AR.ImageResource("assets/background.png");
 
         var markerImageDrawable_idle = new AR.ImageDrawable(augmentedStepMarkers.markerDrawable_idle, 1.5, {
@@ -142,7 +142,7 @@ var augmentedStepMarkers = {
         var estLng = Math.round(longitude * 100) / 100;
         
 //        var gLocation = new AR.GeoLocation(propertyPos.lat, propertyPos.lng, userPos.alt);
-        var stepMarkerLocation = new AR.RelativeLocation(null, estLat, estLng, -2);
+        var stepMarkerLocation = new AR.RelativeLocation(null, estLat, estLng, 0);
         augmentedStepMarkers.markerDrawable_idle = new AR.ImageResource("assets/background.png");
 
         var markerImageDrawable_idle = new AR.ImageDrawable(augmentedStepMarkers.markerDrawable_idle, 1.5, {

@@ -28,21 +28,32 @@ import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.wikitude.architect.ArchitectJavaScriptInterfaceListener;
 import com.wikitude.architect.ArchitectStartupConfiguration;
 import com.wikitude.architect.ArchitectView;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.io.IOException;
+import java.util.HashMap;
+
+import static com.google.firebase.auth.FirebaseAuth.getInstance;
 
 /**
  * Created by Faith on 08/04/2018.
  */
 
-public class AugmentActivity extends AppCompatActivity implements OnMapReadyCallback, LocationListener, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, SensorEventListener {
+public class AugmentActivity extends AppCompatActivity implements OnMapReadyCallback, LocationListener, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, SensorEventListener, ArchitectJavaScriptInterfaceListener {
     final static int PERMISSION_ALL = 1;
     final static String[] PERMISSIONS = {android.Manifest.permission.ACCESS_COARSE_LOCATION,
             android.Manifest.permission.ACCESS_FINE_LOCATION};
@@ -52,6 +63,7 @@ public class AugmentActivity extends AppCompatActivity implements OnMapReadyCall
     GoogleApiClient mGoogleApiClient;
     String propertyId;
     private DatabaseReference mDatabase;
+    private DatabaseReference notificationRef;
     Double propertyLat;
     Double propertyLng;
     Double countChange = 0.0;
@@ -75,6 +87,11 @@ public class AugmentActivity extends AppCompatActivity implements OnMapReadyCall
     private boolean mLastMagnetometerSet = false;
     private boolean hasSensor = true;
 
+    private FirebaseAuth mAuth;
+    private FirebaseUser currentUser;
+
+    String ownerId;
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -89,11 +106,14 @@ public class AugmentActivity extends AppCompatActivity implements OnMapReadyCall
         final ArchitectStartupConfiguration config = new ArchitectStartupConfiguration();
         config.setLicenseKey("Ey14mdrn+mDHTFgnUTl74BPegIFwI4EzXeTSQni4J0SL+rBT0XU6QQOC6s+yFyXFLWEg7qd05XXvdeJbHD/yf+V84XM1UDFb5cDc6jCF0EUzr7Q8/xH/61RhbuuXDzgCbJyIHZAhnDYU6FksrHoAFeyKnztZSX6DdQSywB2yQjxTYWx0ZWRfX6sdVpVO8uCJZ6rumx7yrv8Eh52iZRczHgirrh2UsS0ogYbw1+PGiyxQBkBfhVIs6dSvR9gRJC+ZgcN/YCGAhaR4A40wQVMLgA0tTSzjFyS4iatBI35OQdedsevW3P5BZcX9klCvDNcZrb+LXnbWZvFPnyt71kAdszGEV4Zvn1P0twcjRk5mYlAZnPGbkbjsixn7dbuaS6wdcSuBIQo2ZqrzwuYgZWs8V8aINmnK1hEUnpQnrDE1LsA9vgYN8UZxW0Ul9NWzF98M6SjkEojfFqMNiTDVUMqiqrvkogmv1gSz2JKOtZaokj+VMd9Embe9F8LGz2cc2N77GRsBgLjNlQ1Nzt3KwQKjm7M7u4hXlYBMtGjQI1TJua4r8xeh+BshF/I04VZt/xjxGzQ9OgOysedXsCv0GLMnqVzSLHZpoueYSVlcgTp/xIli7gHrzeDPgzut7GqPAu9T1ANpVZGzlFAzgCqkpRvPYWNYnI69BO6GTrpbAYGQ9O0=");
         architectView.onCreate(config);
+        architectView.addArchitectJavaScriptInterfaceListener(this);
 
         propertyId = getIntent().getExtras().getString("propertyId");
 
         //get reference from firebase database with child node Property
         mDatabase = FirebaseDatabase.getInstance().getReference("Property");
+        notificationRef = FirebaseDatabase.getInstance().getReference("Notifications");
+        notificationRef.keepSynced(true);
 
         mSensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
         checkSensors();
@@ -106,6 +126,10 @@ public class AugmentActivity extends AppCompatActivity implements OnMapReadyCall
             showAlert(1);
 
 //        setToUserLocation();
+        //instantiate firebase auth
+        mAuth = getInstance();
+        //retrieve user information and store to currentUser
+        currentUser = mAuth.getCurrentUser();
     }
 
     public void checkSensors() {
@@ -159,6 +183,7 @@ public class AugmentActivity extends AppCompatActivity implements OnMapReadyCall
                 Property property = dataSnapshot.getValue(Property.class);
                 propertyLat = Double.valueOf(property.latitude);
                 propertyLng = Double.valueOf(property.longitude);
+                ownerId = property.owner;
             }
 
             @Override
@@ -361,5 +386,37 @@ public class AugmentActivity extends AppCompatActivity implements OnMapReadyCall
     @Override
     public void onAccuracyChanged(Sensor sensor, int accuracy) {
 
+    }
+
+    @Override
+    public void onJSONObjectReceived(JSONObject jsonObject) {
+        try {
+//            String isUserNear = jsonObject.getBoolean("isUserNear");
+
+//            Toast.makeText(AugmentActivity.this, isUserNear, Toast.LENGTH_SHORT).show();
+//            Log.d("House Seeker", "is near");
+            if(jsonObject.getBoolean("isUserNear")){
+                HashMap<String, String> notificationData = new HashMap<>();
+
+                notificationData.put("fromName", currentUser.getDisplayName());
+                notificationData.put("fromID", currentUser.getUid());
+                notificationData.put("type", "receiver");
+                notificationData.put("response", "near");
+                notificationData.put("propertyId", propertyId);
+
+                notificationRef.child(ownerId).push().setValue(notificationData).addOnCompleteListener(new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Void> task) {
+                        {
+                            if (task.isSuccessful()) {
+                                Log.d("House Seeker", "is near");
+                            }
+                        }
+                    }
+                });
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
     }
 }

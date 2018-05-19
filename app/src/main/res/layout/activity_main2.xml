@@ -113,11 +113,50 @@
                     </RelativeLayout>
 
                     <RelativeLayout
+                        android:id="@+id/ratingPanel"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:background="@drawable/white_border"
+                        android:padding="10dp"
+                        android:layout_below="@+id/imagelayout">
+
+                        <!--android:layout_alignParentBottom="true"-->
+                        <!--android:layout_alignParentStart="true"-->
+
+                        <TextView
+                            android:id="@+id/textviewRate"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:visibility="gone"
+                            android:text="Rate this Property" />
+
+                        <RatingBar
+                            android:id="@+id/ratingBarProperty"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_alignParentStart="true"
+                            android:layout_below="@+id/textviewRate"
+                            android:layout_marginTop="5dp"
+                            android:theme="@style/CustomRatingBar" />
+
+                        <Button
+                            android:id="@+id/submitRateBtn"
+                            android:layout_width="wrap_content"
+                            android:layout_height="30dp"
+                            android:layout_below="@+id/ratingBarProperty"
+                            android:layout_marginTop="5dp"
+                            android:background="@drawable/button_actionplaceviewer"
+                            android:visibility="gone"
+                            android:text="Submit" />
+
+                    </RelativeLayout>
+
+                    <RelativeLayout
                         android:id="@+id/favorite_place"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_alignParentStart="true"
-                        android:layout_below="@+id/imagelayout"
+                        android:layout_below="@+id/ratingPanel"
                         android:background="@drawable/white_border">
 
                         <LinearLayout
@@ -307,45 +346,7 @@
 
                     </RelativeLayout>
 
-                    <include layout="@layout/setproperty_availability"/>
-
-                    <RelativeLayout
-                        android:id="@+id/ratingPanel"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_below="@+id/relativeLayoutSetAvailability"
-                        android:background="@drawable/white_border"
-                        android:padding="10dp">
-
-                        <TextView
-                            android:id="@+id/textviewRate"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="Rate this Property"/>
-
-                        <RatingBar
-                            android:id="@+id/ratingBarProperty"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_below="@+id/textviewRate"
-                            android:layout_alignParentStart="true"
-                            android:layout_marginTop="5dp"
-                            android:theme="@style/CustomRatingBar"
-                            android:clickable="false"
-                            android:focusable="false"
-                            android:isIndicator="true"
-                            />
-
-                        <Button
-                            android:id="@+id/submitRateBtn"
-                            android:layout_width="wrap_content"
-                            android:layout_height="30dp"
-                            android:text="Submit"
-                            android:background="@drawable/button_actionplaceviewer"
-                            android:layout_below="@+id/ratingBarProperty"
-                            android:layout_marginTop="5dp"/>
-
-                    </RelativeLayout>
+                    <!--<include layout="@layout/setproperty_availability"/>-->
 
                 </RelativeLayout>
 

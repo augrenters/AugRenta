@@ -67,7 +67,7 @@
 
             </RelativeLayout>
 
-        <include layout="@layout/filtersearch_layout"/>
+        <include layout="@layout/filtersearch_layout" />
 
 
         <android.support.design.widget.FloatingActionButton
