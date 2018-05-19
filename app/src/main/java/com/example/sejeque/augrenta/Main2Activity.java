@@ -14,6 +14,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.BottomNavigationView;
 import android.support.design.widget.NavigationView;
+import android.support.v4.view.ViewPager;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
@@ -79,7 +80,7 @@ public class Main2Activity extends AppCompatActivity  {
 
     /// Database
     //initiate database reference
-    private DatabaseReference requestDatabase, notifDatabase, ratingDatabse, favDatabse, ratingDatabase;
+    private DatabaseReference requestDatabase, notifDatabase, ratingDatabse, favDatabse;
     private DatabaseReference mDatabase, imageDatbase;
     private StorageReference storageReference;
 
@@ -88,6 +89,7 @@ public class Main2Activity extends AppCompatActivity  {
 
     //array container for data fetched from firebase database
     List<Property> properties;
+    List<Uri> imagerUris = new ArrayList<>();
 
     TextView property_name, property_price, property_description,
             property_type, property_area, property_bedroom, property_bathroom, property_pet,
@@ -101,6 +103,8 @@ public class Main2Activity extends AppCompatActivity  {
     String prop_name, image_prop;
 
     RatingBar rateProperty;
+    ViewPager viewPager;
+
 
     private TextView userNameHandler, emailHandler;
     private ImageView imgHandler;
@@ -108,6 +112,7 @@ public class Main2Activity extends AppCompatActivity  {
     String sender, senderID;
     String REQUEST_STATE = "not sent";
     String isAvailable="";
+    ImagePager imagePager;
 
     Button indoor_tour;
     @Override
@@ -204,6 +209,7 @@ public class Main2Activity extends AppCompatActivity  {
         notifDatabase = FirebaseDatabase.getInstance().getReference().child("Notifications");
         ratingDatabse = FirebaseDatabase.getInstance().getReference().child("Ratings");
         favDatabse = FirebaseDatabase.getInstance().getReference().child("Favorites");
+        imageDatbase = FirebaseDatabase.getInstance().getReference().child("Property").child(propertyId).child("images");
         notifDatabase.keepSynced(true);
 
         sender = currentUser.getDisplayName();
@@ -256,22 +262,6 @@ public class Main2Activity extends AppCompatActivity  {
         bottomBarPanel = findViewById(R.id.bottom_bar);
 
 
-//        sunday = findViewById(R.id.checkBoxSun);
-//        monday = findViewById(R.id.checkBoxMon);
-//        tuesday = findViewById(R.id.checkBoxTue);
-//        wednesday = findViewById(R.id.checkBoxWed);
-//        thursday = findViewById(R.id.checkBoxThu);
-//        friday = findViewById(R.id.checkBoxFri);
-//        saturday = findViewById(R.id.checkBoxSat);
-//
-//        sunday.setOnClickListener(checkboxClickListener);
-//        monday.setOnClickListener(checkboxClickListener);
-//        tuesday.setOnClickListener(checkboxClickListener);
-//        wednesday.setOnClickListener(checkboxClickListener);
-//        thursday.setOnClickListener(checkboxClickListener);
-//        friday.setOnClickListener(checkboxClickListener);
-//        saturday.setOnClickListener(checkboxClickListener);
-
         startToAr = findViewById(R.id.startAR);
         startToAr.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -293,13 +283,7 @@ public class Main2Activity extends AppCompatActivity  {
             }
         });
 
-//        setSchedule = findViewById(R.id.setSchedule);
-//        setSchedule.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                saveSchedule();
-//            }
-//        });
+
         startToAr.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -322,6 +306,11 @@ public class Main2Activity extends AppCompatActivity  {
 
 
         rateProperty = findViewById(R.id.ratingBarProperty);
+        viewPager = findViewById(R.id.viewPager);
+        imagePager = new ImagePager(this, imagerUris);
+        viewPager.setAdapter(imagePager);
+
+
         submitRate = findViewById(R.id.submitRateBtn);
 
         submitRate.setOnClickListener(new View.OnClickListener() {
@@ -331,73 +320,6 @@ public class Main2Activity extends AppCompatActivity  {
             }
         });
 
-//        Button direction_tour = (Button) findViewById(R.id);
-//        direction_tour.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//                Intent starIntent = new Intent(Main2Activity.this, AugmentActivity.class);
-//                starIntent.putExtra("propertyId", propertyId);
-//                startActivity(starIntent);
-//            }
-//        });
-//
-//        indoor_tour = findViewById(R.id.view_indoor_ar);
-//        indoor_tour.setVisibility(View.GONE);
-//        indoor_tour.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                Intent starIntent = new Intent(Main2Activity.this, AugmentIndoorActivity.class);
-//                starIntent.putExtra("propertyId", propertyId);
-//                startActivity(starIntent);
-//            }
-//        });
-
-
-//    public void saveSchedule(){
-//        List<String>noSched = new ArrayList<>();
-//        noSched.add("monday");
-//        noSched.add("tuesday");
-//        noSched.add("wednesday");
-//        noSched.add("thursday");
-//        noSched.add("friday");
-//        noSched.add("saturday");
-//        noSched.add("sunday");
-//
-//        final ProgressDialog progressDialog = new ProgressDialog(this);
-//        progressDialog.setTitle("Saving Schedule");
-//        progressDialog.show();
-//
-//        for(int x = 0; x < schedDays.size(); x++){
-//            if(schedDays.get(x).equals("monday")){
-//                noSched.remove(schedDays.get(x));
-//            }else if(schedDays.get(x).equals("tuesday")){
-//                noSched.remove(schedDays.get(x));
-//            }else if(schedDays.get(x).equals("wednesday")){
-//                noSched.remove(schedDays.get(x));
-//            }else if(schedDays.get(x).equals("thursday")){
-//                noSched.remove(schedDays.get(x));
-//            }else if(schedDays.get(x).equals("friday")){
-//                noSched.remove(schedDays.get(x));
-//            }else if(schedDays.get(x).equals("saturday")){
-//                noSched.remove(schedDays.get(x));
-//            }else if(schedDays.get(x).equals("sunday")){
-//                noSched.remove(schedDays.get(x));
-//            }
-//            Schedule schedule = new Schedule(timeFrom.get(x), timeTo.get(x));
-//            mSchedule.child(propertyId).child(schedDays.get(x)).setValue(schedule);
-//        }
-//
-//        Schedule noSchedule = new Schedule("-1", "-1");
-//        for(int y = 0; y < noSched.size(); y++){
-//            mSchedule.child(propertyId).child(noSched.get(y)).setValue(noSchedule);
-//        }
-//
-//        finish();
-//        Intent onMapsView = new Intent(Main2Activity.this, MapsActivity.class);
-//        startActivity(onMapsView);
-//        progressDialog.dismiss();
-//
-//    }
         rateProperty = findViewById(R.id.ratingBarProperty);
 
         submitRate = findViewById(R.id.submitRateBtn);
@@ -419,7 +341,7 @@ public class Main2Activity extends AppCompatActivity  {
     @Override
     protected void onStart() {
         super.onStart();
-
+        imagerUris.clear();
         mDatabase.child(propertyId).addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
@@ -438,6 +360,7 @@ public class Main2Activity extends AppCompatActivity  {
 
             }
         });
+
 
     }
 
@@ -699,7 +622,7 @@ public class Main2Activity extends AppCompatActivity  {
 
     public void goToRateProperty(){
         String rating=String.valueOf(rateProperty.getRating());
-        Toast.makeText(getApplicationContext(), rating, Toast.LENGTH_LONG).show();
+        //Toast.makeText(getApplicationContext(), rating, Toast.LENGTH_LONG).show();
 
         ratingDatabse.child(propertyId).child(senderID).child("rate").setValue(rating).addOnCompleteListener(new OnCompleteListener<Void>() {
             @Override
@@ -840,22 +763,42 @@ public class Main2Activity extends AppCompatActivity  {
 
     public void getImagesData(){
 
-        final StorageReference imageRef = storageReference.child(propertyId+"/"+image_prop);
-
-        imageRef.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+        imageDatbase.addValueEventListener(new ValueEventListener() {
             @Override
-            public void onSuccess(Uri uri) {
-                Toast.makeText(getApplicationContext(), ""+uri.toString(), Toast.LENGTH_SHORT).show();
-                ImageView imageView = findViewById(R.id.propertyImages);
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                imagerUris.clear();
+                for (DataSnapshot image: dataSnapshot.getChildren()){
 
-                Glide.with(getApplicationContext())
-                        .load(uri)
-                        .into(imageView);
+                    String imageVal = image.getValue().toString();
+
+                    StorageReference imageRef = storageReference.child(propertyId+"/"+imageVal);
+
+                    imageRef.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+                        @Override
+                        public void onSuccess(Uri uri) {
+                            imagerUris.add(uri);
+                            loadImageAdapter();
+                        }
+                    });
+
+                }
+
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
             }
         });
-
+        imagePager.notifyDataSetChanged();
     }
 
+    public void loadImageAdapter(){
+        //Toast.makeText(Main2Activity.this, ""+imagerUris, Toast.LENGTH_SHORT).show();
+        ImagePager imagePager = new ImagePager(getApplicationContext(), imagerUris);
+        viewPager.setAdapter(imagePager);
+        //imagePager.notifyDataSetChanged();
+    }
     public void getRatingData(){
 
         ratingDatabse.child(propertyId).addValueEventListener(new ValueEventListener() {
@@ -880,7 +823,7 @@ public class Main2Activity extends AppCompatActivity  {
 
                     float averageRate = totalRatings/count;
                     rateProperty.setRating(averageRate);
-                    Toast.makeText(Main2Activity.this, ""+ averageRate, Toast.LENGTH_SHORT).show();
+                    //Toast.makeText(Main2Activity.this, ""+ averageRate, Toast.LENGTH_SHORT).show();
                 }else{
                     Log.d("Ratings", "This property does not have ratings");
                 }
@@ -964,481 +907,16 @@ public class Main2Activity extends AppCompatActivity  {
 
         Intent intent_o = getIntent();
         propertyId = intent_o.getStringExtra("propertyId");
+        imagerUris.clear();
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        imagerUris.clear();
         finish();
     }
 
 
-//    View.OnClickListener checkboxClickListener = new View.OnClickListener() {
-//        @Override
-//        public void onClick(View view) {
-//            time = -1;
-//            boolean checked = ((CheckBox) view).isChecked();
-//            String text = null;
-//            switch (view.getId()) {
-//                case R.id.checkBoxSun:
-//                    if(checked){
-//                        sundayFlag = schedDays.size();
-//                        schedDays.add("sunday");
-//                        schedFlag += 1;
-//                        setSchedule.setVisibility(View.VISIBLE);
-//                        relSunday.setVisibility(View.VISIBLE);
-//
-//                        final EditText etSundayFrom = findViewById(R.id.etSundayFrom);
-//                        final EditText etSundayTo = findViewById(R.id.etSundayTo);
-//
-//                        etSundayFrom.setOnClickListener(new View.OnClickListener() {
-//                            @Override
-//                            public void onClick(View view) {
-//                                Calendar mcurrentTime = Calendar.getInstance();
-//                                int hour = mcurrentTime.get(Calendar.HOUR_OF_DAY);
-//                                int minute = mcurrentTime.get(Calendar.MINUTE);
-//
-//                                TimePickerDialog mTimePicker;
-//                                mTimePicker = new TimePickerDialog(Main2Activity.this, new TimePickerDialog.OnTimeSetListener() {
-//                                    @Override
-//                                    public void onTimeSet(TimePicker timePicker, int selectedHour, int selectedMinute) {
-//                                        time = (selectedHour*60) + selectedMinute;
-//                                        timeFrom.add(String.valueOf(time));
-//                                        etSundayFrom.setText( selectedHour + ":" + selectedMinute);
-//                                    }
-//                                }, hour, minute, true);
-//                                mTimePicker.setTitle("Select Time");
-//                                mTimePicker.show();
-//                            }
-//                        });
-//
-//                        etSundayTo.setOnClickListener(new View.OnClickListener() {
-//                            @Override
-//                            public void onClick(View view) {
-//                                Calendar mcurrentTime = Calendar.getInstance();
-//                                int hour = mcurrentTime.get(Calendar.HOUR_OF_DAY);
-//                                int minute = mcurrentTime.get(Calendar.MINUTE);
-//
-//                                TimePickerDialog mTimePicker;
-//                                mTimePicker = new TimePickerDialog(Main2Activity.this, new TimePickerDialog.OnTimeSetListener() {
-//                                    @Override
-//                                    public void onTimeSet(TimePicker timePicker, int selectedHour, int selectedMinute) {
-//                                        time = (selectedHour*60) + selectedMinute;
-//                                        timeTo.add(String.valueOf(time));
-//                                        etSundayTo.setText( selectedHour + ":" + selectedMinute);
-//                                    }
-//                                }, hour, minute, true);
-//                                mTimePicker.setTitle("Select Time");
-//                                mTimePicker.show();
-//                            }
-//                        });
-//
-//                        break;
-//                    }else {
-//                        schedDays.remove(sundayFlag);
-//                        timeFrom.remove(sundayFlag);
-//                        timeTo.remove(sundayFlag);
-//                        relSunday.setVisibility(View.GONE);
-//                        schedFlag -= 1;
-//                        if(schedFlag == 0){
-//                            setSchedule.setVisibility(View.GONE);
-//                        }
-//                        break;
-//                    }
-//                case R.id.checkBoxMon:
-//                    if(checked){
-//                        mondayFlag = schedDays.size();
-//                        schedDays.add("monday");
-//                        schedFlag += 1;
-//                        setSchedule.setVisibility(View.VISIBLE);
-//                        relMonday.setVisibility(View.VISIBLE);
-//
-//                        final EditText etMondayFrom = findViewById(R.id.etMondayFrom);
-//                        final EditText etMondayTo = findViewById(R.id.etMondayTo);
-//
-//                        etMondayFrom.setOnClickListener(new View.OnClickListener() {
-//                            @Override
-//                            public void onClick(View view) {
-//                                Calendar mcurrentTime = Calendar.getInstance();
-//                                int hour = mcurrentTime.get(Calendar.HOUR_OF_DAY);
-//                                int minute = mcurrentTime.get(Calendar.MINUTE);
-//
-//                                TimePickerDialog mTimePicker;
-//                                mTimePicker = new TimePickerDialog(Main2Activity.this, new TimePickerDialog.OnTimeSetListener() {
-//                                    @Override
-//                                    public void onTimeSet(TimePicker timePicker, int selectedHour, int selectedMinute) {
-//                                        time = (selectedHour*60) + selectedMinute;
-//                                        timeFrom.add(String.valueOf(time));
-//                                        etMondayFrom.setText( selectedHour + ":" + selectedMinute);
-//                                    }
-//                                }, hour, minute, true);
-//                                mTimePicker.setTitle("Select Time");
-//                                mTimePicker.show();
-//                            }
-//                        });
-//
-//                        etMondayTo.setOnClickListener(new View.OnClickListener() {
-//                            @Override
-//                            public void onClick(View view) {
-//                                Calendar mcurrentTime = Calendar.getInstance();
-//                                int hour = mcurrentTime.get(Calendar.HOUR_OF_DAY);
-//                                int minute = mcurrentTime.get(Calendar.MINUTE);
-//
-//                                TimePickerDialog mTimePicker;
-//                                mTimePicker = new TimePickerDialog(Main2Activity.this, new TimePickerDialog.OnTimeSetListener() {
-//                                    @Override
-//                                    public void onTimeSet(TimePicker timePicker, int selectedHour, int selectedMinute) {
-//                                        time = (selectedHour*60) + selectedMinute;
-//                                        timeTo.add(String.valueOf(time));
-//                                        etMondayTo.setText( selectedHour + ":" + selectedMinute);
-//                                    }
-//                                }, hour, minute, true);
-//                                mTimePicker.setTitle("Select Time");
-//                                mTimePicker.show();
-//                            }
-//                        });
-//
-//                        break;
-//                    }else {
-//                        schedDays.remove(mondayFlag);
-//                        timeFrom.remove(mondayFlag);
-//                        timeTo.remove(mondayFlag);
-//                        relMonday.setVisibility(View.GONE);
-//                        schedFlag -= 1;
-//                        if(schedFlag == 0){
-//                            setSchedule.setVisibility(View.GONE);
-//                        }
-//                        break;
-//                    }
-//                case R.id.checkBoxTue:
-//                    if(checked){
-//                        tuesdayFlag = schedDays.size();
-//                        schedDays.add("tuesday");
-//                        schedFlag += 1;
-//                        setSchedule.setVisibility(View.VISIBLE);
-//                        relTuesday.setVisibility(View.VISIBLE);
-//
-//                        final EditText etTuesdayFrom = findViewById(R.id.etTuesdayFrom);
-//                        final EditText etTuesdayTo = findViewById(R.id.etTuesdayTo);
-//
-//                        etTuesdayFrom.setOnClickListener(new View.OnClickListener() {
-//                            @Override
-//                            public void onClick(View view) {
-//                                Calendar mcurrentTime = Calendar.getInstance();
-//                                int hour = mcurrentTime.get(Calendar.HOUR_OF_DAY);
-//                                int minute = mcurrentTime.get(Calendar.MINUTE);
-//
-//                                TimePickerDialog mTimePicker;
-//                                mTimePicker = new TimePickerDialog(Main2Activity.this, new TimePickerDialog.OnTimeSetListener() {
-//                                    @Override
-//                                    public void onTimeSet(TimePicker timePicker, int selectedHour, int selectedMinute) {
-//                                        time = (selectedHour*60) + selectedMinute;
-//                                        timeFrom.add(String.valueOf(time));
-//                                        etTuesdayFrom.setText( selectedHour + ":" + selectedMinute);
-//                                    }
-//                                }, hour, minute, true);
-//                                mTimePicker.setTitle("Select Time");
-//                                mTimePicker.show();
-//                            }
-//                        });
-//
-//                        etTuesdayTo.setOnClickListener(new View.OnClickListener() {
-//                            @Override
-//                            public void onClick(View view) {
-//                                Calendar mcurrentTime = Calendar.getInstance();
-//                                int hour = mcurrentTime.get(Calendar.HOUR_OF_DAY);
-//                                int minute = mcurrentTime.get(Calendar.MINUTE);
-//
-//                                TimePickerDialog mTimePicker;
-//                                mTimePicker = new TimePickerDialog(Main2Activity.this, new TimePickerDialog.OnTimeSetListener() {
-//                                    @Override
-//                                    public void onTimeSet(TimePicker timePicker, int selectedHour, int selectedMinute) {
-//                                        time = (selectedHour*60) + selectedMinute;
-//                                        timeTo.add(String.valueOf(time));
-//                                        etTuesdayTo.setText( selectedHour + ":" + selectedMinute);
-//                                    }
-//                                }, hour, minute, true);
-//                                mTimePicker.setTitle("Select Time");
-//                                mTimePicker.show();
-//                            }
-//                        });
-//
-//                        break;
-//                    }else {
-//                        schedDays.remove(tuesdayFlag);
-//                        timeFrom.remove(tuesdayFlag);
-//                        timeTo.remove(tuesdayFlag);
-//                        relTuesday.setVisibility(View.GONE);
-//                        schedFlag -= 1;
-//                        if(schedFlag == 0){
-//                            setSchedule.setVisibility(View.GONE);
-//                        }
-//                        break;
-//                    }
-//                case R.id.checkBoxWed:
-//                    if(checked){
-//                        wednesdayFlag = schedDays.size();
-//                        schedDays.add("wednesday");
-//                        schedFlag += 1;
-//                        setSchedule.setVisibility(View.VISIBLE);
-//                        relWednesday.setVisibility(View.VISIBLE);
-//
-//                        final EditText etWednesdayFrom = findViewById(R.id.etWednesdayFrom);
-//                        final EditText etWednesdayTo = findViewById(R.id.etWednesdayTo);
-//
-//                        etWednesdayFrom.setOnClickListener(new View.OnClickListener() {
-//                            @Override
-//                            public void onClick(View view) {
-//                                Calendar mcurrentTime = Calendar.getInstance();
-//                                int hour = mcurrentTime.get(Calendar.HOUR_OF_DAY);
-//                                int minute = mcurrentTime.get(Calendar.MINUTE);
-//
-//                                TimePickerDialog mTimePicker;
-//                                mTimePicker = new TimePickerDialog(Main2Activity.this, new TimePickerDialog.OnTimeSetListener() {
-//                                    @Override
-//                                    public void onTimeSet(TimePicker timePicker, int selectedHour, int selectedMinute) {
-//                                        time = (selectedHour*60) + selectedMinute;
-//                                        timeFrom.add(String.valueOf(time));
-//                                        etWednesdayFrom.setText( selectedHour + ":" + selectedMinute);
-//                                    }
-//                                }, hour, minute, true);
-//                                mTimePicker.setTitle("Select Time");
-//                                mTimePicker.show();
-//                            }
-//                        });
-//
-//                        etWednesdayTo.setOnClickListener(new View.OnClickListener() {
-//                            @Override
-//                            public void onClick(View view) {
-//                                Calendar mcurrentTime = Calendar.getInstance();
-//                                int hour = mcurrentTime.get(Calendar.HOUR_OF_DAY);
-//                                int minute = mcurrentTime.get(Calendar.MINUTE);
-//
-//                                TimePickerDialog mTimePicker;
-//                                mTimePicker = new TimePickerDialog(Main2Activity.this, new TimePickerDialog.OnTimeSetListener() {
-//                                    @Override
-//                                    public void onTimeSet(TimePicker timePicker, int selectedHour, int selectedMinute) {
-//                                        time = (selectedHour*60) + selectedMinute;
-//                                        timeTo.add(String.valueOf(time));
-//                                        etWednesdayTo.setText( selectedHour + ":" + selectedMinute);
-//                                    }
-//                                }, hour, minute, true);
-//                                mTimePicker.setTitle("Select Time");
-//                                mTimePicker.show();
-//                            }
-//                        });
-//
-//                        break;
-//                    }else {
-//                        schedDays.remove(wednesdayFlag);
-//                        timeFrom.remove(wednesdayFlag);
-//                        timeTo.remove(wednesdayFlag);
-//                        relWednesday.setVisibility(View.GONE);
-//                        schedFlag -= 1;
-//                        if(schedFlag == 0){
-//                            setSchedule.setVisibility(View.GONE);
-//                        }
-//                        break;
-//                    }
-//                case R.id.checkBoxThu:
-//                    if(checked){
-//                        thursdayFlag = schedDays.size();
-//                        schedDays.add("thursday");
-//                        schedFlag += 1;
-//                        setSchedule.setVisibility(View.VISIBLE);
-//                        relThursday.setVisibility(View.VISIBLE);
-//
-//                        final EditText etThursdayFrom = findViewById(R.id.etThursdayFrom);
-//                        final EditText etThursdayTo = findViewById(R.id.etThursdayTo);
-//
-//                        etThursdayFrom.setOnClickListener(new View.OnClickListener() {
-//                            @Override
-//                            public void onClick(View view) {
-//                                Calendar mcurrentTime = Calendar.getInstance();
-//                                int hour = mcurrentTime.get(Calendar.HOUR_OF_DAY);
-//                                int minute = mcurrentTime.get(Calendar.MINUTE);
-//
-//                                TimePickerDialog mTimePicker;
-//                                mTimePicker = new TimePickerDialog(Main2Activity.this, new TimePickerDialog.OnTimeSetListener() {
-//                                    @Override
-//                                    public void onTimeSet(TimePicker timePicker, int selectedHour, int selectedMinute) {
-//                                        time = (selectedHour*60) + selectedMinute;
-//                                        timeFrom.add(String.valueOf(time));
-//                                        etThursdayFrom.setText( selectedHour + ":" + selectedMinute);
-//                                    }
-//                                }, hour, minute, true);
-//                                mTimePicker.setTitle("Select Time");
-//                                mTimePicker.show();
-//                            }
-//                        });
-//
-//                        etThursdayTo.setOnClickListener(new View.OnClickListener() {
-//                            @Override
-//                            public void onClick(View view) {
-//                                Calendar mcurrentTime = Calendar.getInstance();
-//                                int hour = mcurrentTime.get(Calendar.HOUR_OF_DAY);
-//                                int minute = mcurrentTime.get(Calendar.MINUTE);
-//
-//                                TimePickerDialog mTimePicker;
-//                                mTimePicker = new TimePickerDialog(Main2Activity.this, new TimePickerDialog.OnTimeSetListener() {
-//                                    @Override
-//                                    public void onTimeSet(TimePicker timePicker, int selectedHour, int selectedMinute) {
-//                                        time = (selectedHour*60) + selectedMinute;
-//                                        timeTo.add(String.valueOf(time));
-//                                        etThursdayTo.setText( selectedHour + ":" + selectedMinute);
-//                                    }
-//                                }, hour, minute, true);
-//                                mTimePicker.setTitle("Select Time");
-//                                mTimePicker.show();
-//                            }
-//                        });
-//
-//                        break;
-//                    }else {
-//                        schedDays.remove(thursdayFlag);
-//                        timeFrom.remove(thursdayFlag);
-//                        timeTo.remove(thursdayFlag);
-//                        relThursday.setVisibility(View.GONE);
-//                        schedFlag -= 1;
-//                        if(schedFlag == 0){
-//                            setSchedule.setVisibility(View.GONE);
-//                        }
-//                        break;
-//                    }
-//                case R.id.checkBoxFri:
-//                    if(checked){
-//                        fridayFlag = schedDays.size();
-//                        schedDays.add("friday");
-//                        schedFlag += 1;
-//                        setSchedule.setVisibility(View.VISIBLE);
-//                        relFriday.setVisibility(View.VISIBLE);
-//
-//                        final EditText etFridayFrom = findViewById(R.id.etFridayFrom);
-//                        final EditText etFridayTo = findViewById(R.id.etFridayTo);
-//
-//                        etFridayFrom.setOnClickListener(new View.OnClickListener() {
-//                            @Override
-//                            public void onClick(View view) {
-//                                Calendar mcurrentTime = Calendar.getInstance();
-//                                int hour = mcurrentTime.get(Calendar.HOUR_OF_DAY);
-//                                int minute = mcurrentTime.get(Calendar.MINUTE);
-//
-//                                TimePickerDialog mTimePicker;
-//                                mTimePicker = new TimePickerDialog(Main2Activity.this, new TimePickerDialog.OnTimeSetListener() {
-//                                    @Override
-//                                    public void onTimeSet(TimePicker timePicker, int selectedHour, int selectedMinute) {
-//                                        time = (selectedHour*60) + selectedMinute;
-//                                        timeFrom.add(String.valueOf(time));
-//                                        etFridayFrom.setText( selectedHour + ":" + selectedMinute);
-//                                    }
-//                                }, hour, minute, true);
-//                                mTimePicker.setTitle("Select Time");
-//                                mTimePicker.show();
-//                            }
-//                        });
-//
-//                        etFridayTo.setOnClickListener(new View.OnClickListener() {
-//                            @Override
-//                            public void onClick(View view) {
-//                                Calendar mcurrentTime = Calendar.getInstance();
-//                                int hour = mcurrentTime.get(Calendar.HOUR_OF_DAY);
-//                                int minute = mcurrentTime.get(Calendar.MINUTE);
-//
-//                                TimePickerDialog mTimePicker;
-//                                mTimePicker = new TimePickerDialog(Main2Activity.this, new TimePickerDialog.OnTimeSetListener() {
-//                                    @Override
-//                                    public void onTimeSet(TimePicker timePicker, int selectedHour, int selectedMinute) {
-//                                        time = (selectedHour*60) + selectedMinute;
-//                                        timeTo.add(String.valueOf(time));
-//                                        etFridayTo.setText( selectedHour + ":" + selectedMinute);
-//                                    }
-//                                }, hour, minute, true);
-//                                mTimePicker.setTitle("Select Time");
-//                                mTimePicker.show();
-//                            }
-//                        });
-//
-//                        break;
-//                    }else {
-//                        schedDays.remove(fridayFlag);
-//                        timeFrom.remove(fridayFlag);
-//                        timeTo.remove(fridayFlag);
-//                        relFriday.setVisibility(View.GONE);
-//                        schedFlag -= 1;
-//                        if(schedFlag == 0){
-//                            setSchedule.setVisibility(View.GONE);
-//                        }
-//                        break;
-//                    }
-//                case R.id.checkBoxSat:
-//                    if(checked){
-//                        saturdayFlag = schedDays.size();
-//                        schedDays.add("saturday");
-//                        schedFlag += 1;
-//                        setSchedule.setVisibility(View.VISIBLE);
-//                        relSaturday.setVisibility(View.VISIBLE);
-//
-//                        final EditText etSaturdayFrom = findViewById(R.id.etSaturdayFrom);
-//                        final EditText etSaturdayTo = findViewById(R.id.etSaturdayTo);
-//
-//                        etSaturdayFrom.setOnClickListener(new View.OnClickListener() {
-//                            @Override
-//                            public void onClick(View view) {
-//                                Calendar mcurrentTime = Calendar.getInstance();
-//                                int hour = mcurrentTime.get(Calendar.HOUR_OF_DAY);
-//                                int minute = mcurrentTime.get(Calendar.MINUTE);
-//
-//                                TimePickerDialog mTimePicker;
-//                                mTimePicker = new TimePickerDialog(Main2Activity.this, new TimePickerDialog.OnTimeSetListener() {
-//                                    @Override
-//                                    public void onTimeSet(TimePicker timePicker, int selectedHour, int selectedMinute) {
-//                                        time = (selectedHour*60) + selectedMinute;
-//                                        timeFrom.add(String.valueOf(time));
-//                                        etSaturdayFrom.setText( selectedHour + ":" + selectedMinute);
-//                                    }
-//                                }, hour, minute, true);
-//                                mTimePicker.setTitle("Select Time");
-//                                mTimePicker.show();
-//                            }
-//                        });
-//
-//                        etSaturdayTo.setOnClickListener(new View.OnClickListener() {
-//                            @Override
-//                            public void onClick(View view) {
-//                                Calendar mcurrentTime = Calendar.getInstance();
-//                                int hour = mcurrentTime.get(Calendar.HOUR_OF_DAY);
-//                                int minute = mcurrentTime.get(Calendar.MINUTE);
-//
-//                                TimePickerDialog mTimePicker;
-//                                mTimePicker = new TimePickerDialog(Main2Activity.this, new TimePickerDialog.OnTimeSetListener() {
-//                                    @Override
-//                                    public void onTimeSet(TimePicker timePicker, int selectedHour, int selectedMinute) {
-//                                        time = (selectedHour*60) + selectedMinute;
-//                                        timeTo.add(String.valueOf(time));
-//                                        etSaturdayTo.setText( selectedHour + ":" + selectedMinute);
-//                                    }
-//                                }, hour, minute, true);
-//                                mTimePicker.setTitle("Select Time");
-//                                mTimePicker.show();
-//                            }
-//                        });
-//
-//                        break;
-//                    }else {
-//                        schedDays.remove(saturdayFlag);
-//                        timeFrom.remove(saturdayFlag);
-//                        timeTo.remove(saturdayFlag);
-//                        relSaturday.setVisibility(View.GONE);
-//                        schedFlag -= 1;
-//                        if(schedFlag == 0){
-//                            setSchedule.setVisibility(View.GONE);
-//                        }
-//                        break;
-//                    }
-//
-//            }
-//
-//        }
-//    };
 
 }

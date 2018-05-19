@@ -367,7 +367,6 @@ public class PropertyActivity extends AppCompatActivity {
         super.onPostCreate(savedInstanceState);
         actionBarDrawerToggle.syncState();
     }
-
     @Override
     protected void onDestroy() {
         super.onDestroy();

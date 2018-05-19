@@ -63,6 +63,7 @@ import com.google.android.gms.common.api.PendingResult;
 import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.location.LocationSettingsRequest;
 import com.google.android.gms.location.places.AutocompleteFilter;
 import com.google.android.gms.location.places.AutocompletePrediction;
 import com.google.android.gms.location.places.GeoDataClient;
@@ -118,6 +119,7 @@ import static com.example.sejeque.augrenta.R.mipmap.man;
 import static com.example.sejeque.augrenta.R.mipmap.red_marker;
 import static com.example.sejeque.augrenta.R.mipmap.yellow_marker;
 import static com.google.firebase.auth.FirebaseAuth.*;
+
 public class MapsActivity extends AppCompatActivity implements OnMapReadyCallback, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, LocationListener {
 
     private GoogleMap mMap;
@@ -181,7 +183,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         filteredProperties = new ArrayList<>();
 
         //if user is not logged in, go back to login panel
-        if(currentUser == null){
+        if (currentUser == null) {
             proceed();
         }
 
@@ -217,28 +219,23 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
                 int itemID = item.getItemId();
 
-               if(itemID == R.id.navigation_home){
-                   goToHome();
-               }
-               else if(itemID == R.id.profile){
-                   goToProfile();
-               }
-               else if(itemID == R.id.properties){
-                   goToPropertyList();
-               }
-               else if(itemID == R.id.requests){
-                   goToRequests();
-               }
-               else if(itemID == R.id.messenger){
-                   goToMessages();
-               }else if (itemID == R.id.favorite_properties){
-                   goToFavorite();
-               }
-               else if(itemID == R.id.signOut){
-                   signOutUser();
-               }
+                if (itemID == R.id.navigation_home) {
+                    goToHome();
+                } else if (itemID == R.id.profile) {
+                    goToProfile();
+                } else if (itemID == R.id.properties) {
+                    goToPropertyList();
+                } else if (itemID == R.id.requests) {
+                    goToRequests();
+                } else if (itemID == R.id.messenger) {
+                    goToMessages();
+                } else if (itemID == R.id.favorite_properties) {
+                    goToFavorite();
+                } else if (itemID == R.id.signOut) {
+                    signOutUser();
+                }
 
-               return true;
+                return true;
             }
         });
 
@@ -258,10 +255,10 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         searchPlace.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
             public boolean onEditorAction(TextView textView, int i, KeyEvent keyEvent) {
-                if(i == EditorInfo.IME_ACTION_SEARCH ||
-                   i == EditorInfo.IME_ACTION_DONE ||
-                   keyEvent.getAction() == KeyEvent.ACTION_DOWN ||
-                   keyEvent.getAction() == KeyEvent.KEYCODE_ENTER){
+                if (i == EditorInfo.IME_ACTION_SEARCH ||
+                        i == EditorInfo.IME_ACTION_DONE ||
+                        keyEvent.getAction() == KeyEvent.ACTION_DOWN ||
+                        keyEvent.getAction() == KeyEvent.KEYCODE_ENTER) {
                     geoLocate();
                 }
                 return false;
@@ -279,7 +276,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             @Override
             public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
                 priceValueProgress[0] = i;
-                seekbarPriceTextView.setText("Price - PHP" +priceValueProgress[0]);
+                seekbarPriceTextView.setText("Price - PHP" + priceValueProgress[0]);
             }
 
             @Override
@@ -344,13 +341,12 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
      * installed Google Play services and returned to the app.
      */
     // @Override
-
     @Override
     public void onStart() {
         super.onStart();
         //if user is not logged in, go back to login panel
         FirebaseUser currentUser = mAuth.getCurrentUser();
-        if(currentUser == null){
+        if (currentUser == null) {
             proceed();
         }
         //needed to retrieve data from firebase database
@@ -363,8 +359,8 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 properties.clear();
 
                 //fetching data from every child of Property in firebase database
-                if (dataSnapshot.exists()){
-                    for(DataSnapshot propertySnapshot: dataSnapshot.getChildren()){
+                if (dataSnapshot.exists()) {
+                    for (DataSnapshot propertySnapshot : dataSnapshot.getChildren()) {
                         Property property = propertySnapshot.getValue(Property.class);
                         //put fetched data from firebase database to array container
                         properties.add(property);
@@ -374,6 +370,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                     addMarkers();
                 }
             }
+
             @Override
             public void onCancelled(DatabaseError databaseError) {
 
@@ -383,25 +380,25 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     HashMap<Marker, String> resultMap = new HashMap<Marker, String>();
     Marker marker;
+
     //method for adding markers to map
-    private void addMarkers(){
+    private void addMarkers() {
         //if no added property yet
-        if(properties.size()==0){
+        if (properties.size() == 0) {
             Toast.makeText(MapsActivity.this, "No Property Added Yet", Toast.LENGTH_SHORT).show();
 
-        }
-        else {
+        } else {
             mMap.clear();
             createUserMarker();
             //loop to every property saved to firebase database
             //that has been stored to array container
-            for(int x=0; x<properties.size(); x++){
+            for (int x = 0; x < properties.size(); x++) {
                 Double lat = 0.0, longT = 0.0;
                 //get latitude and longitude value from firebase database
                 //that has been stored to array container
-                String longS = properties.get(x).longitude, latS=properties.get(x).latitude;
+                String longS = properties.get(x).longitude, latS = properties.get(x).latitude;
 
-                if(longS !=null && latS!=null){
+                if (longS != null && latS != null) {
                     lat = Double.valueOf(latS);
                     longT = Double.valueOf(longS);
                 }
@@ -412,13 +409,11 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
                 BitmapDescriptor markerIcon = null;
 
-                if(owner!= null && owner.equals(currentId)){
+                if (owner != null && owner.equals(currentId)) {
                     markerIcon = BitmapDescriptorFactory.fromResource(blue_marker);
-                }
-                else if(avail != null && avail.equals("Available")){
+                } else if (avail != null && avail.equals("Available")) {
                     markerIcon = BitmapDescriptorFactory.fromResource(available);
-                }
-                else if(avail != null && avail.equals("Not Available")){
+                } else if (avail != null && avail.equals("Not Available")) {
                     markerIcon = BitmapDescriptorFactory.fromResource(red_marker);
                 }
 //
@@ -427,10 +422,10 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 //create marker
                 LatLng markerPos = new LatLng(lat, longT);
                 marker = mMap.addMarker(new MarkerOptions()
-                                                .position(markerPos)
-                                                .title(properties.get(x).propertyName)
-                                                .snippet("Price: " + properties.get(x).price + " Php\n" )
-                                                .icon(markerIcon));
+                        .position(markerPos)
+                        .title(properties.get(x).propertyName)
+                        .snippet("Price: " + properties.get(x).price + " Php\n")
+                        .icon(markerIcon));
                 //getting property ID
                 resultMap.put(marker, properties.get(x).propertyID);
                 mMap.getUiSettings().setMapToolbarEnabled(false);
@@ -468,7 +463,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         });
 
         //if a marker is pressed
-        mMap.setOnInfoWindowClickListener(new GoogleMap.OnInfoWindowClickListener(){
+        mMap.setOnInfoWindowClickListener(new GoogleMap.OnInfoWindowClickListener() {
 
             @Override
             public void onInfoWindowClick(Marker marker) {
@@ -476,22 +471,35 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 CameraUpdate update = CameraUpdateFactory.newLatLngZoom(markerll, 17);
                 mMap.animateCamera(update);
 
-                showPropertyInfoDialog(resultMap.get(marker));
+                if (marker == userMarker) {
+                    showPropertyInfoDialog(null);
+                } else {
+                    showPropertyInfoDialog(resultMap.get(marker));
+                }
+
                 //Toast.makeText(MapsActivity.this, ""+resultMap.get(marker), Toast.LENGTH_SHORT).show();
             }
         });
 
         mMap.getUiSettings().setMapToolbarEnabled(false);
+
+        mMap.isMyLocationEnabled();
     }
 
     //method for zooming to user location
     private void setToUserLocation() {
+
         mGoogleApiClient = new GoogleApiClient.Builder(MapsActivity.this)
                 .addApi(LocationServices.API)
                 .addConnectionCallbacks(MapsActivity.this)
                 .addOnConnectionFailedListener(MapsActivity.this)
                 .build();
         mGoogleApiClient.connect();
+
+        LocationRequest locationRequest = LocationRequest.create();
+        LocationSettingsRequest.Builder builder = new LocationSettingsRequest.Builder().addLocationRequest(locationRequest);
+
+        builder.setAlwaysShow(true);
 
         userLocation = true;
     }
@@ -503,100 +511,25 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         mMap.animateCamera(update);
     }
 
-
-    LocationRequest mLocationRequest;
-    private Boolean requestPermissionGranted = false;
-
-    @Override
-    public void onConnected(@Nullable Bundle bundle) {
-        mLocationRequest = LocationRequest.create();
-        mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
-        // mLocationRequest.setInterval(1000); - can be used when tracking the house
-
-        if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            // TODO: Consider calling
-            requestPermissionGranted =  true;
-
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                //requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION}, 1234 );
-            }else{
-                requestPermissionGranted = true;
-            }
-        }else{
-            ActivityCompat.requestPermissions( this, new String[]
-                            {android.Manifest.permission.ACCESS_FINE_LOCATION, android.Manifest.permission.ACCESS_COARSE_LOCATION}, 1234);
-        }
-        LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, mLocationRequest, this);
-    }
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-            requestPermissionGranted = false;
-
-            switch(requestCode){
-                case 1234:{
-                    if (grantResults.length > 0){
-                        for(int i = 0; i< grantResults.length; i++){
-                            if(grantResults[i] != PackageManager.PERMISSION_GRANTED){
-                                requestPermissionGranted = false;
-                                return;
-                            }
-                        }
-                        requestPermissionGranted = true;
-                    }
-                }
-            }
-    }
-
-    @Override
-    public void onConnectionSuspended(int i) {}
-
-    @Override
-    public void onConnectionFailed(@NonNull ConnectionResult connectionResult){}
-
-    @Override
-    public void onLocationChanged(Location location) {
-        double lat = location.getLatitude();
-        double lng = location.getLongitude();
-
-        if (location == null) {
-            // doesn't work if gps is unabled
-            Toast.makeText(this, "Can't get current location", Toast.LENGTH_SHORT).show();
-        }else{
-            LatLng ll = new LatLng(lat, lng);
-            CameraUpdate update = CameraUpdateFactory.newLatLngZoom(ll, 17);
-            mMap.animateCamera(update);
-            Geocoder geocoder = new Geocoder(this, Locale.getDefault());
-            List<Address> addresses  = null;
-            try {
-                addresses = geocoder.getFromLocation(lat,lng, 1);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-
-
-            if(userLocation){
-               userPosition = new LatLng(lat, lng);
-               createUserMarker();
-            }
-        }
-    }
-
     private void createUserMarker(){
 
-        if(userMarker != null){
+        if(userMarker != null) {
             userMarker.remove();
-
+        }if(userPosition!=null) {
             userMarker = mMap.addMarker(new MarkerOptions()
                     .position(userPosition)
                     .title("You Are Here")
                     .icon(BitmapDescriptorFactory.fromResource(man))
-                    .zIndex(5));
-
+                    .zIndex(5)
+                    );
+            //userMarker.showInfoWindow();
+            userMarker.hideInfoWindow();
             userLocation = false;
+
         }
     }
+
+
 
     /*
     *  PROPERTY INFO DIALOG
@@ -912,6 +845,112 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         }
     }
+
+
+
+
+    LocationRequest mLocationRequest;
+    private Boolean requestPermissionGranted = false;
+
+    @Override
+    public void onConnected(@Nullable Bundle bundle) {
+        mLocationRequest = LocationRequest.create();
+        mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+        // mLocationRequest.setInterval(1000); - can be used when tracking the house
+
+        if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            // TODO: Consider calling
+            requestPermissionGranted =  true;
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                //requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION}, 1234 );
+            }else{
+                requestPermissionGranted = true;
+            }
+        }else{
+            ActivityCompat.requestPermissions( this, new String[]
+                    {android.Manifest.permission.ACCESS_FINE_LOCATION, android.Manifest.permission.ACCESS_COARSE_LOCATION}, 1234);
+        }
+        LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, mLocationRequest, this);
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        requestPermissionGranted = false;
+
+        switch(requestCode){
+            case 1234:{
+                if (grantResults.length > 0){
+                    for(int i = 0; i< grantResults.length; i++){
+                        if(grantResults[i] != PackageManager.PERMISSION_GRANTED){
+                            requestPermissionGranted = false;
+                            return;
+                        }
+                    }
+                    requestPermissionGranted = true;
+                }
+            }
+        }
+    }
+
+    @Override
+    public void onConnectionSuspended(int i) {}
+
+    @Override
+    public void onConnectionFailed(@NonNull ConnectionResult connectionResult){}
+
+    @Override
+    public void onLocationChanged(Location location) {
+        double lat = location.getLatitude();
+        double lng = location.getLongitude();
+
+        if (location == null) {
+            // doesn't work if gps is unabled
+            Toast.makeText(this, "Can't get current location", Toast.LENGTH_SHORT).show();
+        }else{
+            LatLng ll = new LatLng(lat, lng);
+            CameraUpdate update = CameraUpdateFactory.newLatLngZoom(ll, 17);
+            mMap.animateCamera(update);
+            Geocoder geocoder = new Geocoder(this, Locale.getDefault());
+            List<Address> addresses  = null;
+            try {
+                addresses = geocoder.getFromLocation(lat,lng, 1);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+
+            if(userLocation){
+                userPosition = new LatLng(lat, lng);
+
+                createUserMarker();
+            }
+        }
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

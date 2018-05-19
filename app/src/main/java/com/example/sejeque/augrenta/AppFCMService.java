@@ -54,6 +54,17 @@ public class AppFCMService extends FirebaseMessagingService {
             intent.putExtra("propertyId", property_id);
             intent.putExtra("ownerId", owner_id);
             showNotificationBuilder();
+
+        }else if(response_user.equals("isHere")){
+            intent = new Intent(this, Main2Activity.class);
+            intent.putExtra("propertyId", property_id);
+            intent.putExtra("ownerId", owner_id);
+            showNotificationBuilder();
+
+        }else if (response_user.equals("rate")){
+            intent = new Intent(this, Main2Activity.class);
+            intent.putExtra("propertyId", property_id);
+            showNotificationBuilder();
         }
 
 

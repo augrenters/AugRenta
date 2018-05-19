@@ -11,6 +11,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.bumptech.glide.Glide;
 import com.facebook.CallbackManager;
 import com.facebook.login.LoginManager;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -115,7 +116,11 @@ public class UserPanelActivity extends AppCompatActivity {
 
         nameHandler.setText(name);
         emailHandler.setText(email);
-        Picasso.get().load(photoUrl).into(user_image);
+        //Picasso.get().load(photoUrl).into(user_image);
+
+        Glide.with(getApplicationContext())
+                .load(photoUrl)
+                .into(user_image);
     }
 
 }
