@@ -67,7 +67,7 @@ public class RateActivity extends AppCompatActivity{
                             Toast.makeText(RateActivity.this, "Rating successfully submitted", Toast.LENGTH_SHORT).show();
                             Log.d("Rating", "Rating successfully submitted");
 
-                            Intent rateIntent = new Intent(RateActivity.this, MainActivity.class);
+                            Intent rateIntent = new Intent(RateActivity.this, Main2Activity.class);
                             rateIntent.putExtra("propertyId", propertyId);
                             startActivity(rateIntent);
                         }
@@ -79,7 +79,7 @@ public class RateActivity extends AppCompatActivity{
         builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
-                Intent rateIntent = new Intent(RateActivity.this, MainActivity.class);
+                Intent rateIntent = new Intent(RateActivity.this, Main2Activity.class);
                 rateIntent.putExtra("propertyId", propertyId);
                 startActivity(rateIntent);
             }
