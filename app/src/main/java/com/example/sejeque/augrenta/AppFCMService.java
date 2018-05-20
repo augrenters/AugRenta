@@ -42,6 +42,7 @@ public class AppFCMService extends FirebaseMessagingService {
 
         String property_id = remoteMessage.getData().get("property");
         String owner_id = remoteMessage.getData().get("from_userID");
+        String senderId = remoteMessage.getData().get("receiver_id");
 
         if (response_user !=null && response_user.equals("request")){
             intent = new Intent(this, SeekerRequestsActivity.class);
@@ -68,6 +69,7 @@ public class AppFCMService extends FirebaseMessagingService {
             intent = new Intent(this, LocationAccess.class);
             intent.putExtra("propertyId", property_id);
             intent.putExtra("ownerId", owner_id);
+            intent.putExtra("senderId", senderId);
             showNotificationBuilder();
 
         }else if (response_user.equals("rate")){

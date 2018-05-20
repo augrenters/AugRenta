@@ -27,7 +27,7 @@ import com.google.firebase.database.FirebaseDatabase;
 
 public class RateActivity extends AppCompatActivity{
 
-    private DatabaseReference ratingDatabse;
+    private DatabaseReference ratingDatabse, ratingTimer;
     private FirebaseAuth mAuth;
     private FirebaseUser currentUser;
 
@@ -37,6 +37,7 @@ public class RateActivity extends AppCompatActivity{
 
 
         ratingDatabse = FirebaseDatabase.getInstance().getReference().child("Ratings");
+        ratingTimer = FirebaseDatabase.getInstance().getReference("RatingTimer");
         mAuth = FirebaseAuth.getInstance();
         currentUser = mAuth.getCurrentUser();
 
@@ -67,9 +68,17 @@ public class RateActivity extends AppCompatActivity{
                             Toast.makeText(RateActivity.this, "Rating successfully submitted", Toast.LENGTH_SHORT).show();
                             Log.d("Rating", "Rating successfully submitted");
 
-                            Intent rateIntent = new Intent(RateActivity.this, Main2Activity.class);
-                            rateIntent.putExtra("propertyId", propertyId);
-                            startActivity(rateIntent);
+                            ratingTimer.child(user_id).child(propertyId).removeValue().addOnCompleteListener(new OnCompleteListener<Void>() {
+                                @Override
+                                public void onComplete(@NonNull Task<Void> task) {
+                                    if (task.isSuccessful()){
+                                        Intent rateIntent = new Intent(RateActivity.this, Main2Activity.class);
+                                        rateIntent.putExtra("propertyId", propertyId);
+                                        startActivity(rateIntent);
+                                    }
+                                }
+                            });
+
                         }
                     }
                 });

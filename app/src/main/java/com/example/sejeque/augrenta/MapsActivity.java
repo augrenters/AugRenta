@@ -1,5 +1,7 @@
 package com.example.sejeque.augrenta;
 
+import android.*;
+import android.Manifest;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Fragment;
@@ -119,6 +121,7 @@ import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -144,6 +147,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     private DatabaseReference statusDatabase;
     private DatabaseReference mDatabase;
     private DatabaseReference locationDatabase;
+    private DatabaseReference ratingTimer;
     private DatabaseReference mUser;
 
     private TextView userNameHandler, emailHandler;
@@ -194,6 +198,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         //get reference for firebase database with child node Property
         mDatabase = FirebaseDatabase.getInstance().getReference("Property");
         locationDatabase = FirebaseDatabase.getInstance().getReference("Location");
+        ratingTimer = FirebaseDatabase.getInstance().getReference("RatingTimer");
         statusDatabase = FirebaseDatabase.getInstance().getReference("UserStatus");
         notificationRef = FirebaseDatabase.getInstance().getReference("Notifications");
         notificationRef.keepSynced(true);
@@ -354,13 +359,54 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
 
     private void checkUserStatus(){
-        locationDatabase.child(propertyId).addValueEventListener(new ValueEventListener() {
+        final int currentTime = (Calendar.getInstance().getTime().getHours() * 60) + Calendar.getInstance().getTime().getMinutes();
+
+        ratingTimer.child(currentUser.getUid()).addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                for(DataSnapshot ds : dataSnapshot.getChildren()){
-                    if(dataSnapshot.getValue().toString().equals("true")){
-                        startTimer();
+                if(dataSnapshot.exists()){
+
+                    for(DataSnapshot ds : dataSnapshot.getChildren()){
+                        RatingTimerC ratingTimerC = ds.getValue(RatingTimerC.class);
+                        //Toast.makeText(MapsActivity.this, "", Toast.LENGTH_SHORT).show();
+
+                        if(ratingTimerC!=null){
+                            int timestamp = 0;
+                            try{
+                                timestamp = Integer.parseInt(ratingTimerC.dateTime);
+                            }catch (NumberFormatException nfe){
+
+                            }
+//
+                            if(ratingTimerC.rate.equals("false")){
+                                if((currentTime-timestamp) > 5){
+                                    HashMap<String, String> notificationData = new HashMap<>();
+
+                                    notificationData.put("fromName", currentUser.getDisplayName());
+                                    notificationData.put("fromID", currentUser.getUid());
+                                    notificationData.put("type", "receiver");
+                                    notificationData.put("response", "rate");
+                                    notificationData.put("propertyId", ds.getKey());
+
+                                    notificationRef.child(currentUser.getUid()).push().setValue(notificationData).addOnCompleteListener(new OnCompleteListener<Void>() {
+                                        @Override
+                                        public void onComplete(@NonNull Task<Void> task) {
+                                            {
+                                                if (task.isSuccessful()) {
+                                                    Log.d("House Seeker", "is here");
+                                                }
+                                            }
+                                        }
+                                    });
+                                }
+                            }
+
+                        }
+
+//
                     }
+
+
                 }
             }
 
@@ -369,6 +415,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
             }
         });
+
     }
 
     private void startTimer(){
@@ -376,24 +423,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         handler.postDelayed(new Runnable() {
             @Override
             public void run() {
-                HashMap<String, String> notificationData = new HashMap<>();
 
-                notificationData.put("fromName", currentUser.getDisplayName());
-                notificationData.put("fromID", currentUser.getUid());
-                notificationData.put("type", "receiver");
-                notificationData.put("response", "rate");
-                notificationData.put("propertyId", propertyId);
-
-                notificationRef.child(currentUser.getUid()).push().setValue(notificationData).addOnCompleteListener(new OnCompleteListener<Void>() {
-                    @Override
-                    public void onComplete(@NonNull Task<Void> task) {
-                        {
-                            if (task.isSuccessful()) {
-                                Log.d("House Seeker", "is here");
-                            }
-                        }
-                    }
-                });
             }
         }, 30000);
     }
@@ -408,7 +438,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
      * installed Google Play services and returned to the app.
      */
     // @Override
-
     @Override
     public void onStart() {
         super.onStart();
@@ -438,17 +467,18 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                     addMarkers();
                 }
             }
+
             @Override
             public void onCancelled(DatabaseError databaseError) {
 
             }
         });
-
-//        checkUserStatus();
+        checkUserStatus();
     }
 
     HashMap<Marker, String> resultMap = new HashMap<Marker, String>();
     Marker marker;
+
     //method for adding markers to map
     private void addMarkers() {
         //if no added property yet
@@ -487,7 +517,9 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 //
 //                BitmapDescriptor markerYellowImg = BitmapDescriptorFactory.fromResource(yellow_marker);
 
-                //create marker
+
+
+
                 LatLng markerPos = new LatLng(lat, longT);
                 marker = mMap.addMarker(new MarkerOptions()
                         .position(markerPos)
@@ -507,6 +539,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         mMap = googleMap;
 
         //when map is ready, zoom camera to user location
+
         setToUserLocation();
 
         FloatingActionButton default_zoom = findViewById(R.id.default_zoom);
@@ -555,6 +588,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     //method for zooming to user location
     private void setToUserLocation() {
+
         mGoogleApiClient = new GoogleApiClient.Builder(MapsActivity.this)
                 .addApi(LocationServices.API)
                 .addConnectionCallbacks(MapsActivity.this)
@@ -626,6 +660,8 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         }
             isUserLocation = false;
     }
+
+
 
     /*
     *  PROPERTY INFO DIALOG
@@ -856,21 +892,21 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                     //Toast.makeText(MapsActivity.this, "Showing All Properties", Toast.LENGTH_SHORT).show();
                     addMarkers();
                 }else {
-                   // Toast.makeText(MapsActivity.this, "Removing " + filterShowProp + " Properties", Toast.LENGTH_SHORT).show();
+                    //Toast.makeText(MapsActivity.this, "Removing " + filterShowProp + " Properties", Toast.LENGTH_SHORT).show();
                     //filter for availability
                     for(int x = 0; x < filteredProperties.size(); x++){
                         if(!filteredProperties.get(x).availability.equals(filterShowProp)){
-                           // Toast.makeText(MapsActivity.this, "Removing " + filteredProperties.get(x).propertyName, Toast.LENGTH_SHORT).show();
+                            //Toast.makeText(MapsActivity.this, "Removing " + filteredProperties.get(x).propertyName, Toast.LENGTH_SHORT).show();
                             filteredProperties.remove(x);
                             x-=1;
                         }
 
                         //filter for price
                         if(priceValueProgress[0] != 0){
-                          //  Toast.makeText(MapsActivity.this, "Removing Properties With Price Higher Than" + priceValueProgress[0], Toast.LENGTH_SHORT).show();
+                            //Toast.makeText(MapsActivity.this, "Removing Properties With Price Higher Than" + priceValueProgress[0], Toast.LENGTH_SHORT).show();
                             for(int y = 0; y < filteredProperties.size(); y++){
                                 if(Integer.valueOf(filteredProperties.get(y).price) > priceValueProgress[0]){
-                               //     Toast.makeText(MapsActivity.this, "Removing " + filteredProperties.get(y).propertyName, Toast.LENGTH_SHORT).show();
+                                    //oast.makeText(MapsActivity.this, "Removing " + filteredProperties.get(y).propertyName, Toast.LENGTH_SHORT).show();
                                     filteredProperties.remove(y);
                                     y-=1;
                                 }
@@ -971,6 +1007,56 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
 
 
+//    LocationRequest mLocationRequest;
+//    private Boolean requestPermissionGranted = false;
+//
+//    @Override
+//    public void onConnected(@Nullable Bundle bundle) {
+//        mLocationRequest = LocationRequest.create();
+//        mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+//        // mLocationRequest.setInterval(1000); - can be used when tracking the house
+//
+//        if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+//            // TODO: Consider calling
+//            requestPermissionGranted =  true;
+//
+//            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+//                //requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION}, 1234 );
+//            }else{
+//                requestPermissionGranted = true;
+//            }
+//        }else{
+//            ActivityCompat.requestPermissions( this, new String[]
+//                    {android.Manifest.permission.ACCESS_FINE_LOCATION, android.Manifest.permission.ACCESS_COARSE_LOCATION}, 1234);
+//        }
+//        LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, mLocationRequest, this);
+//    }
+//
+//    @Override
+//    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+//        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+//        requestPermissionGranted = false;
+//
+//        switch(requestCode){
+//            case 1234:{
+//                if (grantResults.length > 0){
+//                    for(int i = 0; i< grantResults.length; i++){
+//                        if(grantResults[i] != PackageManager.PERMISSION_GRANTED){
+//                            requestPermissionGranted = false;
+//                            return;
+//                        }
+//                    }
+//                    requestPermissionGranted = true;
+//                }
+//            }
+//        }
+//    }
+//
+//    @Override
+//    public void onConnectionSuspended(int i) {}
+//
+//    @Override
+//    public void onConnectionFailed(@NonNull ConnectionResult connectionResult){}
 
 
     /*
@@ -1104,6 +1190,8 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     }
 
+
+
     private void getMyLocation(){
         if(googleApiClient!=null) {
             if (googleApiClient.isConnected()) {
@@ -1190,11 +1278,39 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     }
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     /*
-    *  UTILITES
-    *
+    *  SIDE NAVBAR METHODS
+    *  ONCLICK EVENTS OF ITEMS ON SIDENAVBAR
     *
     */
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        //checkPermissions();
+    }
 
     //method for going back to login panel
     private void proceed() {
@@ -1213,6 +1329,8 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         super.onPostCreate(savedInstanceState);
         actionBarDrawerToggle.syncState();
     }
+
+
     // show filter item
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {

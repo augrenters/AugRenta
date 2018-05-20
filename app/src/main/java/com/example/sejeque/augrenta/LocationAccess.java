@@ -16,17 +16,21 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
+import java.util.Calendar;
+import java.util.Date;
+import java.util.HashMap;
+
 /**
  * Created by SejeQue on 5/19/2018.
  */
 
 public class LocationAccess extends AppCompatActivity {
 
-    private DatabaseReference mDatabase;
+    private DatabaseReference mDatabase, rateDatabase;
     private FirebaseAuth mAuth;
     private FirebaseUser currentUser;
 
-    String propertyId;
+    String propertyId, ownerId;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -36,9 +40,10 @@ public class LocationAccess extends AppCompatActivity {
         currentUser = mAuth.getCurrentUser();
 
         propertyId = getIntent().getExtras().getString("propertyId");
+        ownerId = getIntent().getExtras().getString("ownerId");
 
         mDatabase = FirebaseDatabase.getInstance().getReference("Location");
-
+        rateDatabase = FirebaseDatabase.getInstance().getReference("RatingTimer");
 
         AlertDialog levelDialog;
 
@@ -51,14 +56,31 @@ public class LocationAccess extends AppCompatActivity {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
                 //DO YOUR CODE HERE IF PROPERTY OWNER ACCEPTS
-                mDatabase.child(propertyId).child(currentUser.getUid()).child("accepted").setValue("true")
+                mDatabase.child(ownerId).child(currentUser.getUid()).child("accepted").setValue("true")
                         .addOnCompleteListener(new OnCompleteListener<Void>() {
                             @Override
                             public void onComplete(@NonNull Task<Void> task) {
                                 if (task.isSuccessful()){
-                                    Toast.makeText(LocationAccess.this, "You accepted to view your Location", Toast.LENGTH_SHORT).show();
-                                    Intent newIntent = new Intent(LocationAccess.this, userTrackingActivity.class);
-                                    startActivity(newIntent);
+
+
+                                    HashMap<String, String> notificationData = new HashMap<>();
+
+                                    notificationData.put("rate", "false");
+
+                                    int timestamp = (Calendar.getInstance().getTime().getHours() * 60) + Calendar.getInstance().getTime().getMinutes();
+
+                                    notificationData.put("DateTime", String.valueOf(timestamp));
+
+                                    rateDatabase.child(ownerId).child(propertyId).setValue(notificationData).addOnCompleteListener(new OnCompleteListener<Void>() {
+                                        @Override
+                                        public void onComplete(@NonNull Task<Void> task) {
+                                            if (task.isSuccessful()){
+                                                Toast.makeText(LocationAccess.this, "You accepted to view your Location", Toast.LENGTH_SHORT).show();
+                                                Intent newIntent = new Intent(LocationAccess.this, userTrackingActivity.class);
+                                                startActivity(newIntent);
+                                            }
+                                        }
+                                    });
                                 }
                             }
                         });
