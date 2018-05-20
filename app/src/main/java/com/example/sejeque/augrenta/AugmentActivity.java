@@ -63,7 +63,10 @@ public class AugmentActivity extends AppCompatActivity implements OnMapReadyCall
     GoogleApiClient mGoogleApiClient;
     String propertyId;
     private DatabaseReference mDatabase;
+    private DatabaseReference statusDatabase;
     private DatabaseReference notificationRef;
+    private DatabaseReference userTrackingDB;
+    private DatabaseReference locationDB;
     Double propertyLat;
     Double propertyLng;
     Double countChange = 0.0;
@@ -92,6 +95,11 @@ public class AugmentActivity extends AppCompatActivity implements OnMapReadyCall
 
     String ownerId;
 
+    String userStatus;
+    private boolean isUserTracking = false;
+
+    String acceptedStatus = "false";
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -111,7 +119,10 @@ public class AugmentActivity extends AppCompatActivity implements OnMapReadyCall
         propertyId = getIntent().getExtras().getString("propertyId");
 
         //get reference from firebase database with child node Property
+        statusDatabase = FirebaseDatabase.getInstance().getReference("UserStatus");
         mDatabase = FirebaseDatabase.getInstance().getReference("Property");
+        userTrackingDB = FirebaseDatabase.getInstance().getReference("UserTracking");
+        locationDB = FirebaseDatabase.getInstance().getReference("Location");
         notificationRef = FirebaseDatabase.getInstance().getReference("Notifications");
         notificationRef.keepSynced(true);
 
@@ -192,6 +203,23 @@ public class AugmentActivity extends AppCompatActivity implements OnMapReadyCall
             }
         });
 
+
+        if(propertyId != null && ownerId != null){
+            locationDB.child(propertyId).child(ownerId).child("accepted").addValueEventListener(new ValueEventListener() {
+                @Override
+                public void onDataChange(DataSnapshot dataSnapshot) {
+                    if(dataSnapshot.exists()){
+                        acceptedStatus = dataSnapshot.getValue().toString();
+                        architectView.callJavascript("loadAcceptedValueFromJava("+ acceptedStatus +");");
+                    }
+                }
+
+                @Override
+                public void onCancelled(DatabaseError databaseError) {
+
+                }
+            });
+        }
     }
 
     @Override
@@ -227,12 +255,15 @@ public class AugmentActivity extends AppCompatActivity implements OnMapReadyCall
 
     }
 
+    double lat;
+    double lng;
+
     @Override
     public void onLocationChanged(Location location) {
         countChange += 1;
 
-        double lat = location.getLatitude();
-        double lng = location.getLongitude();
+        lat = location.getLatitude();
+        lng = location.getLongitude();
         double alti = location.getAltitude();
 
         if (architectView != null) {
@@ -250,6 +281,10 @@ public class AugmentActivity extends AppCompatActivity implements OnMapReadyCall
             Toast.makeText(this, "Can't get current location", Toast.LENGTH_SHORT).show();
         }
         else{
+            if(isUserTracking){
+                UserTracking userTracking = new UserTracking(currentUser.getUid(), currentUser.getDisplayName(), String.valueOf(lat), String.valueOf(lng));
+                userTrackingDB.child(ownerId).setValue(userTracking);
+            }
             architectView.callJavascript("loadValuesFromJava(" + alti + "," + lat + "," + lng + "," + propertyLat + "," + propertyLng + "," + countChange + ");");
         }
     }
@@ -391,11 +426,7 @@ public class AugmentActivity extends AppCompatActivity implements OnMapReadyCall
     @Override
     public void onJSONObjectReceived(JSONObject jsonObject) {
         try {
-//            String isUserNear = jsonObject.getBoolean("isUserNear");
-
-//            Toast.makeText(AugmentActivity.this, isUserNear, Toast.LENGTH_SHORT).show();
-//            Log.d("House Seeker", "is near");
-            if(jsonObject.getBoolean("isUserNear")){
+            if(jsonObject.getString("status").equals("near")){
                 HashMap<String, String> notificationData = new HashMap<>();
 
                 notificationData.put("fromName", currentUser.getDisplayName());
@@ -414,6 +445,14 @@ public class AugmentActivity extends AppCompatActivity implements OnMapReadyCall
                         }
                     }
                 });
+
+                isUserTracking = true;
+            }
+            if(jsonObject.getString("userLocation").equals("here")){
+                UserStatus userStatus = new UserStatus("here", currentUser.getUid(), propertyId, ownerId);
+                statusDatabase.child(currentUser.getUid()).setValue(userStatus);
+                isUserTracking = false;
+                userTrackingDB.child(ownerId).removeValue();
             }
         } catch (JSONException e) {
             e.printStackTrace();

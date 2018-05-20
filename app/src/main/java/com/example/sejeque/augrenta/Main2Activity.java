@@ -449,8 +449,9 @@ public class Main2Activity extends AppCompatActivity  {
 
                             if (req != null && !req.isAccepted()) {
                                 if (req.getType().equals("sender")) {
-                                    request_visitBtn.setBackground(getResources().getDrawable(R.drawable.button_placeviewer));
-                                    request_visitBtn.setTextColor(getResources().getColor(R.color.white));
+                                    request_visitBtn.setBackground(getResources().getDrawable(R.drawable.button_actionplaceviewer));
+                                    request_visitBtn.setTextColor(getResources().getColor(R.color.red));
+                                    request_visitBtn.setText("CANCEL REQUEST");
                                     REQUEST_STATE = "sent";
                                 } else {
                                     Log.d("Requests", "You sent this request");
@@ -684,7 +685,7 @@ public class Main2Activity extends AppCompatActivity  {
             @Override
             public void onComplete(@NonNull Task<Void> task) {
                 if(task.isSuccessful()){
-                    Toast.makeText(Main2Activity.this, "Property added to your Favorites", Toast.LENGTH_SHORT).show();
+                    //Toast.makeText(Main2Activity.this, "Property added to your Favorites", Toast.LENGTH_SHORT).show();
                     favoriteBtn.setBackgroundColor(getResources().getColor(R.color.red));
                     favoriteBtn.setText("Favorited");
                     FAVORITE_STATE = "faved";
@@ -698,7 +699,7 @@ public class Main2Activity extends AppCompatActivity  {
             @Override
             public void onComplete(@NonNull Task<Void> task) {
                 if(task.isSuccessful()){
-                    Toast.makeText(Main2Activity.this, "Removed to your Favorites", Toast.LENGTH_SHORT).show();
+                    //Toast.makeText(Main2Activity.this, "Removed to your Favorites", Toast.LENGTH_SHORT).show();
                     favoriteBtn.setBackground(getResources().getDrawable(R.drawable.button_actionplaceviewer));
                     favoriteBtn.setText("Favorite");
                     FAVORITE_STATE = "not faved";

@@ -264,7 +264,7 @@ public class MessengerActivity extends AppCompatActivity {
         propertyListHandler.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                Toast.makeText(MessengerActivity.this, "I am clicked", Toast.LENGTH_SHORT).show();
+                //Toast.makeText(MessengerActivity.this, "I am clicked", Toast.LENGTH_SHORT).show();
                 Intent showInfo = new Intent(MessengerActivity.this , ChatMessage.class);
                 showInfo.putExtra("propertyId", message_user.get(i).get("Property ID"));
                 showInfo.putExtra("ownerId", message_user.get(i).get("SenderId"));

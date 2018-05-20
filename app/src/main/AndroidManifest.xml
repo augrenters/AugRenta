@@ -157,12 +157,17 @@
                 <category android:name="android.intent.category.DEFAULT"> </category>
             </intent-filter>
         </activity>
+
         <activity android:name=".LocationAccess"
             android:label="Allow House seeker to Access Location">
             <intent-filter>
                 <action android:name="com.example.sejeque.augrenta_LOCATION_TARGET_NOTIFICATION"/>
                 <category android:name="android.intent.category.DEFAULT"> </category>
             </intent-filter>
+        </activity>
+
+        <activity android:name=".userTrackingActivity"
+            android:label="User Tracking">
         </activity>
 
         <service

@@ -48,7 +48,6 @@ function retrieveObjects(object){
             meter = object[x].distance;
             augmentedStepMarkers.init(object[x].latitude, object[x].longitude);
         }
-        alert("Existing Objects Already Retrieved");
     }
     initCount += 1;
 }

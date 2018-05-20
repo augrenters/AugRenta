@@ -45,7 +45,7 @@ public class AppFCMService extends FirebaseMessagingService {
 
         if (response_user !=null && response_user.equals("request")){
             intent = new Intent(this, SeekerRequestsActivity.class);
-
+            showNotificationBuilder();
         }
 
         else if(response_user !=null && response_user.equals("accept")){
@@ -56,6 +56,7 @@ public class AppFCMService extends FirebaseMessagingService {
 
         }else if (response_user.equals("declined")){
             intent = new Intent(this, MapsActivity.class);
+            showNotificationBuilder();
         }
         else if (response_user.equals("message")){
             intent = new Intent(this, ChatMessage.class);

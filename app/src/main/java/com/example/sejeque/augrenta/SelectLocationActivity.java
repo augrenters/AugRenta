@@ -122,12 +122,10 @@ public class SelectLocationActivity extends AppCompatActivity implements OnMapRe
             bundle.putString("property name", oldBundle.getString("property name"));
             bundle.putString("property price", oldBundle.getString("property price"));
             bundle.putString("property description", oldBundle.getString("property description"));
-            bundle.putString("property type", oldBundle.getString("property type"));
             bundle.putString("property area", oldBundle.getString("property area"));
             bundle.putString("property rooms", oldBundle.getString("property rooms"));
             bundle.putString("property bathrooms", oldBundle.getString("property bathrooms"));
-            bundle.putString("property pets", oldBundle.getString("property pets"));
-
+            bundle.putString("property distance", oldBundle.getString("property distance"));
 
             //put bundle to intent
             //then starts AddPropertyActivity

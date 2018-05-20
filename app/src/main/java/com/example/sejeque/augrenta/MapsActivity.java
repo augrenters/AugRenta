@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Fragment;
 import android.content.AsyncQueryHandler;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentSender;
@@ -21,6 +22,7 @@ import android.nfc.Tag;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
@@ -127,7 +129,6 @@ import static com.example.sejeque.augrenta.R.mipmap.man;
 import static com.example.sejeque.augrenta.R.mipmap.red_marker;
 import static com.example.sejeque.augrenta.R.mipmap.yellow_marker;
 import static com.google.firebase.auth.FirebaseAuth.*;
-
 public class MapsActivity extends AppCompatActivity implements OnMapReadyCallback, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, LocationListener {
 
     private GoogleMap mMap;
@@ -140,7 +141,9 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     private FirebaseAuth mAuth;
     private FirebaseUser currentUser;
+    private DatabaseReference statusDatabase;
     private DatabaseReference mDatabase;
+    private DatabaseReference locationDatabase;
     private DatabaseReference mUser;
 
     private TextView userNameHandler, emailHandler;
@@ -170,10 +173,14 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     private boolean isDown = false;
     private Marker userMarker;
-    private boolean userLocation;
+    private boolean isUserLocation;
     private LatLng userPosition;
 
+    String propertyId;
+    private DatabaseReference notificationRef;
     Double userLocation_lat, userLocation_long;
+
+    String owner;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -186,6 +193,10 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         currentUser = mAuth.getCurrentUser();
         //get reference for firebase database with child node Property
         mDatabase = FirebaseDatabase.getInstance().getReference("Property");
+        locationDatabase = FirebaseDatabase.getInstance().getReference("Location");
+        statusDatabase = FirebaseDatabase.getInstance().getReference("UserStatus");
+        notificationRef = FirebaseDatabase.getInstance().getReference("Notifications");
+        notificationRef.keepSynced(true);
         mUser = FirebaseDatabase.getInstance().getReference("User");
 
         //instantiate array container for fetched data from firebase database
@@ -199,7 +210,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
-
 
         NavigationView sideNavBar = findViewById(R.id.sideNav);
         //get reference for header in navigation view
@@ -339,8 +349,53 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         etRooms = findViewById(R.id.etFilterRoom);
         etbathroom = findViewById(R.id.etFilterCr);
 
-        //ask permission to turn on GPS
         setUpGClient();
+    }
+
+
+    private void checkUserStatus(){
+        locationDatabase.child(propertyId).addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                for(DataSnapshot ds : dataSnapshot.getChildren()){
+                    if(dataSnapshot.getValue().toString().equals("true")){
+                        startTimer();
+                    }
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+    }
+
+    private void startTimer(){
+        final Handler handler = new Handler();
+        handler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                HashMap<String, String> notificationData = new HashMap<>();
+
+                notificationData.put("fromName", currentUser.getDisplayName());
+                notificationData.put("fromID", currentUser.getUid());
+                notificationData.put("type", "receiver");
+                notificationData.put("response", "rate");
+                notificationData.put("propertyId", propertyId);
+
+                notificationRef.child(currentUser.getUid()).push().setValue(notificationData).addOnCompleteListener(new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Void> task) {
+                        {
+                            if (task.isSuccessful()) {
+                                Log.d("House Seeker", "is here");
+                            }
+                        }
+                    }
+                });
+            }
+        }, 30000);
     }
 
     /**
@@ -353,6 +408,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
      * installed Google Play services and returned to the app.
      */
     // @Override
+
     @Override
     public void onStart() {
         super.onStart();
@@ -382,17 +438,17 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                     addMarkers();
                 }
             }
-
             @Override
             public void onCancelled(DatabaseError databaseError) {
 
             }
         });
+
+//        checkUserStatus();
     }
 
     HashMap<Marker, String> resultMap = new HashMap<Marker, String>();
     Marker marker;
-
     //method for adding markers to map
     private void addMarkers() {
         //if no added property yet
@@ -416,7 +472,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 }
 
                 String avail = properties.get(x).availability;
-                String owner = properties.get(x).owner;
+                owner = properties.get(x).owner;
                 String currentId = currentUser.getUid();
 
                 BitmapDescriptor markerIcon = null;
@@ -431,9 +487,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 //
 //                BitmapDescriptor markerYellowImg = BitmapDescriptorFactory.fromResource(yellow_marker);
 
-
-
-
+                //create marker
                 LatLng markerPos = new LatLng(lat, longT);
                 marker = mMap.addMarker(new MarkerOptions()
                         .position(markerPos)
@@ -453,7 +507,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         mMap = googleMap;
 
         //when map is ready, zoom camera to user location
-
         setToUserLocation();
 
         FloatingActionButton default_zoom = findViewById(R.id.default_zoom);
@@ -502,7 +555,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     //method for zooming to user location
     private void setToUserLocation() {
-
         mGoogleApiClient = new GoogleApiClient.Builder(MapsActivity.this)
                 .addApi(LocationServices.API)
                 .addConnectionCallbacks(MapsActivity.this)
@@ -514,7 +566,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         LocationSettingsRequest.Builder builder = new LocationSettingsRequest.Builder().addLocationRequest(locationRequest);
         builder.setAlwaysShow(true);
 
-        userLocation = true;
+        isUserLocation = true;
     }
 
     // zoom on map
@@ -524,11 +576,43 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         mMap.animateCamera(update);
     }
 
+
+
+    @Override
+    public void onLocationChanged(Location location) {
+        double lat = location.getLatitude();
+        double lng = location.getLongitude();
+
+        if (location == null) {
+            // doesn't work if gps is unabled
+            Toast.makeText(this, "Can't get current location", Toast.LENGTH_SHORT).show();
+        }else{
+            LatLng ll = new LatLng(lat, lng);
+            CameraUpdate update = CameraUpdateFactory.newLatLngZoom(ll, 17);
+            mMap.animateCamera(update);
+            Geocoder geocoder = new Geocoder(this, Locale.getDefault());
+            List<Address> addresses  = null;
+            try {
+                addresses = geocoder.getFromLocation(lat,lng, 1);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+
+            if(isUserLocation){
+               userPosition = new LatLng(lat, lng);
+               createUserMarker();
+            }
+        }
+    }
+
     private void createUserMarker(){
 
         if(userMarker != null) {
             userMarker.remove();
-        }if(userPosition!=null) {
+        }
+
+        if(userPosition != null){
             userMarker = mMap.addMarker(new MarkerOptions()
                     .position(userPosition)
                     .title("You Are Here")
@@ -537,12 +621,11 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                     );
             //userMarker.showInfoWindow();
             userMarker.hideInfoWindow();
-            userLocation = false;
+            isUserLocation = false;
 
         }
+            isUserLocation = false;
     }
-
-
 
     /*
     *  PROPERTY INFO DIALOG
@@ -770,24 +853,24 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
                 //if show all is chosen
                 if(filterShowProp.equals("Show All")) {
-                    Toast.makeText(MapsActivity.this, "Showing All Properties", Toast.LENGTH_SHORT).show();
+                    //Toast.makeText(MapsActivity.this, "Showing All Properties", Toast.LENGTH_SHORT).show();
                     addMarkers();
                 }else {
-                    Toast.makeText(MapsActivity.this, "Removing " + filterShowProp + " Properties", Toast.LENGTH_SHORT).show();
+                   // Toast.makeText(MapsActivity.this, "Removing " + filterShowProp + " Properties", Toast.LENGTH_SHORT).show();
                     //filter for availability
                     for(int x = 0; x < filteredProperties.size(); x++){
                         if(!filteredProperties.get(x).availability.equals(filterShowProp)){
-                            Toast.makeText(MapsActivity.this, "Removing " + filteredProperties.get(x).propertyName, Toast.LENGTH_SHORT).show();
+                           // Toast.makeText(MapsActivity.this, "Removing " + filteredProperties.get(x).propertyName, Toast.LENGTH_SHORT).show();
                             filteredProperties.remove(x);
                             x-=1;
                         }
 
                         //filter for price
                         if(priceValueProgress[0] != 0){
-                            Toast.makeText(MapsActivity.this, "Removing Properties With Price Higher Than" + priceValueProgress[0], Toast.LENGTH_SHORT).show();
+                          //  Toast.makeText(MapsActivity.this, "Removing Properties With Price Higher Than" + priceValueProgress[0], Toast.LENGTH_SHORT).show();
                             for(int y = 0; y < filteredProperties.size(); y++){
                                 if(Integer.valueOf(filteredProperties.get(y).price) > priceValueProgress[0]){
-                                    Toast.makeText(MapsActivity.this, "Removing " + filteredProperties.get(y).propertyName, Toast.LENGTH_SHORT).show();
+                               //     Toast.makeText(MapsActivity.this, "Removing " + filteredProperties.get(y).propertyName, Toast.LENGTH_SHORT).show();
                                     filteredProperties.remove(y);
                                     y-=1;
                                 }
@@ -888,90 +971,80 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
 
 
-//    LocationRequest mLocationRequest;
-//    private Boolean requestPermissionGranted = false;
-//
-//    @Override
-//    public void onConnected(@Nullable Bundle bundle) {
-//        mLocationRequest = LocationRequest.create();
-//        mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
-//        // mLocationRequest.setInterval(1000); - can be used when tracking the house
-//
-//        if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-//            // TODO: Consider calling
-//            requestPermissionGranted =  true;
-//
-//            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-//                //requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION}, 1234 );
-//            }else{
-//                requestPermissionGranted = true;
-//            }
-//        }else{
-//            ActivityCompat.requestPermissions( this, new String[]
-//                    {android.Manifest.permission.ACCESS_FINE_LOCATION, android.Manifest.permission.ACCESS_COARSE_LOCATION}, 1234);
-//        }
-//        LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, mLocationRequest, this);
-//    }
-//
-//    @Override
-//    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-//        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-//        requestPermissionGranted = false;
-//
-//        switch(requestCode){
-//            case 1234:{
-//                if (grantResults.length > 0){
-//                    for(int i = 0; i< grantResults.length; i++){
-//                        if(grantResults[i] != PackageManager.PERMISSION_GRANTED){
-//                            requestPermissionGranted = false;
-//                            return;
-//                        }
-//                    }
-//                    requestPermissionGranted = true;
-//                }
-//            }
-//        }
-//    }
-//
-//    @Override
-//    public void onConnectionSuspended(int i) {}
-//
-//    @Override
-//    public void onConnectionFailed(@NonNull ConnectionResult connectionResult){}
-
-    @Override
-    public void onLocationChanged(Location location) {
-        double lat = location.getLatitude();
-        double lng = location.getLongitude();
-
-        userLocation_lat = lat;
-        userLocation_long =lng;
 
 
-        if (location == null) {
-            // doesn't work if gps is unabled
-            Toast.makeText(this, "Can't get current location", Toast.LENGTH_SHORT).show();
-        }else{
-            LatLng ll = new LatLng(lat, lng);
-            CameraUpdate update = CameraUpdateFactory.newLatLngZoom(ll, 17);
-            mMap.animateCamera(update);
-            Geocoder geocoder = new Geocoder(this, Locale.getDefault());
-            List<Address> addresses  = null;
-            try {
-                addresses = geocoder.getFromLocation(lat,lng, 1);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+    /*
+    *  SIDE NAVBAR METHODS
+    *  ONCLICK EVENTS OF ITEMS ON SIDENAVBAR
+    *
+    */
 
+    //method for setting texts in header in navigation view
+    private void setCredentialView() {
+        //get user information
+        String name = currentUser.getDisplayName();
+        String email = currentUser.getEmail();
+        Uri photoUrl = currentUser.getPhotoUrl();
+        String userId = currentUser.getUid();
+        String deviceToken = FirebaseInstanceId.getInstance().getToken();
 
-            if(userLocation){
-                userPosition = new LatLng(lat, lng);
+        User user = new User(userId, name, email, deviceToken);
 
-                createUserMarker();
-            }
-        }
+        mUser.child(userId).setValue(user);
+
+        //set text in header in navigation view
+        userNameHandler.setText(name);
+        emailHandler.setText(email);
+
+        //Picasso turns photoUrl to bitmap
+        //then changes the pic in header in navigation view
+        Picasso.get().load(photoUrl).into(imgHandler);
     }
 
+    //method for refreshing MapsActivity
+    private void goToHome() {
+        finish();
+        startActivity(getIntent());
+    }
+
+    //method for starting PropertyActivity
+    private void goToPropertyList() {
+        finish();
+        Intent onPropertyView = new Intent(MapsActivity.this, PropertyActivity.class);
+        startActivity(onPropertyView);
+    }
+
+    private void goToRequests() {
+        finish();
+        Intent onPropertyView = new Intent(MapsActivity.this, SeekerRequestsActivity.class);
+        startActivity(onPropertyView);
+    }
+    private void goToMessages() {
+        finish();
+        Intent onPropertyView = new Intent(MapsActivity.this, MessengerActivity.class);
+        startActivity(onPropertyView);
+    }
+
+    private void  goToProfile(){
+        finish();
+        Intent onPropertyView = new Intent(MapsActivity.this, UserPanelActivity.class);
+        startActivity(onPropertyView);
+    }
+    private void goToFavorite(){
+        finish();
+        Intent onPropertyView = new Intent(MapsActivity.this, FavoritesActivity.class);
+        startActivity(onPropertyView);
+    }
+
+    //method for signing out current user
+    //then going back to login panel
+    private void signOutUser() {
+        mAuth.signOut();
+        LoginManager.getInstance().logOut();
+        Toast.makeText(MapsActivity.this, "You have been logout", Toast.LENGTH_SHORT).show();
+        finishAffinity();
+        proceed();
+    }
 
     private Location mylocation;
     private GoogleApiClient googleApiClient;
@@ -1115,112 +1188,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 break;
         }
     }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    /*
-    *  SIDE NAVBAR METHODS
-    *  ONCLICK EVENTS OF ITEMS ON SIDENAVBAR
-    *
-    */
-
-    //method for setting texts in header in navigation view
-    private void setCredentialView() {
-        //get user information
-        String name = currentUser.getDisplayName();
-        String email = currentUser.getEmail();
-        Uri photoUrl = currentUser.getPhotoUrl();
-        String userId = currentUser.getUid();
-        String deviceToken = FirebaseInstanceId.getInstance().getToken();
-
-        User user = new User(userId, name, email, deviceToken);
-
-        mUser.child(userId).setValue(user);
-
-        //set text in header in navigation view
-        userNameHandler.setText(name);
-        emailHandler.setText(email);
-
-        //Picasso turns photoUrl to bitmap
-        //then changes the pic in header in navigation view
-        Picasso.get().load(photoUrl).into(imgHandler);
-    }
-
-    //method for refreshing MapsActivity
-    private void goToHome() {
-        finish();
-        startActivity(getIntent());
-    }
-
-    //method for starting PropertyActivity
-    private void goToPropertyList() {
-        finish();
-        Intent onPropertyView = new Intent(MapsActivity.this, PropertyActivity.class);
-        startActivity(onPropertyView);
-    }
-
-    private void goToRequests() {
-        finish();
-        Intent onPropertyView = new Intent(MapsActivity.this, SeekerRequestsActivity.class);
-        startActivity(onPropertyView);
-    }
-    private void goToMessages() {
-        finish();
-        Intent onPropertyView = new Intent(MapsActivity.this, MessengerActivity.class);
-        startActivity(onPropertyView);
-    }
-
-    private void  goToProfile(){
-        finish();
-        Intent onPropertyView = new Intent(MapsActivity.this, UserPanelActivity.class);
-        startActivity(onPropertyView);
-    }
-    private void goToFavorite(){
-        finish();
-        Intent onPropertyView = new Intent(MapsActivity.this, FavoritesActivity.class);
-        startActivity(onPropertyView);
-    }
-
-    //method for signing out current user
-    //then going back to login panel
-    private void signOutUser() {
-        mAuth.signOut();
-        LoginManager.getInstance().logOut();
-        Toast.makeText(MapsActivity.this, "You have been logout", Toast.LENGTH_SHORT).show();
-        finishAffinity();
-        proceed();
-    }
-
-//    private void selectFragment(MenuItem item) {
-//        Fragment frag = null;
-//        // init corresponding fragment
-//        switch (item.getItemId()) {
-//            case R.id.navigation_person:
-//                Intent onUserView = new Intent(MapsActivity.this, UserPanelActivity.class);
-//                startActivity(onUserView);
-//        }
-//    }
 
 
     /*

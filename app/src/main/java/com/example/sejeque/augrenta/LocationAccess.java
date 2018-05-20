@@ -57,7 +57,7 @@ public class LocationAccess extends AppCompatActivity {
                             public void onComplete(@NonNull Task<Void> task) {
                                 if (task.isSuccessful()){
                                     Toast.makeText(LocationAccess.this, "You accepted to view your Location", Toast.LENGTH_SHORT).show();
-                                    Intent newIntent = new Intent(LocationAccess.this, Main2Activity.class);
+                                    Intent newIntent = new Intent(LocationAccess.this, userTrackingActivity.class);
                                     startActivity(newIntent);
                                 }
                             }

@@ -23,9 +23,12 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -59,8 +62,8 @@ public class AddPropertyActivity extends AppCompatActivity {
 
     private static final int RESULT_LOAD_IMAGE = 1 ;
     private Uri imageUri;
-    private EditText propertyNameHandler, priceHandler, descriptionHandler, typeHandler,
-                        areaHandler, roomsHandler, bathroomsHandler, petsHandler;
+    private EditText propertyNameHandler, priceHandler, descriptionHandler,
+                        areaHandler, roomsHandler, bathroomsHandler, distanceHandler;
 
     private FirebaseAuth mAuth;
     private FirebaseUser currentUser;
@@ -81,6 +84,8 @@ public class AddPropertyActivity extends AppCompatActivity {
     private RecyclerView imgUploadList;
 
     private UploadListAdapter uploadListAdapter;
+    private String[] filterType;
+    private String[] filterPet;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -152,11 +157,10 @@ public class AddPropertyActivity extends AppCompatActivity {
         propertyNameHandler = findViewById(R.id.editTextPropertyName);
         priceHandler = findViewById(R.id.editTextPrice);
         descriptionHandler = findViewById(R.id.editTextDescription);
-        typeHandler = findViewById(R.id.editTextType);
         areaHandler = findViewById(R.id.editTextArea);
         roomsHandler = findViewById(R.id.editTextRooms);
         bathroomsHandler = findViewById(R.id.editTextBathrooms);
-        petsHandler = findViewById(R.id.editTextPets);
+        distanceHandler = findViewById(R.id.editTextDistance);
 
         launchMapbtn = findViewById(R.id.btnGoToMap);
         submitBtn = findViewById(R.id.btnSubmit);
@@ -232,6 +236,40 @@ public class AddPropertyActivity extends AppCompatActivity {
                 startActivityForResult(Intent.createChooser(upload, "Select Picture"), RESULT_LOAD_IMAGE);
             }
         });
+
+        Spinner spinnerType = findViewById(R.id.selectType);
+        ArrayAdapter spinnerTyperAdapter = ArrayAdapter.createFromResource(this, R.array.propertyTypeArray, android.R.layout.simple_spinner_item);
+        spinnerTyperAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        filterType = new String[]{"All"};
+
+        spinnerType.setOnItemSelectedListener(new Spinner.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+                filterType[0] = adapterView.getItemAtPosition(i).toString();
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> adapterView) {
+
+            }
+        });
+
+        Spinner spinnerPet = findViewById(R.id.selectPets);
+        ArrayAdapter spinnerPetAdapter = ArrayAdapter.createFromResource(this, R.array.pets, android.R.layout.simple_spinner_item);
+        spinnerPetAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        filterPet = new String[]{"All"};
+
+        spinnerPet.setOnItemSelectedListener(new Spinner.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+                filterPet[0] = adapterView.getItemAtPosition(i).toString();
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> adapterView) {
+
+            }
+        });
     }
 
     @Override
@@ -267,11 +305,10 @@ public class AddPropertyActivity extends AppCompatActivity {
         propertyNameHandler.setText(oldBundle.getString("property name"));
         priceHandler.setText(oldBundle.getString("property price"));
         descriptionHandler.setText(oldBundle.getString("property description"));
-        typeHandler.setText(oldBundle.getString("property type"));
         areaHandler.setText(oldBundle.getString("property area"));
         roomsHandler.setText(oldBundle.getString("property rooms"));
         bathroomsHandler.setText(oldBundle.getString("property bathrooms"));
-        petsHandler.setText(oldBundle.getString("property pets"));
+        distanceHandler.setText(oldBundle.getString("property distance"));
     }
 
     //method for going back to MapsActivity without recreating the activity
@@ -292,11 +329,10 @@ public class AddPropertyActivity extends AppCompatActivity {
         final String propName = propertyNameHandler.getText().toString();
         String propPrice = priceHandler.getText().toString();
         String propDesc = descriptionHandler.getText().toString();
-        String propType = typeHandler.getText().toString();
         String propArea = areaHandler.getText().toString();
         String propRooms = roomsHandler.getText().toString();
         String propBathrooms = bathroomsHandler.getText().toString();
-        String propPets = petsHandler.getText().toString();
+        String propDistance = distanceHandler.getText().toString();
 
         //getUid() method gets unique user id given automatically by firebase auth
         String propOwner = currentUser.getUid();
@@ -314,10 +350,6 @@ public class AddPropertyActivity extends AppCompatActivity {
             descriptionHandler.setError(REQUIRED);
             return;
         }
-        else if(TextUtils.isEmpty(propType)){
-            typeHandler.setError(REQUIRED);
-            return;
-        }
         else if(TextUtils.isEmpty(propArea)){
             areaHandler.setError(REQUIRED);
             return;
@@ -330,8 +362,8 @@ public class AddPropertyActivity extends AppCompatActivity {
             bathroomsHandler.setError(REQUIRED);
             return;
         }
-        else if(TextUtils.isEmpty(propPets)){
-            petsHandler.setError(REQUIRED);
+        else if(TextUtils.isEmpty(propDistance)){
+            distanceHandler.setError(REQUIRED);
             return;
         }
 
@@ -345,6 +377,16 @@ public class AddPropertyActivity extends AppCompatActivity {
 
         else if(fileUriList.size() == 0){
             Toast.makeText(AddPropertyActivity.this, "Select Image For Property First", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        else if(filterType[0].equals("Select Property Type")){
+            Toast.makeText(AddPropertyActivity.this, "Select Property Type First", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        else if(filterPet[0].equals("Pets")){
+            Toast.makeText(AddPropertyActivity.this, "Select If Pets Are Allowed First", Toast.LENGTH_SHORT).show();
             return;
         }
 
@@ -372,7 +414,8 @@ public class AddPropertyActivity extends AppCompatActivity {
             //pass variable to model Property
             Log.d("Images", "file "+ childUpdates);
             Property property = new Property(propDesc, latVal, longVal, propOwner, propPrice, propName,
-                                                key, propType, propArea, propRooms, propBathrooms, propPets, deviceToken, availability, rating, profImage);
+                                                key, filterType[0], propArea, propRooms, propBathrooms, filterPet[0],
+                                                deviceToken, availability, rating, profImage, propDistance);
 
             //save property object to firebase database
             mDatabase.child(key).setValue(property)
@@ -432,11 +475,10 @@ public class AddPropertyActivity extends AppCompatActivity {
         String propName = propertyNameHandler.getText().toString();
         String propPrice = priceHandler.getText().toString();
         String propDesc = descriptionHandler.getText().toString();
-        String propType = typeHandler.getText().toString();
         String propArea = areaHandler.getText().toString();
         String propRooms = roomsHandler.getText().toString();
         String propBathrooms = bathroomsHandler.getText().toString();
-        String propPets = petsHandler.getText().toString();
+        String propDistance = distanceHandler.getText().toString();
 
         //creating intent and bundle
         //that will be used to start SelectLocationActivity
@@ -448,11 +490,10 @@ public class AddPropertyActivity extends AppCompatActivity {
         bundle.putString("property name", propName);
         bundle.putString("property price", propPrice);
         bundle.putString("property description", propDesc);
-        bundle.putString("property type", propType);
         bundle.putString("property area", propArea);
         bundle.putString("property rooms", propRooms);
         bundle.putString("property bathrooms", propBathrooms);
-        bundle.putString("property pets", propPets);
+        bundle.putString("property distance", propDistance);
 
         //put bundle to intent then starts SelectLocationActivity
         i.putExtras(bundle);

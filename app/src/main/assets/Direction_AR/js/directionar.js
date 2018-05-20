@@ -22,7 +22,10 @@ var drawing;
 
 var nearCount = 0;
 
-var userDistance = 200;
+var userDistance = 2000;
+var compareDistance = 100;
+
+var accepted = "false";
 
 $('document').ready(function(){
     
@@ -101,6 +104,9 @@ function loadRotationFromJava(rotation, hasSensor){
 
 }
 
+function loadAcceptedValueFromJava(acceptedValue){
+    accepted = acceptedValue;
+}
 
 function bearingInitial (lat1, long1, lat2, long2)
 {
@@ -148,16 +154,29 @@ function checkDistance(){
         
     userDistance = getDistance();
     
-    if(userDistance < 120 && nearCount == 0){
+    if(userDistance < compareDistance && nearCount == 0){
         nearCount += 1;
         markUserNear();
+    }
+    
+    else if(userDistance < 5 && nearCount == 1){
+        nearCount += 1;
+        userHasArrived();
     }
 }
 
 function markUserNear(){
     alert("Property in less than 100 meters from current location");
          AR.platform.sendJSONObject({ 
-            isUserNear: true 
+            status: "near" 
+        });
+
+}
+
+function userHasArrived(){
+    alert("You have arrived to the property. Please exit AR World");
+         AR.platform.sendJSONObject({ 
+            userLocation: "here" 
         });
 
 }
@@ -340,9 +359,11 @@ function checkMarkerStatus() {
         var distance = getDistance();
         
         if(distance < 15){
+            
             augmentedStepMarkers.create(i);
             NearMarker = i;
             isMarkerNearby = true;
+            
         }
     } 
         

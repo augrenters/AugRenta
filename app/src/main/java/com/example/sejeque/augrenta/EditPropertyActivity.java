@@ -46,6 +46,8 @@ public class EditPropertyActivity extends AppCompatActivity{
 
     Property property, edited_property;
 
+    String distance;
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -92,6 +94,7 @@ public class EditPropertyActivity extends AppCompatActivity{
                     roomsHandler.setText(property.rooms);
                     bathroomsHandler.setText(property.bathroom);
                     petsHandler.setText(property.pets);
+                    distance = property.distance;
                 }else{
                     proceed();
                 }
@@ -131,7 +134,7 @@ public class EditPropertyActivity extends AppCompatActivity{
                 profImage = property.propertyImage;
 
                 edited_property = new Property(propDesc, latVal, longVal, propOwner, propPrice, propName,
-                        key, propType, propArea, propRooms, propBathrooms, propPets, deviceToken, availability, rating, profImage);
+                        key, propType, propArea, propRooms, propBathrooms, propPets, deviceToken, availability, rating, profImage, distance);
 
                 mDatabase.setValue(edited_property).addOnCompleteListener(new OnCompleteListener<Void>() {
                     @Override
