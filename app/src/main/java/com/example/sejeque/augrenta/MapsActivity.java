@@ -1,10 +1,12 @@
 package com.example.sejeque.augrenta;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Fragment;
 import android.content.AsyncQueryHandler;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentSender;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -25,6 +27,7 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.content.res.ResourcesCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
@@ -60,10 +63,15 @@ import com.facebook.login.LoginManager;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.PendingResult;
+import com.google.android.gms.common.api.Result;
+import com.google.android.gms.common.api.ResultCallback;
+import com.google.android.gms.common.api.Status;
 import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.location.LocationSettingsRequest;
+import com.google.android.gms.location.LocationSettingsResult;
+import com.google.android.gms.location.LocationSettingsStatusCodes;
 import com.google.android.gms.location.places.AutocompleteFilter;
 import com.google.android.gms.location.places.AutocompletePrediction;
 import com.google.android.gms.location.places.GeoDataClient;
@@ -165,6 +173,8 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     private boolean userLocation;
     private LatLng userPosition;
 
+    Double userLocation_lat, userLocation_long;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -189,6 +199,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
+
 
         NavigationView sideNavBar = findViewById(R.id.sideNav);
         //get reference for header in navigation view
@@ -328,7 +339,8 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         etRooms = findViewById(R.id.etFilterRoom);
         etbathroom = findViewById(R.id.etFilterCr);
 
-
+        //ask permission to turn on GPS
+        setUpGClient();
     }
 
     /**
@@ -419,12 +431,14 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 //
 //                BitmapDescriptor markerYellowImg = BitmapDescriptorFactory.fromResource(yellow_marker);
 
-                //create marker
+
+
+
                 LatLng markerPos = new LatLng(lat, longT);
                 marker = mMap.addMarker(new MarkerOptions()
                         .position(markerPos)
                         .title(properties.get(x).propertyName)
-                        .snippet("Price: " + properties.get(x).price + " Php\n")
+                        .snippet("Price: "+properties.get(x).price + " PHP")
                         .icon(markerIcon));
                 //getting property ID
                 resultMap.put(marker, properties.get(x).propertyID);
@@ -439,8 +453,8 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         mMap = googleMap;
 
         //when map is ready, zoom camera to user location
-        setToUserLocation();
 
+        setToUserLocation();
 
         FloatingActionButton default_zoom = findViewById(R.id.default_zoom);
         FloatingActionButton user_location = findViewById(R.id.user_location);
@@ -498,7 +512,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         LocationRequest locationRequest = LocationRequest.create();
         LocationSettingsRequest.Builder builder = new LocationSettingsRequest.Builder().addLocationRequest(locationRequest);
-
         builder.setAlwaysShow(true);
 
         userLocation = true;
@@ -548,6 +561,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         final TextView name = view.findViewById(R.id.seekerRequestPlace1);
         final TextView price = view.findViewById(R.id.prop_price);
         final TextView description = view.findViewById(R.id.prop_desc);
+        final TextView distanceToProp = view.findViewById(R.id.prop_distance);
 
         mDatabase.child(prop_Id).addValueEventListener(new ValueEventListener() {
             @Override
@@ -557,6 +571,31 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 name.setText(property.propertyName);
                 price.setText(property.price + " PHP");
                 description.setText(property.description);
+
+                Double lat = 0.0, longT = 0.0;
+                String longS = property.longitude, latS = property.latitude;
+
+                if (longS != null && latS != null) {
+                    lat = Double.valueOf(latS);
+                    longT = Double.valueOf(longS);
+                }
+                float distance = 0;
+                if (userPosition != null){
+//
+//                    Location selected_location=new Location("locationA");
+//                    selected_location.setLatitude((float) userPosition.latitude);
+//                    selected_location.setLongitude((float) userPosition.longitude);
+//                    Location near_locations=new Location("locationB");
+//                    near_locations.setLatitude(lat);
+//                    near_locations.setLongitude(longT);
+//                    distance = selected_location.distanceTo(near_locations);
+                    float [] dist = new float[1];
+                    Location.distanceBetween(userPosition.latitude, userPosition.longitude, lat, longT, dist);
+                    distanceToProp.append(": " +Math.round(dist[0]) + " m");
+                }else{
+                    distanceToProp.append(" Distance unknown");
+                }
+
             }
             @Override
             public void onCancelled(DatabaseError databaseError) {
@@ -849,61 +888,65 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
 
 
-    LocationRequest mLocationRequest;
-    private Boolean requestPermissionGranted = false;
-
-    @Override
-    public void onConnected(@Nullable Bundle bundle) {
-        mLocationRequest = LocationRequest.create();
-        mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
-        // mLocationRequest.setInterval(1000); - can be used when tracking the house
-
-        if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            // TODO: Consider calling
-            requestPermissionGranted =  true;
-
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                //requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION}, 1234 );
-            }else{
-                requestPermissionGranted = true;
-            }
-        }else{
-            ActivityCompat.requestPermissions( this, new String[]
-                    {android.Manifest.permission.ACCESS_FINE_LOCATION, android.Manifest.permission.ACCESS_COARSE_LOCATION}, 1234);
-        }
-        LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, mLocationRequest, this);
-    }
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        requestPermissionGranted = false;
-
-        switch(requestCode){
-            case 1234:{
-                if (grantResults.length > 0){
-                    for(int i = 0; i< grantResults.length; i++){
-                        if(grantResults[i] != PackageManager.PERMISSION_GRANTED){
-                            requestPermissionGranted = false;
-                            return;
-                        }
-                    }
-                    requestPermissionGranted = true;
-                }
-            }
-        }
-    }
-
-    @Override
-    public void onConnectionSuspended(int i) {}
-
-    @Override
-    public void onConnectionFailed(@NonNull ConnectionResult connectionResult){}
+//    LocationRequest mLocationRequest;
+//    private Boolean requestPermissionGranted = false;
+//
+//    @Override
+//    public void onConnected(@Nullable Bundle bundle) {
+//        mLocationRequest = LocationRequest.create();
+//        mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+//        // mLocationRequest.setInterval(1000); - can be used when tracking the house
+//
+//        if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+//            // TODO: Consider calling
+//            requestPermissionGranted =  true;
+//
+//            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+//                //requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION}, 1234 );
+//            }else{
+//                requestPermissionGranted = true;
+//            }
+//        }else{
+//            ActivityCompat.requestPermissions( this, new String[]
+//                    {android.Manifest.permission.ACCESS_FINE_LOCATION, android.Manifest.permission.ACCESS_COARSE_LOCATION}, 1234);
+//        }
+//        LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, mLocationRequest, this);
+//    }
+//
+//    @Override
+//    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+//        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+//        requestPermissionGranted = false;
+//
+//        switch(requestCode){
+//            case 1234:{
+//                if (grantResults.length > 0){
+//                    for(int i = 0; i< grantResults.length; i++){
+//                        if(grantResults[i] != PackageManager.PERMISSION_GRANTED){
+//                            requestPermissionGranted = false;
+//                            return;
+//                        }
+//                    }
+//                    requestPermissionGranted = true;
+//                }
+//            }
+//        }
+//    }
+//
+//    @Override
+//    public void onConnectionSuspended(int i) {}
+//
+//    @Override
+//    public void onConnectionFailed(@NonNull ConnectionResult connectionResult){}
 
     @Override
     public void onLocationChanged(Location location) {
         double lat = location.getLatitude();
         double lng = location.getLongitude();
+
+        userLocation_lat = lat;
+        userLocation_long =lng;
+
 
         if (location == null) {
             // doesn't work if gps is unabled
@@ -930,9 +973,148 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     }
 
 
+    private Location mylocation;
+    private GoogleApiClient googleApiClient;
+    private final static int REQUEST_CHECK_SETTINGS_GPS=0x1;
+    private final static int REQUEST_ID_MULTIPLE_PERMISSIONS=0x2;
+
+    private synchronized void setUpGClient() {
+        googleApiClient = new GoogleApiClient.Builder(this)
+                .enableAutoManage(this, 0, this)
+                .addConnectionCallbacks(this)
+                .addOnConnectionFailedListener(this)
+                .addApi(LocationServices.API)
+                .build();
+        googleApiClient.connect();
+    }
+
+    @Override
+    public void onConnected(Bundle bundle) {
+        checkPermissions();
+    }
+
+    @Override
+    public void onConnectionSuspended(int i) {
+        //Do whatever you need
+        //You can display a message here
+    }
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
+        int permissionLocation = ContextCompat.checkSelfPermission(MapsActivity.this,
+                android.Manifest.permission.ACCESS_FINE_LOCATION);
+        if (permissionLocation == PackageManager.PERMISSION_GRANTED) {
+            getMyLocation();
+        }
+    }
+
+
+    @Override
+    public void onConnectionFailed(ConnectionResult connectionResult) {
+        //You can display a message here
+    }
 
 
 
+    private void checkPermissions(){
+        int permissionLocation = ContextCompat.checkSelfPermission(MapsActivity.this,
+                android.Manifest.permission.ACCESS_FINE_LOCATION);
+        List<String> listPermissionsNeeded = new ArrayList<>();
+        if (permissionLocation != PackageManager.PERMISSION_GRANTED) {
+            listPermissionsNeeded.add(android.Manifest.permission.ACCESS_FINE_LOCATION);
+            if (!listPermissionsNeeded.isEmpty()) {
+                ActivityCompat.requestPermissions(this,
+                        listPermissionsNeeded.toArray(new String[listPermissionsNeeded.size()]), REQUEST_ID_MULTIPLE_PERMISSIONS);
+            }
+        }else{
+            getMyLocation();
+        }
+
+    }
+
+    private void getMyLocation(){
+        if(googleApiClient!=null) {
+            if (googleApiClient.isConnected()) {
+                int permissionLocation = ContextCompat.checkSelfPermission(MapsActivity.this,
+                        android.Manifest.permission.ACCESS_FINE_LOCATION);
+                if (permissionLocation == PackageManager.PERMISSION_GRANTED) {
+                    mylocation = LocationServices.FusedLocationApi.getLastLocation(googleApiClient);
+                    LocationRequest locationRequest = new LocationRequest();
+//                    locationRequest.setInterval(3000);
+//                    locationRequest.setFastestInterval(3000);
+                    locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+                    LocationSettingsRequest.Builder builder = new LocationSettingsRequest.Builder()
+                            .addLocationRequest(locationRequest);
+                    builder.setAlwaysShow(true);
+                    LocationServices.FusedLocationApi
+                            .requestLocationUpdates(googleApiClient, locationRequest, this);
+                    PendingResult result =
+                            LocationServices.SettingsApi
+                                    .checkLocationSettings(googleApiClient, builder.build());
+                    result.setResultCallback(new ResultCallback() {
+
+
+                        @Override
+                        public void onResult(@NonNull Result result) {
+                            final Status status = result.getStatus();
+                            switch (status.getStatusCode()) {
+                                case LocationSettingsStatusCodes.SUCCESS:
+                                    // All location settings are satisfied.
+                                    // You can initialize location requests here.
+                                    int permissionLocation = ContextCompat
+                                            .checkSelfPermission(MapsActivity.this,
+                                                    android.Manifest.permission.ACCESS_FINE_LOCATION);
+                                    if (permissionLocation == PackageManager.PERMISSION_GRANTED) {
+                                        mylocation = LocationServices.FusedLocationApi
+                                                .getLastLocation(googleApiClient);
+                                    }
+                                    break;
+                                case LocationSettingsStatusCodes.RESOLUTION_REQUIRED:
+                                    // Location settings are not satisfied.
+                                    // But could be fixed by showing the user a dialog.
+                                    try {
+                                        // Show the dialog by calling startResolutionForResult(),
+                                        // and check the result in onActivityResult().
+                                        // Ask to turn on GPS automatically
+                                        status.startResolutionForResult(MapsActivity.this,
+                                                REQUEST_CHECK_SETTINGS_GPS);
+                                    } catch (IntentSender.SendIntentException e) {
+                                        // Ignore the error.
+                                    }
+                                    break;
+                                case LocationSettingsStatusCodes.SETTINGS_CHANGE_UNAVAILABLE:
+                                    // Location settings are not satisfied. However, we have no way to fix the
+                                    // settings so we won't show the dialog.
+                                    //finish();
+                                    break;
+
+                            }
+                        }
+
+//                        @Override
+//                        public void onResult(NonNull Result result) {
+//
+//                        }
+                    });
+                }
+            }
+        }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        switch (requestCode) {
+            case REQUEST_CHECK_SETTINGS_GPS:
+                switch (resultCode) {
+                    case Activity.RESULT_OK:
+                        getMyLocation();
+                        break;
+                    case Activity.RESULT_CANCELED:
+                        gotoLocationZoom(12.32, 122.53, (float) 5.80);
+                        break;
+                }
+                break;
+        }
+    }
 
 
 
