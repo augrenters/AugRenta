@@ -43,13 +43,21 @@ public class AppFCMService extends FirebaseMessagingService {
         String property_id = remoteMessage.getData().get("property");
         String owner_id = remoteMessage.getData().get("from_userID");
 
-        if(response_user !=null && response_user.equals("accept")){
+        if (response_user !=null && response_user.equals("request")){
+            intent = new Intent(this, SeekerRequestsActivity.class);
+
+        }
+
+        else if(response_user !=null && response_user.equals("accept")){
             intent = new Intent(this, Main2Activity.class);
             intent.putExtra("propertyId", property_id);
             intent.putExtra("ownerId", owner_id);
             showNotificationBuilder();
 
-        }else if (response_user.equals("message")){
+        }else if (response_user.equals("declined")){
+            intent = new Intent(this, MapsActivity.class);
+        }
+        else if (response_user.equals("message")){
             intent = new Intent(this, ChatMessage.class);
             intent.putExtra("propertyId", property_id);
             intent.putExtra("ownerId", owner_id);
@@ -65,18 +73,12 @@ public class AppFCMService extends FirebaseMessagingService {
             intent = new Intent(this, RateActivity.class);
             intent.putExtra("propertyId", property_id);
             showNotificationBuilder();
+        }else if (response_user.equals("here")){
+            intent = new Intent(this, Main2Activity.class);
+            intent.putExtra("propertyId", property_id);
+            showNotificationBuilder();
         }
 
-
-//        if (click_action.equals("com.example.sejeque.augrenta_CHAT_TARGET_NOTIFICATION") ||
-//                click_action.equals("com.example.sejeque.augrenta_MAIN_TARGET_NOTIFICATION")){
-//            Log.d(TAG, "NotificationClicke: " + property_id);
-//
-//
-//        }else{
-//            intent = new Intent(click_action);
-//            showNotificationBuilder();
-//        }
     }
 
     private void showNotificationBuilder(){
